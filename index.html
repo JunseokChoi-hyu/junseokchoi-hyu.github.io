@@ -1,105 +1,91 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="최준석 학부연구생의 연구 과제 및 스터디 활동 아카이브" />
-    <title>최준석 | Research Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="progress" aria-hidden="true"><span></span></div>
-    <header class="site-header">
-      <a class="brand lab-brand" href="#top" aria-label="IDEA Lab 처음으로"><img src="data:application/octet-stream;base64,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" alt="IDEA Lab" /></a>
-      <nav aria-label="주요 메뉴">
-        <a href="#research" data-ko="연구 활동" data-en="Research">연구 활동</a>
-        <a href="#library" data-ko="자료 아카이브" data-en="Library">자료 아카이브</a>
-        <a href="#about" data-ko="관심 분야" data-en="Interests">관심 분야</a>
-        <a href="#contact" data-ko="문의" data-en="Contact">문의</a>
-      </nav>
-      <button class="language-toggle" type="button" aria-label="언어 변경"><span>KO</span><i>/</i><span>EN</span></button>
-    </header>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>최준석 | Undergraduate Researcher</title>
+  <meta name="description" content="최준석 학부연구생의 제조 AI 연구 및 스터디 아카이브">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="multipage.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="lab-brand" href="#top" aria-label="IDEA Lab 연구 포트폴리오 홈"><img src="assets/images/idea-lab-logo.png" alt="IDEA Lab"></a>
+    <nav aria-label="주요 메뉴">
+      <a class="active" href="index.html">Home</a>
+      <a href="text2cad-demo.html">Research</a>
+      <a href="archive.html">Archive</a>
+    </nav>
+  </header>
 
-    <main id="top">
-      <section class="hero">
-        <div class="hero-copy reveal">
-          <p class="kicker" data-ko="UNDERGRADUATE RESEARCHER · HANYANG UNIVERSITY" data-en="UNDERGRADUATE RESEARCHER · HANYANG UNIVERSITY">UNDERGRADUATE RESEARCHER · HANYANG UNIVERSITY</p>
-          <h1><span data-ko="최준석의" data-en="Choi Junseok’s">최준석의</span><br /><em data-ko="연구 활동과 스터디 기록" data-en="research and study record">연구 활동과 스터디 기록</em></h1>
-          <p class="hero-description" data-ko="제조 AI, CAD·CATIA, ANSYS, Python을 공부하고 있습니다.<br />이곳에 과제와 스터디 자료를 정리해 공개합니다." data-en="I study manufacturing AI, CAD·CATIA, ANSYS, and Python.<br />This site collects my assignments and study materials.">제조 AI, CAD·CATIA, ANSYS, Python을 공부하고 있습니다.<br />이곳에 과제와 스터디 자료를 정리해 공개합니다.</p>
-          <div class="hero-actions">
-            <a class="button button-dark" href="#research" data-ko="연구 활동 보기" data-en="View research">연구 활동 보기 <span aria-hidden="true">↘</span></a>
-            <a class="text-link" href="#library" data-ko="자료 아카이브" data-en="Browse library">자료 아카이브 <span aria-hidden="true">↓</span></a>
-          </div>
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">UNDERGRADUATE RESEARCHER · IDEA LAB</p>
+        <h1>최준석<span>.</span></h1>
+        <p class="hero-lead">기계공학 기반의 제조 AI 연구와<br>자연어 기반 CAD 생성을 탐구합니다.</p>
+      </div>
+      <aside class="profile-card reveal delay-1" aria-label="프로필">
+        <img class="portrait" src="assets/images/choi-junseok-profile.jpg?v=20260802" alt="최준석 프로필 사진">
+        <div class="profile-info">
+          <p class="profile-name">Choi Junseok</p>
+          <dl>
+            <div><dt>UNIVERSITY</dt><dd>한양대학교 ERICA</dd></div>
+            <div><dt>DEPARTMENT</dt><dd>기계공학과</dd></div>
+            <div><dt>POSITION</dt><dd>학부연구생 · IDEA Lab</dd></div>
+            <div><dt>EMAIL</dt><dd><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a></dd></div>
+          </dl>
         </div>
-        <div class="profile-stage reveal reveal-delay">
-          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="dot dot-one"></div><div class="dot dot-two"></div>
-          <div class="profile-card">
-            <div class="profile-image"><img src="assets/images/choi-junseok-profile.jpg" alt="최준석 프로필 사진" /></div>
-            <div class="profile-caption"><strong>Choi Junseok</strong><span data-ko="학부연구생 · Manufacturing AI" data-en="Undergraduate Researcher · Manufacturing AI">학부연구생 · Manufacturing AI</span></div>
-          </div>
-          <div class="note note-top"><span data-ko="연구 관심 분야" data-en="RESEARCH FOCUS">연구 관심 분야</span><p>Manufacturing AI<br />CAD · ANSYS · Python</p></div>
-          <div class="note note-bottom"><p><strong>4</strong><span data-ko="개 자료 업로드 완료" data-en="PUBLIC FILES UPLOADED">개 자료 업로드 완료</span></p></div>
-        </div>
-      </section>
+      </aside>
+    </section>
 
-      <section class="focus-strip reveal" aria-label="연구 관심 분야">
-        <p data-ko="현재 집중하는 분야" data-en="CURRENT FOCUS">현재 집중하는 분야</p>
-        <div><span>CAD · CATIA</span><span>ANSYS</span><span>Python</span><span>Manufacturing AI</span></div>
-      </section>
+    <nav class="page-index" aria-label="홈 페이지 섹션 바로가기">
+      <div class="section-shell page-index-inner">
+        <a href="#interests"><span>01</span><strong>관심 분야</strong><small>Research interests</small></a>
+        <a href="#research"><span>02</span><strong>제조 AI 연구</strong><small>Current research</small></a>
+        <a href="archive.html"><span>03</span><strong>자료 아카이브</strong><small>Files &amp; notes</small></a>
+      </div>
+    </nav>
 
-      <section class="section" id="research">
-        <div class="section-heading reveal">
-          <p class="section-number">01 / RESEARCH</p>
-          <div><h2 data-ko="연구 활동" data-en="Research activity">연구 활동</h2><p data-ko="연구 과정과 결과를 정리한 자료입니다." data-en="Materials documenting research processes and outcomes.">연구 과정과 결과를 정리한 자료입니다.</p></div>
-        </div>
-        <div class="research-collection reveal">
-          <div class="collection-heading"><div><p>RESEARCH SERIES</p><h3 data-ko="AI 제조업 과제" data-en="AI Manufacturing Assignments">AI 제조업 과제</h3></div><span data-ko="자료 업데이트 중" data-en="UPDATING MATERIALS">자료 업데이트 중</span></div>
-          <div class="assignment-grid">
-            <a class="assignment-card assignment-live" href="assets/pdfs/AI%20제조업%20과제%20-%201.pdf" target="_blank" rel="noreferrer"><span class="assignment-number">01</span><div><small>PDF · <b data-ko="등록됨" data-en="AVAILABLE">등록됨</b></small><h4 data-ko="AI 제조업 과제 - 1" data-en="AI Manufacturing Assignment - 1">AI 제조업 과제 - 1</h4><p data-ko="제조 산업에서의 AI 활용 내용을 정리했습니다." data-en="Assignment material on the use of AI in manufacturing.">제조 산업에서의 AI 활용 내용을 정리했습니다.</p></div><i data-ko="자료 열기 ↗" data-en="OPEN PDF ↗">자료 열기 ↗</i></a>
-            <article class="assignment-card assignment-empty"><span class="assignment-number">02</span><div><small data-ko="다음 과제" data-en="NEXT ASSIGNMENT">다음 과제</small><h4 data-ko="자료 추가 예정" data-en="Material coming soon">자료 추가 예정</h4><p data-ko="새 과제 자료가 등록되면 이 칸에 추가됩니다." data-en="The next assignment will be added here.">새 과제 자료가 등록되면 이 칸에 추가됩니다.</p></div></article>
-            <article class="assignment-card assignment-empty"><span class="assignment-number">03</span><div><small data-ko="다음 과제" data-en="NEXT ASSIGNMENT">다음 과제</small><h4 data-ko="자료 추가 예정" data-en="Material coming soon">자료 추가 예정</h4><p data-ko="새 과제 자료가 등록되면 이 칸에 추가됩니다." data-en="The next assignment will be added here.">새 과제 자료가 등록되면 이 칸에 추가됩니다.</p></div></article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section fields" id="about">
-        <div class="section-heading reveal">
-          <p class="section-number">02 / INTERESTS</p>
-          <div><h2 data-ko="관심 분야" data-en="Areas of interest">관심 분야</h2><p data-ko="설계, 해석, 제조 AI를 중심으로 공부하고 있습니다." data-en="My current focus is design, simulation, and manufacturing AI.">설계, 해석, 제조 AI를 중심으로 공부하고 있습니다.</p></div>
-        </div>
+    <section id="interests" class="section-block section-soft">
+      <div class="section-shell section-layout">
+        <div class="section-intro reveal"><p class="section-number">01 / INTERESTS</p><h2>관심 분야</h2><p>기계 설계와 해석을 바탕으로 제조 과정에 적용할 수 있는 AI를 공부합니다.</p></div>
         <div class="interest-grid">
-          <article class="interest-card reveal"><span>01</span><h3>Design & CAD</h3><p data-ko="CATIA를 활용한 기계 설계와 구조적 사고" data-en="Mechanical design and structured thinking with CATIA">CATIA를 활용한 기계 설계와 구조적 사고</p></article>
-          <article class="interest-card reveal reveal-delay"><span>02</span><h3>CAE & ANSYS</h3><p data-ko="해석 기반의 공학적 검토와 문제 이해" data-en="Engineering validation and problem understanding through simulation">해석 기반의 공학적 검토와 문제 이해</p></article>
-          <article class="interest-card reveal reveal-delay-2"><span>03</span><h3>Manufacturing AI</h3><p data-ko="Python과 AI를 통한 제조 데이터의 활용" data-en="Using Python and AI to make manufacturing data useful">Python과 AI를 통한 제조 데이터의 활용</p></article>
+          <article class="interest-card reveal"><span>01</span><h3>Manufacturing AI</h3><p>제조 데이터와 AI를 연결해 설계·생산 과정을 이해합니다.</p></article>
+          <article class="interest-card reveal delay-1"><span>02</span><h3>Text-to-CAD</h3><p>자연어 요청으로부터 CAD 코드와 3D 형상을 생성하는 과정을 탐구합니다.</p></article>
+          <article class="interest-card reveal delay-2"><span>03</span><h3>CAD · CAE</h3><p>CATIA, ANSYS, Python을 활용한 기계 설계와 해석을 학습합니다.</p></article>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="library-section" id="library">
-        <div class="library-intro reveal"><p class="section-number">03 / STUDY</p><h2 data-ko="스터디 활동" data-en="Study activity">스터디 활동</h2><p data-ko="스터디 과정에서 정리한 발표 자료와 학습 기록입니다.<br />파일을 열거나 내려받아 확인할 수 있습니다." data-en="Presentation materials and notes collected during study.<br />Open or download each file to explore it.">스터디 과정에서 정리한 발표 자료와 학습 기록입니다.<br />파일을 열거나 내려받아 확인할 수 있습니다.</p></div>
-        <div class="resource-list">
-          <a class="resource-row reveal" href="assets/study/ANN%20코드%20학습%20노트.pdf" target="_blank" rel="noreferrer"><span class="resource-type pdf">PDF</span><div><strong data-ko="ANN 코드 학습 노트" data-en="ANN Code Study Notes">ANN 코드 학습 노트</strong><small data-ko="인공신경망 · 학습 노트" data-en="Artificial neural network · study notes">인공신경망 · 학습 노트</small></div><span class="open-label" data-ko="열기 ↗" data-en="OPEN ↗">열기 ↗</span></a>
-          <a class="resource-row reveal" href="assets/study/Chap%2005%20스터디%20자료.pptx" target="_blank" rel="noreferrer"><span class="resource-type ppt">PPTX</span><div><strong data-ko="Chap 05 스터디 자료" data-en="Chapter 05 Study Material">Chap 05 스터디 자료</strong><small data-ko="스터디 활동 · 발표 자료" data-en="Study activity · presentation">스터디 활동 · 발표 자료</small></div><span class="open-label" data-ko="열기 ↗" data-en="OPEN ↗">열기 ↗</span></a>
-          <a class="resource-row reveal" href="assets/study/Chap%2007%20스터디%20자료.pptx" target="_blank" rel="noreferrer"><span class="resource-type ppt">PPTX</span><div><strong data-ko="Chap 07 스터디 자료" data-en="Chapter 07 Study Material">Chap 07 스터디 자료</strong><small data-ko="스터디 활동 · 발표 자료" data-en="Study activity · presentation">스터디 활동 · 발표 자료</small></div><span class="open-label" data-ko="열기 ↗" data-en="OPEN ↗">열기 ↗</span></a>
+    <section id="research" class="research-band">
+      <div class="section-shell research-layout">
+        <div class="section-intro light reveal"><p class="section-number">02 / RESEARCH</p><h2>제조 AI 연구</h2><p>제조 AI 연구 과정과 발표 자료를 정리합니다.</p></div>
+        <article class="feature-project reveal delay-1">
+          <div class="project-top"><p class="project-kicker">MANUFACTURING AI · PROJECT 01</p><span>2026</span></div>
+          <h3 class="project-title">Text2CAD<span>Natural Language → Local LLM → FreeCAD</span></h3>
+          <p>자연어 요구사항을 Local LLM이 설계 명세와 FreeCAD 코드로 변환하고, 형상을 생성·검증하는 과정을 실험합니다.</p>
+          <div class="project-tags"><span>Local LLM</span><span>Ollama</span><span>Qwen 3</span><span>FreeCAD</span></div>
+          <div class="project-actions"><a class="button button-light" href="text2cad-demo.html">Text2CAD 연구 <b>↗</b></a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="archive-preview section-block">
+      <div class="section-shell section-layout">
+        <div class="section-intro reveal"><p class="section-number">03 / ARCHIVE</p><h2>자료 아카이브</h2><p>연구 결과와 스터디 자료는 별도 페이지에서 분류해 관리합니다.</p><a class="button button-dark" href="archive.html">전체 자료 보기 <b>↗</b></a></div>
+        <div class="archive-category-grid">
+          <a class="archive-category-card reveal" href="archive.html#research-materials"><figure><img src="assets/thumbnails/text2cad-step02.png?v=20260802f" alt="Local LLM으로 생성한 비틀림 날개 FreeCAD 결과"><span>02 FILES</span></figure><div><p>01 / RESEARCH</p><h3>Research</h3><small>Text2CAD 연구 자료</small><b>자료 보기 ↗</b></div></a>
+          <a class="archive-category-card reveal delay-1" href="archive.html#study-materials"><figure><img src="assets/thumbnails/chapter-05.png?v=20260802f" alt="IDEA Lab AI 스터디 발표 표지"><span>04 FILES</span></figure><div><p>02 / STUDY</p><h3>Study</h3><small>AI 학습 노트와 발표 자료</small><b>자료 보기 ↗</b></div></a>
         </div>
-      </section>
+      </div>
+    </section>
+  </main>
 
-      <section class="activity section">
-        <div class="section-heading reveal"><p class="section-number">04 / ACTIVITY LOG</p><div><h2 data-ko="활동 기록" data-en="Activity record">활동 기록</h2><p data-ko="새로운 과제와 스터디 자료를 추가할 예정입니다." data-en="New assignments and study materials will be added here.">새로운 과제와 스터디 자료를 추가할 예정입니다.</p></div></div>
-        <ol class="timeline reveal">
-          <li><a class="activity-link" href="#research"><span></span><div><strong data-ko="AI 제조업 과제 자료 등록" data-en="AI manufacturing assignment added">AI 제조업 과제 자료 등록</strong><p data-ko="연구 과제 섹션에서 PDF 파일을 확인할 수 있습니다." data-en="The PDF is available in the research section.">연구 과제 섹션에서 PDF 파일을 확인할 수 있습니다.</p><em data-ko="연구 활동 보기 ↘" data-en="VIEW RESEARCH ↘">연구 활동 보기 ↘</em></div></a></li>
-          <li><a class="activity-link" href="#library"><span></span><div><strong data-ko="스터디 자료 정리" data-en="Study materials organized">스터디 자료 정리</strong><p data-ko="발표 자료와 필기 자료를 스터디 활동 섹션에 정리했습니다." data-en="Presentation files and notes are organized in the study activity section.">발표 자료와 필기 자료를 스터디 활동 섹션에 정리했습니다.</p><em data-ko="스터디 활동 보기 ↘" data-en="VIEW STUDY ↘">스터디 활동 보기 ↘</em></div></a></li>
-        </ol>
-      </section>
-    </main>
-
-    <footer id="contact">
-      <div><p class="section-number">CONTACT</p><h2 data-ko="문의" data-en="Contact">문의</h2></div>
-      <a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr <span>↗</span></a>
-      <p class="copyright">© <span id="year"></span> Choi Junseok. Research archive.</p>
-    </footer>
-    <script src="app.js"></script>
-  </body>
+  <footer id="contact" class="site-footer"><div class="section-shell footer-inner"><p>CONTACT</p><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a><span>© 2026 Choi Junseok · IDEA Lab</span></div></footer>
+  <script src="app.js"></script>
+</body>
 </html>
