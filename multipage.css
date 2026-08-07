@@ -228,3 +228,20 @@ body{background:#fff}
   .archive-category-grid{grid-template-columns:1fr}.archive-category-card figure{height:210px}
   .demo-hero{padding:0}.demo-hero-inner{padding-block:72px 64px}.demo-hero h1 em{margin-top:20px;font-size:34px}
 }
+
+/* 클릭 효과: 버튼 외의 카드·메뉴 링크에도 리플과 눌림 반응을 준다. */
+.page-index a,.archive-category-card,.archive-card{position:relative;overflow:hidden}
+.site-header nav a{overflow:hidden;padding:12px 3px 11px}
+.site-header nav a.active::after{bottom:2px}
+.button-ripple{background:rgba(11,43,74,.16)}
+.archive-category-card .button-ripple,.archive-card .button-ripple{background:rgba(11,43,74,.12)}
+
+.page-index a,.site-header nav a{transition:background .2s ease,transform .18s ease}
+.page-index a.is-pressed,.site-header nav a.is-pressed{transform:scale(.97)}
+.archive-category-card.is-pressed{transform:translateY(-5px) scale(.985)}
+.archive-card.is-pressed{transform:translateY(-4px) scale(.985)}
+
+@media(prefers-reduced-motion:reduce){
+  .button-ripple{display:none}
+  .is-pressed{transform:none!important}
+}
