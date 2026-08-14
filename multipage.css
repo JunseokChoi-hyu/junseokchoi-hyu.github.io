@@ -44,6 +44,7 @@
 .demo-result-image figcaption span{font:500 11px 'DM Mono',monospace;color:var(--blue)}
 .demo-result-image figcaption p{font-size:14px;color:var(--muted);margin:0}
 .demo-video{max-width:900px;margin:0 auto;display:grid;grid-template-columns:.72fr 1.28fr;gap:30px;align-items:start;padding:30px;background:var(--navy);color:#fff}
+.demo-video+.demo-video{margin-top:18px}
 .demo-video-copy h3{font-size:25px;line-height:1.3;letter-spacing:-.05em;margin:10px 0}
 .demo-video-copy>p:last-child{font-size:14px;color:#cfdeea}
 .demo-video video{display:block;width:100%;background:#000;aspect-ratio:16/9}
