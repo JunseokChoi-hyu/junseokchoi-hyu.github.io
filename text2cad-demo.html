@@ -3,34 +3,70 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Text2CAD 연구 발표 | 최준석</title>
-  <meta name="description" content="자연어 요청을 Local LLM이 설계 명세와 FreeCAD 코드로 변환해 3D 형상을 생성·검증하는 Text2CAD 연구">
+  <meta name="description" content="자연어 요청을 Local LLM 기반 에이전트가 FreeCAD⁠·⁠OpenVSP CAD 형상으로 생성⁠·⁠검증하는 Text2CAD 연구">
   <link rel="canonical" href="https://junseokchoi-hyu.github.io/text2cad-demo.html">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="multipage.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="multipage.css"><link rel="stylesheet" href="research-page.css">
+  <link rel="stylesheet" href="refine.css">
 </head>
 <body>
-  <header class="site-header"><a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo.png?v=official-20260802" alt="IDEA Lab"></a><nav><a href="./">Home</a><a class="active" href="text2cad-demo.html">Research</a><a href="archive.html">Archive</a></nav></header>
+  <header class="site-header"><a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo-white@1x.png" srcset="assets/images/idea-lab-logo-white@1x.png 1x, assets/images/idea-lab-logo-white@1.25x.png 1.25x, assets/images/idea-lab-logo-white@1.5x.png 1.5x, assets/images/idea-lab-logo-white@1.75x.png 1.75x, assets/images/idea-lab-logo-white@2x.png 2x, assets/images/idea-lab-logo-white@3x.png 3x" alt="IDEA Lab"></a><nav><a href="./">Home</a><a class="active" href="text2cad-demo.html">Research</a><a href="archive.html">Archive</a></nav></header>
   <main>
-    <section class="demo-hero"><div class="section-shell demo-hero-inner"><p class="eyebrow reveal">MANUFACTURING AI · PROJECT 01 · 2026</p><h1 class="reveal delay-1">Text2CAD<em>자연어로부터 CAD 모델까지</em></h1><p class="demo-summary reveal delay-2">자연어 요청을 Local LLM이 구조화된 설계 명세와 FreeCAD Python 코드로 변환하고, 3D 형상을 생성·검증하는 연구입니다.</p><div class="demo-meta reveal delay-2"><span>Local LLM</span><span>Ollama</span><span>Qwen 3</span><span>FreeCAD</span></div></div></section>
-    <section class="pipeline section-shell"><div class="section-intro reveal"><p class="section-number">01 / PROCESS</p><h2>Text2CAD 작동 과정</h2><p>자연어로 원하는 형상을 설명하면 대규모 언어 모델(LLM)이 내용을 해석해 CAD 모델을 생성합니다.</p></div><ol class="pipeline-list"><li class="reveal"><b>01</b><div><strong>원하는 형상 설명</strong><span>만들고 싶은 부품의 형태와 크기를 자연어로 입력합니다.</span></div></li><li class="reveal delay-1"><b>02</b><div><strong>LLM 기반 CAD 생성</strong><span>LLM이 입력 내용을 해석해 CAD 모델을 생성합니다.</span></div></li><li class="reveal delay-2"><b>03</b><div><strong>결과 확인</strong><span>생성된 3D 형상을 FreeCAD에서 확인하고 오류를 검토합니다.</span></div></li></ol></section>
-    <section class="project-documents"><div class="section-shell"><div class="section-intro light reveal"><p class="section-number">02 / RESEARCH LOG</p><h2>연구 활동</h2><p>주요 연구 활동입니다. 전체 자료는 Archive에서 확인할 수 있습니다.</p></div><div class="project-document-grid">
-      <a class="project-document-card reveal delay-1" href="archive.html#research-materials"><img class="document-result-page" src="assets/thumbnails/text2cad-step02.png?v=20260802f" alt="Local LLM으로 생성한 비틀림 날개 FreeCAD 결과"><div><span>STEP 02 · PDF</span><h3>Text2CAD_STEP 2</h3><p>Local LLM으로 FreeCAD 형상을 생성하고 실행 과정을 정리한 실험입니다.</p><b>연구 자료 보기 ↗</b></div></a>
-      <a class="project-document-card reveal" href="archive.html#research-materials"><img class="document-result-page" src="assets/thumbnails/text2cad-step06.png" alt="Text2CAD STEP 6 연구 자료 대표 페이지"><div><span>STEP 06 · PDF</span><h3>Text2CAD_STEP 6</h3><p>생성 파이프라인을 개선하고 IoU·Chamfer를 활용한 형상 비교 방법을 정리했습니다.</p><b>연구 자료 보기 ↗</b></div></a>
-      <a class="project-document-card reveal" href="archive.html#research-materials"><img class="document-result-page" src="assets/thumbnails/text2cad-step07.png" alt="Text2CAD STEP 7 연구 자료 대표 페이지"><div><span>STEP 07 · PDF</span><h3>Text2CAD_STEP 7</h3><p>LLM에서 OpenVSP로 이어지는 생성 구조와 RAG 검색 방법을 정리했습니다.</p><b>연구 자료 보기 ↗</b></div></a>
-    </div><div class="project-actions"><a class="button button-light" href="archive.html#research-materials">연구 자료 전체 보기 <b>↗</b></a></div></div></section>
-    <section class="results section-shell">
-      <div class="section-intro reveal"><p class="section-number">03 / DEMO RESULT</p><h2>Text2CAD 생성 결과</h2><p>자연어 요청을 바탕으로 생성된 형상을 FreeCAD에서 확인한 실제 화면입니다.</p></div>
-      <figure class="demo-result-image reveal"><img src="assets/images/text2cad-result.png" alt="FreeCAD에서 확인한 Text2CAD 생성 형상"><figcaption><span>FIG. 01</span><p>Local LLM이 생성한 FreeCAD 코드를 실행해 만든 3D 형상 결과</p></figcaption></figure>
-      <section class="demo-video reveal">
-        <div class="demo-video-copy"><p class="section-number">VIDEO DEMO 01</p><h3>NACA 날개 형상 생성</h3><p>자연어 입력을 바탕으로 NACA 날개 형상을 생성하는 과정을 확인할 수 있습니다.</p></div>
-        <video controls preload="metadata"><source src="assets/media/naca-wing-demo.mp4" type="video/mp4">브라우저에서 영상을 재생할 수 없습니다.</video>
-      </section>
-      <section class="demo-video reveal">
-        <div class="demo-video-copy"><p class="section-number">VIDEO DEMO 02</p><h3>베어링 지지대 형상 생성</h3><p>자연어 입력을 바탕으로 베어링 지지대 형상을 생성하는 과정을 확인할 수 있습니다.</p></div>
-        <video controls preload="metadata"><source src="assets/media/bearing-support-demo.mp4" type="video/mp4">브라우저에서 영상을 재생할 수 없습니다.</video>
-      </section>
+    <section class="rx-hero">
+      <div class="section-shell rx-hero-inner">
+        <p class="eyebrow reveal">MANUFACTURING AI · PROJECT 01 · 2026</p>
+        <h1 class="reveal delay-1">Text2CAD<span>.</span></h1>
+        <p class="rx-lead reveal delay-2">말로 설명한 형상을 AI 에이전트가 해석해 3D&nbsp;CAD 모델로 만드는 연구입니다.</p>
+        <ul class="rx-meta reveal delay-2">
+          <li><small>MODEL</small>gpt-oss:20b (로컬)</li>
+          <li><small>METHOD</small>Multi-Agent + RAG</li>
+          <li><small>CAD</small>FreeCAD⁠·⁠OpenVSP</li>
+          <li><small>PROGRESS</small><span data-latest-step>STEP 10</span></li>
+        </ul>
+        <div class="rx-actions reveal delay-2"><a class="button button-light" href="demo/" target="_blank" rel="noreferrer">데모 실행하기 <b>↗</b></a><a class="button button-ghost" href="#demo">시연 영상 보기 <b>↓</b></a></div>
+      </div>
+    </section>
+
+    <section class="rx-section section-shell" id="process">
+      <header class="rx-head reveal"><p class="section-number">01 / SYSTEM ARCHITECTURE</p><h2>멀티 에이전트 파이프라인</h2><p class="rx-head-note">여러 AI가 역할을 나눠, 말로 설명한 형상을 3D CAD 모델로 만듭니다.</p></header>
+      <div class="rx-steps reveal">
+        <div class="st-group"><span>AI 에이전트 · gpt-oss:20b (로컬 실행)</span></div>
+        <ol>
+          <li class="is-start"><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="36" height="24" rx="6" class="t"/><path d="M14 33v8l9-8" class="t"/><path d="M14 18h20M14 25h12" class="l"/></svg></div><small>시작</small><strong>말로 요청</strong><span>원하는 형상을 문장으로 설명</span></li>
+          <li><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="6" width="24" height="32" rx="3" class="t"/><path d="M14 14h14M14 20h14M14 26h8" class="l"/><circle cx="32" cy="32" r="7" class="w"/><path d="m37 37 5 5" class="l"/></svg></div><small>STEP 1</small><strong>요청 이해</strong><span>무엇을, 어떤 크기로 만들지 정리</span><em>만들 부품 목록</em></li>
+          <li class="uses-rag"><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 10h13a5 5 0 0 1 5 5v25a4 4 0 0 0-4-4H6z" class="t"/><path d="M42 10H29a5 5 0 0 0-5 5v25a4 4 0 0 1 4-4h14z" class="t"/><path d="M11 18h8M11 24h8M29 18h8M29 24h8" class="l"/></svg></div><small>STEP 2</small><strong>자료 찾기</strong><span>필요한 설계 자료를 찾아 보완</span><em>참고 지식</em></li>
+          <li><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="32" rx="3" class="t"/><path d="M6 16h36M14 16v24" class="l"/><rect x="20" y="22" width="14" height="10" class="w"/><path d="M20 36h14" class="l"/></svg></div><small>STEP 3</small><strong>설계도 작성</strong><span>부품 배치와 치수를 결정</span><em>설계도</em></li>
+          <li class="uses-rag"><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="32" rx="4" class="t"/><path d="m18 19-6 5 6 5M30 19l6 5-6 5M26 17l-4 14" class="l"/></svg></div><small>STEP 4</small><strong>CAD 명령 작성</strong><span>CAD 프로그램이 읽는 코드로 변환</span><em>CAD 코드</em></li>
+          <li class="is-end"><div class="st-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 7 14v20l17 9 17-9V14z" class="t"/><path d="M7 14l17 9 17-9M24 23v20" class="l"/></svg></div><small>완성</small><strong>3D 모델</strong><span>FreeCAD⁠·⁠OpenVSP로 실행해 파일 생성</span><em>STEP⁠·⁠VSP3</em></li>
+        </ol>
+        <div class="st-notes">
+          <p><b class="st-rag">참고</b>2, 4단계는 미리 정리해 둔 설계 자료와 CAD 사용 설명서를 검색해 참고합니다 (RAG).</p>
+          <p><b class="st-loop"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M36 18a13 13 0 1 0 2 10" class="l"/><path d="M38 8v10H28" class="l"/></svg></b>결과를 자동으로 검사하고, 틀린 부분이 있으면 해당 단계가 다시 고칩니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="rx-demo" id="demo">
+      <div class="section-shell">
+        <header class="rx-head light reveal"><p class="section-number">02 / DEMONSTRATION</p><h2>설계 에이전트 시연</h2></header>
+        <div class="rx-demo-grid">
+          <figure class="rx-video rx-video-main reveal">
+            <video controls muted playsinline preload="metadata" poster="assets/images/text2cad-openvsp-result.png"><source src="assets/media/text2cad-openvsp-demo.mp4" type="video/mp4">브라우저에서 영상을 재생할 수 없습니다.</video>
+            <figcaption><em>LATEST</em><strong>OpenVSP 항공기 형상 생성</strong><span>자연어 입력부터 항공기 형상이 만들어지기까지의 실행 과정</span></figcaption>
+          </figure>
+          <figure class="rx-video reveal delay-1">
+            <video controls muted playsinline preload="metadata"><source src="assets/media/bearing-support-demo.mp4" type="video/mp4">브라우저에서 영상을 재생할 수 없습니다.</video>
+            <figcaption><em class="is-muted">EARLY WORK</em><strong>베어링 지지대 형상 생성</strong><span>초기 FreeCAD 기반 파이프라인</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="rx-section section-shell" id="journey">
+      <header class="rx-head reveal"><p class="section-number">03 / RESEARCH JOURNEY</p><h2>연구 진행 과정</h2><a class="rx-link" href="archive.html#research-materials">전체 자료 보기 →</a></header>
+      <div class="rx-journey" data-journey></div>
     </section>
   </main>
-  <footer id="contact" class="site-footer"><div class="section-shell footer-inner"><p>CONTACT</p><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a><span>© 2026 Choi Junseok · IDEA Lab</span></div></footer><script src="app.js"></script>
+  <footer id="contact" class="site-footer"><div class="section-shell footer-inner"><p>CONTACT</p><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a><span>© 2026 Choi Junseok · IDEA Lab</span></div></footer><script src="archive-data.js"></script><script src="research-page.js"></script><script src="app.js"></script>
 </body>
 </html>

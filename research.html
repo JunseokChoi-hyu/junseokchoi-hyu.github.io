@@ -7,31 +7,32 @@
   <meta name="description" content="최준석 학부연구생의 제조 AI 연구 목록">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="multipage.css">
+  <link rel="stylesheet" href="refine.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo.png?v=official-20260802" alt="IDEA Lab"></a>
+    <a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo-white@1x.png" srcset="assets/images/idea-lab-logo-white@1x.png 1x, assets/images/idea-lab-logo-white@1.25x.png 1.25x, assets/images/idea-lab-logo-white@1.5x.png 1.5x, assets/images/idea-lab-logo-white@1.75x.png 1.75x, assets/images/idea-lab-logo-white@2x.png 2x, assets/images/idea-lab-logo-white@3x.png 3x" alt="IDEA Lab"></a>
     <nav aria-label="주요 메뉴"><a href="./">Home</a><a class="active" href="text2cad-demo.html">Research</a><a href="archive.html">Archive</a></nav>
   </header>
   <main>
     <section class="research-page-hero"><div class="section-shell research-hero-inner">
       <p class="eyebrow reveal">RESEARCH</p>
       <h1 class="reveal delay-1">제조 AI 연구<span>.</span></h1>
-      <p class="reveal delay-2">자연어에서 CAD 모델로 이어지는 생성 과정과<br>기계 설계·해석에 적용하는 AI 연구를 기록합니다.</p>
+      <p class="reveal delay-2">자연어에서 CAD 모델로 이어지는 생성 과정과<br>기계 설계⁠·⁠해석에 적용하는 AI 연구를 기록합니다.</p>
     </div></section>
     <section class="research-list section-shell">
       <article class="research-entry reveal">
         <div class="research-entry-index"><span>01</span><small>PROJECT 01 · 2026</small></div>
-        <div class="research-entry-media"><img src="assets/images/text2cad-result.png" alt="Text2CAD FreeCAD 생성 결과"></div>
+        <div class="research-entry-media"><img src="assets/images/text2cad-openvsp-result.png" alt="Text2CAD로 생성한 OpenVSP 항공기 형상"></div>
         <div class="research-entry-body">
           <p class="project-kicker">NATURAL LANGUAGE-TO-CAD</p>
-          <h2>Text2CAD: Local LLM 기반 FreeCAD 생성</h2>
-          <p>자연어로 작성한 부품 요구사항을 Local LLM이 구조화된 설계 명세와 FreeCAD Python 코드로 변환하고, 생성된 형상의 치수와 구조를 검증하는 과정을 연구합니다.</p>
-          <div class="research-entry-flow"><span>Natural Language</span><b>→</b><span>Local LLM</span><b>→</b><span>Plan JSON</span><b>→</b><span>FreeCAD</span></div>
-          <div class="project-tags dark-tags"><span>Local LLM</span><span>Ollama</span><span>Qwen 3</span><span>FreeCAD</span></div>
+          <h2>Text2CAD: Local LLM 기반 CAD 형상 생성</h2>
+          <p>자연어로 작성한 설계 요구사항을 Local LLM 기반 멀티 에이전트가 해석해 형상 계획(JSON)과 CAD 코드로 변환하고, FreeCAD(기계 부품)와 OpenVSP(항공기)에서 생성된 형상의 치수와 구조를 검증하는 과정을 연구합니다. 현재는 gpt-oss:20b와 RAG를 활용한 OpenVSP 항공기 형상 생성을 중심으로 진행하고 있습니다.</p>
+          <div class="research-entry-flow"><span>Natural Language</span><b>→</b><span>Local LLM Agents</span><b>→</b><span>Plan JSON</span><b>→</b><span>FreeCAD · OpenVSP</span></div>
+          <div class="project-tags dark-tags"><span>Local LLM</span><span>gpt-oss:20b</span><span>Multi-Agent</span><span>RAG</span><span>FreeCAD</span><span>OpenVSP</span></div>
           <div class="project-actions"><a class="button button-dark" href="text2cad-demo.html">연구 상세 보기 <b>↗</b></a><a class="text-link" href="assets/pdfs/AI%20제조업%20과제%20-%201.pdf" target="_blank" rel="noreferrer">발표 자료 PDF <b>↗</b></a></div>
         </div>
       </article>

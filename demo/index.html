@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text2CAD 설계 에이전트</title>
+<meta name="description" content="자연어 요청을 로컬 LLM 에이전트가 OpenVSP 항공기 형상으로 만드는 과정을 실제 실행 기록으로 자동 재생하는 데모">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5fa; --panel:#ffffff; --soft:#f6f8fc; --line:#e4e9f1; --line2:#d5dce8;
+  --text:#152033; --sub:#56677f; --dim:#8c9ab0;
+  --accent:#3b6cf6; --accent2:#6d5cf6; --ok:#13a067; --bad:#e04848;
+  --c-fuse:#8d9bb0; --c-wing:#3b7cf6; --c-htail:#14b3a3; --c-vtail:#f0a020;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif;font-size:17px;line-height:1.55}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:19px;flex:none}
+.top h1{margin:0;font-size:22px;font-weight:800;line-height:1.2}
+.top p{margin:0;font-size:14.5px;color:var(--sub)}
+.chips{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{font-family:var(--mono);font-size:13px;padding:4px 10px;border-radius:8px;border:1px solid var(--line2);color:var(--sub);background:var(--soft);white-space:nowrap}
+.chip b{color:var(--text);font-weight:600}
+.chip.live{color:var(--ok);border-color:rgba(19,160,103,.35);background:rgba(19,160,103,.07)}
+.chip.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.main{flex:1;display:grid;grid-template-columns:minmax(380px,40%) 1fr;min-height:0}
+
+/* ---------- chat ---------- */
+.chat{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:var(--panel)}
+.msgs{position:relative;flex:1;overflow-y:auto;padding:26px 26px 30px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+.row{display:flex;gap:12px;align-items:flex-start;animation:pop .35s ease both}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.row.me{flex-direction:row-reverse}
+.av{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13.5px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.row.me .av{background:linear-gradient(135deg,#38b6f5,#3b6cf6)}
+.row.me .av{width:42px;height:42px;font-size:10.5px;line-height:1.05;text-align:center;letter-spacing:.3px}
+.col{display:flex;flex-direction:column;gap:4px;max-width:84%}
+.row.me .col{align-items:flex-end}
+.tagname{font-size:12.5px;font-weight:700;color:var(--dim);letter-spacing:.3px}
+.bub{padding:12px 17px;border-radius:16px;background:var(--soft);border:1px solid var(--line);font-size:17px}
+.row:not(.me) .bub{border-top-left-radius:5px}
+.row.me .bub{background:linear-gradient(135deg,#eaf1ff,#eeebff);border-color:#cfdbfb;border-top-right-radius:5px}
+.bub b{font-weight:700}
+.bub code{font-family:var(--mono);font-size:14.5px;background:#eef2f8;padding:1px 6px;border-radius:5px;color:#2d47a8}
+.bub .en{font-family:var(--mono);font-size:14px;line-height:1.6;color:#2b3a55;max-height:150px;overflow:hidden;position:relative;transition:max-height .5s}
+.bub .en.open{max-height:900px}
+.bub .en:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,#eceefe)}
+.bub .en mark{background:rgba(59,108,246,.14);color:#1d3fa8;border-radius:3px;padding:0 2px}
+.more{display:block;margin-top:6px;font-size:13.5px;color:var(--accent);background:none;border:none;padding:0;font-weight:700}
+.typing{display:inline-flex;gap:5px;padding:16px 18px}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--dim);animation:dot 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:none}40%{opacity:1;transform:translateY(-3px)}}
+.note{align-self:center;display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;padding:6px 14px;border-radius:999px;border:1px dashed var(--line2);color:var(--sub);background:#fff;animation:pop .35s ease both}
+.note.bad{color:var(--bad);border-color:rgba(224,72,72,.4);background:rgba(224,72,72,.05)}
+.note.ok{color:var(--ok);border-color:rgba(19,160,103,.4);background:rgba(19,160,103,.06)}
+.fchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fchips a{font-family:var(--mono);font-size:13.5px;text-decoration:none;color:var(--text);background:#fff;border:1px solid var(--line2);padding:5px 10px;border-radius:8px}
+.fchips a:hover{border-color:var(--accent);color:var(--accent)}
+.composer{margin:0 22px 20px;display:flex;gap:10px;align-items:center;border:1px solid var(--line2);border-radius:14px;padding:8px 8px 8px 16px;background:var(--soft)}
+.composer .in{flex:1;min-height:24px;font-size:15px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.composer .in.typed{color:var(--text)}
+.composer .send{width:40px;height:40px;border-radius:10px;border:none;background:var(--line);display:grid;place-items:center;color:#fff;transition:background .2s}
+.composer .send.on{background:var(--accent)}
+
+/* ---------- right ---------- */
+.right{display:flex;flex-direction:column;min-height:0;min-width:0}
+.rhead{display:flex;align-items:center;gap:10px;padding:16px 24px 10px}
+.rhead h2{margin:0;font-size:19px;font-weight:800}
+.pill{font-size:12px;font-weight:800;letter-spacing:1px;padding:2px 9px;border-radius:6px;border:1px solid var(--line2);color:var(--sub);font-family:var(--mono)}
+.ctrls{margin-left:auto;display:flex;gap:6px;align-items:center}
+.cb{border:1px solid var(--line2);background:#fff;border-radius:10px;padding:7px 13px;font-size:14.5px;font-weight:700;color:var(--sub)}
+.cb:hover{border-color:var(--accent);color:var(--accent)}
+.cb.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff}
+.speed{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff}
+.speed button{border:none;background:none;padding:7px 10px;font-size:13px;font-family:var(--mono);color:var(--dim)}
+.speed button.on{background:var(--soft);color:var(--text);font-weight:700}
+.segs{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 24px 12px}
+.seg{font-size:13px;color:var(--dim);font-weight:600;text-align:center}
+.seg::before{content:"";display:block;height:5px;border-radius:5px;background:var(--line);margin-bottom:6px;transition:background .4s}
+.seg.done{color:var(--sub)} .seg.done::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.seg.now{color:var(--accent);font-weight:800} .seg.now::before{background:linear-gradient(90deg,var(--accent) 50%,var(--line) 50%);background-size:200% 100%;animation:fillbar 1.2s linear infinite}
+@keyframes fillbar{from{background-position:100% 0}to{background-position:0 0}}
+
+.stage{flex:1;display:flex;flex-direction:column;gap:14px;padding:0 24px 20px;min-height:0}
+.viewer{position:relative;flex:1;min-height:300px;border-radius:18px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 45%,#ffffff 0%,#eaeff7 80%);overflow:hidden}
+#gl{position:absolute;inset:0}
+#gl canvas{display:block}
+.vstate{position:absolute;top:16px;left:18px;font-size:15px;font-weight:700;color:var(--sub);background:rgba(255,255,255,.9);border:1px solid var(--line);padding:6px 12px;border-radius:10px;pointer-events:none}
+.vstate.ok{color:var(--ok);border-color:rgba(19,160,103,.4)}
+.vtools{position:absolute;top:14px;right:14px;display:flex;gap:5px}
+.vt{border:1px solid var(--line2);background:rgba(255,255,255,.92);border-radius:9px;padding:5px 11px;font-size:13.5px;color:var(--sub)}
+.vt.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--dim);font-size:17px;pointer-events:none;transition:opacity .5s}
+.lbl{font-size:14.5px;font-weight:700;padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.95);border:1.5px solid;white-space:nowrap;box-shadow:0 2px 6px rgba(20,40,80,.1);transition:opacity .4s}
+.lbl em{font-style:normal;color:var(--sub);font-weight:500;margin-left:6px}
+.nolbl .lbl{opacity:0}
+.axl{font:600 12px var(--mono)}
+.noaxes .axl{display:none}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 18px 16px;height:200px;overflow:hidden;animation:pop .4s ease both;flex:none}
+.card-h{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:800;letter-spacing:1px;color:var(--sub);margin-bottom:10px}
+.card-h .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.card-h .ck{margin-left:auto;color:var(--ok);font-size:19px}
+.card-h .x{margin-left:auto;color:var(--bad);font-size:14px}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cbox{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.cbox b{display:flex;align-items:center;gap:7px;font-size:16px}
+.cbox b i{width:11px;height:11px;border-radius:3px}
+.cbox div{font-family:var(--mono);font-size:13.5px;color:var(--sub);line-height:1.6;margin-top:3px}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{font-family:var(--mono);font-size:14px;padding:5px 11px;border-radius:8px;background:#e9f7fb;border:1px solid rgba(14,165,198,.35);color:#0b6f86}
+.tag.code{background:#eef1ff;border-color:#cdd5fb;color:#3b4fc4}
+.att{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.att div{border-radius:12px;padding:10px 14px;border:1px solid var(--line);background:var(--soft);font-size:15px}
+.att div strong{display:block;font-size:18px}
+.att .bad{border-color:rgba(224,72,72,.35);background:rgba(224,72,72,.05)} .att .bad strong{color:var(--bad)}
+.att .ok{border-color:rgba(19,160,103,.4);background:rgba(19,160,103,.06)} .att .ok strong{color:var(--ok)}
+.att .wait{opacity:.4}
+.att span{font-size:13.5px;color:var(--sub)}
+pre.code{margin:0;font-family:var(--mono);font-size:13.5px;line-height:1.6;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;height:140px;overflow:hidden;color:#24324a}
+.code .f{color:#1f62d6}.code .s{color:#1c8a4a}.code .n{color:#c2570c}.code .k{color:#7b3fd1}
+.ver{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.big{font-family:var(--mono);font-size:44px;font-weight:600;color:var(--ok);line-height:1}
+.big small{display:block;font-family:"Noto Sans KR";font-size:14.5px;color:var(--sub);margin-top:8px;font-weight:500}
+.vlist{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 18px;font-size:14px}
+.vlist div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:2px 0}
+.vlist span{color:var(--sub)} .vlist em{font-style:normal;font-family:var(--mono);color:var(--ok)}
+
+@media (max-width:1300px){html,body{font-size:16px}.cgrid{grid-template-columns:repeat(2,1fr)}.card{height:auto;min-height:190px}}
+@media (max-width:980px){
+  .app{height:auto}.main{display:flex;flex-direction:column}
+  .chips{display:none}
+  .right{order:1}.chat{order:2;height:78vh;border-right:none;border-top:1px solid var(--line)}
+  .viewer{height:52vh;flex:none}
+  .segs{gap:3px;padding:0 14px 10px}.seg{font-size:11px}
+  .rhead,.stage{padding-left:14px;padding-right:14px}
+  .rhead h2{font-size:16px}.speed{display:none}
+  .msgs{padding:18px 14px}.composer{margin:0 12px 14px}
+  .lbl{font-size:12px;padding:2px 7px}
+  .ver{grid-template-columns:1fr}.vlist{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="logo">T</div>
+    <div><h1>Text2CAD 설계 에이전트</h1><p>자연어 요청 → 로컬 LLM 멀티 에이전트 → OpenVSP 항공기 CAD 형상</p></div>
+    <div class="chips"><span class="chip live">Live replay</span><span class="chip">LLM <b>gpt-oss:20b</b></span><span class="chip">CAD <b>OpenVSP 3.51.3</b></span><span class="chip">run <b>full_20261003_131525_104</b></span></div>
+  </header>
+
+  <div class="main">
+    <!-- CHAT -->
+    <section class="chat">
+      <div class="msgs" id="msgs"></div>
+      <div class="composer"><div class="in" id="in"></div><div class="send" id="send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div></div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="right">
+      <div class="rhead">
+        <h2>설계 결과</h2><span class="pill">LIVE</span>
+        <div class="ctrls">
+          <button class="cb primary" id="bReplay">▶ 리플레이</button>
+          <button class="cb" id="bPause">❚❚ 일시정지</button>
+          <div class="speed" id="speed"><button data-s="0.7">0.7×</button><button data-s="1" class="on">1×</button><button data-s="1.6">1.6×</button></div>
+        </div>
+      </div>
+      <div class="segs" id="segs"></div>
+      <div class="stage">
+        <div class="viewer">
+          <div id="gl"></div>
+          <div class="empty" id="empty">자연어 요청을 기다리는 중…</div>
+          <div class="vstate" id="vstate">형상 없음</div>
+          <div class="vtools">
+            <button class="vt on" data-view="iso">등각</button><button class="vt" data-view="top">위</button><button class="vt" data-view="side">측면</button><button class="vt" id="tSpin">회전</button>
+          </div>
+        </div>
+        <div id="card"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="run_data.js"></script>
+<script src="aircraft_mesh.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+
+const RUN = window.RUN, MESH = window.MESH;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COMP = {
+  fuselage:{ko:"동체", color:0x9aa6b8, css:"var(--c-fuse)"},
+  main_wing:{ko:"주익", color:0x3b7cf6, css:"var(--c-wing)"},
+  horizontal_tail:{ko:"수평꼬리", color:0x14b3a3, css:"var(--c-htail)"},
+  vertical_tail:{ko:"수직꼬리", color:0xf0a020, css:"var(--c-vtail)"},
+};
+const SEGS = ["요청", "해석", "지식 검색", "형상 계획", "코드 생성", "OpenVSP 실행", "검증"];
+$("#segs").innerHTML = SEGS.map(s => `<div class="seg">${s}</div>`).join("");
+const U = RUN.usage, sum = k => Object.values(U).reduce((a, u) => a + (u[k] || 0), 0);
+const v1 = RUN.validation[0].replace(/^rule violations:\s*/, "").split(" | ");
+const v2 = RUN.validation[1].replace(/^rule violations:\s*/, "").split(" | ");
+const nReq = RUN.interpretation.reduce((a, c) => a + c.reqs.length, 0);
+const checks = RUN.verification.checks, nPass = checks.filter(c => c.p).length;
+
+/* =================== 3D viewer =================== */
+const host = $("#gl");
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); host.appendChild(renderer.domElement);
+const lr = new CSS2DRenderer(); lr.domElement.style.cssText = "position:absolute;inset:0;pointer-events:none"; host.appendChild(lr.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 500);
+const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xaab6c8, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(-6, 10, 8); scene.add(sun);
+const fillL = new THREE.DirectionalLight(0x9cc7ff, 0.6); fillL.position.set(8, -3, -6); scene.add(fillL);
+const grid = new THREE.GridHelper(30, 30, 0xbcc8d8, 0xdbe2ec); grid.position.y = -1.6; scene.add(grid);
+// OpenVSP (x aft, y right, z up) → three (y up), centred on fuselage mid-length
+const V = (x, y, z) => new THREE.Vector3(x - 5, z, -y);
+const world = new THREE.Group(); scene.add(world);
+
+const axes = new THREE.Group(); world.add(axes);
+[[1,0,0,0xe04848,"+X"],[0,1,0,0x13a067,"+Y"],[0,0,1,0x3b6cf6,"+Z"]].forEach(([a,b,c,col,t]) => {
+  axes.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0,0,0), V(a*1.3,b*1.3,c*1.3)]), new THREE.LineBasicMaterial({color:col})));
+  const d = document.createElement("div"); d.className = "axl"; d.style.color = "#" + col.toString(16).padStart(6, "0"); d.textContent = t;
+  const o = new CSS2DObject(d); o.position.copy(V(a*1.55,b*1.55,c*1.55)); axes.add(o);
+});
+
+// requirement guides (dashed) — planforms drawn from the request numbers
+const guides = new THREE.Group(); guides.visible = false; world.add(guides);
+const dashMat = new THREE.LineDashedMaterial({color:0x5d6c84, dashSize:0.18, gapSize:0.12, transparent:true, opacity:0.8});
+const dashed = pts => { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), dashMat); l.computeLineDistances(); guides.add(l); };
+function planform(le, cr, ct, semi, sweep, vertical){
+  const tip = le + 0.25*cr + semi*Math.tan(sweep*Math.PI/180) - 0.25*ct;
+  for (const s of vertical ? [1] : [1, -1]) { const P = (x, b) => vertical ? V(x, 0, b) : V(x, s*b, 0); dashed([P(le,0), P(tip,semi), P(tip+ct,semi), P(le+cr,0), P(le,0)]); }
+}
+planform(4, 2, 1, 5, 15); planform(8, 1.2, 0.6, 2, 15); planform(8, 1.5, 0.7, 1.8, 25, true);
+{ const h = 0.75, c = [[0,-h,-h],[10,-h,-h],[10,h,-h],[0,h,-h]];
+  dashed([...c.map(p => V(...p)), V(...c[0])]); dashed([...c.map(p => V(p[0],p[1],h)), V(0,-h,h)]); for (const p of c) dashed([V(...p), V(p[0],p[1],h)]); }
+
+
+// actual geometry: B-spline surfaces of aircraft.step, grouped per OpenVSP Geom (creation order)
+const PLANE_COLOR = 0x9fb0c8;
+const wingOrder = ["main_wing", "horizontal_tail", "vertical_tail"], parts = {};
+{
+  const ids = [];
+  for (const g of MESH.groups) {
+    let key;
+    if (g.name.includes("Fuselage")) key = "fuselage";
+    else { const id = g.name.split(",")[0]; if (!ids.includes(id)) ids.push(id); key = wingOrder[ids.indexOf(id)]; }
+    if (!parts[key]) {
+      const grp = new THREE.Group(); grp.visible = false; world.add(grp);
+      parts[key] = {grp,
+        mat:new THREE.MeshStandardMaterial({color:PLANE_COLOR, metalness:0.2, roughness:0.42, side:THREE.DoubleSide, transparent:true, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1}),
+        lmat:new THREE.LineBasicMaterial({color:0x22304a, transparent:true, opacity:0.25})};
+    }
+    const P = parts[key];
+    for (const s of g.surfaces) {
+      const pos = new Float32Array(s.nu * s.nv * 3);
+      for (let i = 0; i < s.nu * s.nv; i++) { const v = V(s.p[3*i], s.p[3*i+1], s.p[3*i+2]); pos.set([v.x, v.y, v.z], 3*i); }
+      const idx = [];
+      for (let i = 0; i < s.nu - 1; i++) for (let j = 0; j < s.nv - 1; j++) { const a = i*s.nv + j, b = a + s.nv; idx.push(a, b, a+1, b, b+1, a+1); }
+      const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      P.grp.add(new THREE.Mesh(geo, P.mat));
+      const edge = (fix, n, alongV) => { const pts = []; for (let k = 0; k < n; k++) { const id = alongV ? fix*s.nv + k : k*s.nv + fix; pts.push(new THREE.Vector3(pos[3*id], pos[3*id+1], pos[3*id+2])); } return pts; };
+      for (const pts of [edge(0, s.nv, true), edge(s.nu-1, s.nv, true), edge(0, s.nu, false), edge(s.nv-1, s.nu, false)])
+        P.grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), P.lmat));
+    }
+  }
+}
+
+const VIEWS = {iso:[-0.62, 0.42, 0.66], top:[0, 1, 0.002], side:[0, 0.06, 1]};
+const TGT = new THREE.Vector3(0, 0.25, 0);
+const BOX = []; for (const x of [0, 10]) for (const y of [-5, 5]) for (const z of [-0.75, 1.8]) BOX.push(V(x, y, z));
+let curView = "iso", camAnim = null, spin = false, builds = [];
+function fitPos(k){ // closest distance that keeps the whole aircraft on screen
+  const dir = new THREE.Vector3(...VIEWS[k]).normalize(), cam = camera.clone();
+  let lo = 2, hi = 120;
+  for (let n = 0; n < 32; n++) {
+    const d = (lo + hi) / 2; cam.position.copy(TGT).addScaledVector(dir, d); cam.lookAt(TGT); cam.updateMatrixWorld();
+    const ok = BOX.every(c => { const p = c.clone().project(cam); return p.z < 1 && Math.abs(p.x) < 0.9 && p.y < 0.72 && p.y > -0.8; });
+    ok ? hi = d : lo = d;
+  }
+  return TGT.clone().addScaledVector(dir, hi);
+}
+function setView(k, instant){
+  curView = k; const to = fitPos(k);
+  document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === k));
+  if (instant) { camera.position.copy(to); controls.target.copy(TGT); return; }
+  camAnim = {from:camera.position.clone(), to, ft:controls.target.clone(), t0:performance.now()};
+}
+function resize(){
+  const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h); lr.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); setView(curView, true);
+}
+new ResizeObserver(resize).observe(host); resize();
+function loop(t){
+  requestAnimationFrame(loop);
+  if (camAnim) { const u = Math.min(1, (t - camAnim.t0) / 900), e = u < .5 ? 2*u*u : 1 - Math.pow(-2*u + 2, 2)/2;
+    camera.position.lerpVectors(camAnim.from, camAnim.to, e); controls.target.lerpVectors(camAnim.ft, TGT, e); if (u >= 1) camAnim = null; }
+  builds = builds.filter(b => {
+    const u = (t - b.t0) / 700; if (u < 0) return true;
+    b.P.grp.visible = true; const e = 1 - Math.pow(1 - Math.min(1, u), 3);
+    b.P.mat.opacity = e; b.P.lmat.opacity = .25 * e; b.P.grp.position.y = (1 - e) * 1.2; return u < 1;
+  });
+  if (spin) world.rotation.y += 0.0035;
+  controls.update(); renderer.render(scene, camera); lr.render(scene, camera);
+}
+requestAnimationFrame(loop);
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { setSpin(false); setView(b.dataset.view); });
+const setSpin = on => { spin = on; $("#tSpin").classList.toggle("on", on); if (!on) world.rotation.y = 0; };
+$("#tSpin").onclick = () => setSpin(!spin);
+
+const viewer = {
+  reset(){ axes.visible = true; host.classList.remove("noaxes"); guides.visible = false; host.classList.add("nolbl"); builds = []; Object.values(parts).forEach(P => P.grp.visible = false); setSpin(false); $("#empty").style.opacity = 1; this.state("형상 없음"); setView("iso"); },
+  guides(){ guides.visible = true; host.classList.remove("nolbl"); $("#empty").style.opacity = 0; this.state("요청 치수 윤곽 (점선)"); },
+  build(){ guides.visible = false; axes.visible = false; host.classList.add("nolbl", "noaxes"); ["fuselage", "main_wing", "horizontal_tail", "vertical_tail"].forEach(k => builds.push({P:parts[k], t0:performance.now()})); this.state("aircraft.step · 실제 생성 형상", true); },
+  state(t, ok){ const e = $("#vstate"); e.textContent = t; e.className = "vstate" + (ok ? " ok" : ""); },
+};
+
+/* =================== result cards =================== */
+const hl = code => esc(code).replace(/(&quot;[^&]*?&quot;)/g, '<span class="s">$1</span>')
+  .replace(/\b(AddGeom|SetParmVal|SetDriverGroup|Update)\b/g, '<span class="f">$1</span>')
+  .replace(/\b(void|string)\b/g, '<span class="k">$1</span>')
+  .replace(/(?<![\w"])(-?\d+\.\d+|\b\d+\b)(?![\w"])/g, '<span class="n">$1</span>');
+const head = (ic, t, mark = '<span class="ck">✓</span>') => `<div class="card-h"><span class="ic">${ic}</span>${t}${mark}</div>`;
+const KEY = {
+  fuselage:"길이 10 m<br>폭·높이 1.5 m<br>기수 = 원점",
+  main_wing:"스팬 10 m (대칭)<br>코드 2 → 1 m<br>Λ¼ 15° · NACA 0012",
+  horizontal_tail:"스팬 4 m (대칭)<br>코드 1.2 → 0.6 m<br>Λ¼ 15° · x = 8 m",
+  vertical_tail:"높이 1.8 m (+Z)<br>코드 1.5 → 0.7 m<br>Λ¼ 25° · x = 8 m",
+};
+const attempt = (n) => `<div class="att">
+  <div class="${n >= 1 ? "bad" : "wait"}"><strong>1차 ✗</strong><span>규칙 위반 ${v1.length}건</span></div>
+  <div class="${n >= 2 ? "bad" : "wait"}"><strong>2차 ✗</strong><span>위반 ${v2.length}건 · 수평꼬리 위치</span></div>
+  <div class="${n >= 3 ? "ok" : "wait"}"><strong>3차 ✓</strong><span>승인 · Span = 10 / 2 = 5.0 m</span></div></div>`;
+const CARDS = {
+  req: () => head("R", `REQUIREMENTS · 요구사항 ${nReq}개`) + `<div class="cgrid">${RUN.interpretation.map(c => `<div class="cbox"><b><i style="background:${COMP[c.id].css}"></i>${COMP[c.id].ko}</b><div>${KEY[c.id]}</div></div>`).join("")}</div>`,
+  know: () => head("K", "KNOWLEDGE · OpenVSP 지식 검색") + `<div class="tags">${RUN.geometry_knowledge.filter(k => k.holds).map(k => `<span class="tag">${k.id.split(":")[1]}</span>`).join("")}${RUN.code_knowledge.map(k => `<span class="tag code">code: ${k.id.split(":")[1]}</span>`).join("")}</div><p style="margin:12px 0 0;font-size:15px;color:var(--sub)">형상 지식 ${RUN.geometry_knowledge.filter(k => k.holds).length}개 · 코드 지식 ${RUN.code_knowledge.length}개를 다음 에이전트에 전달</p>`,
+  plan1: () => head("P", "GEOMETRY PLAN · 형상 계획", '<span class="x">반려</span>') + attempt(1),
+  plan2: () => head("P", "GEOMETRY PLAN · 형상 계획", '<span class="x">반려</span>') + attempt(2),
+  plan3: () => head("P", "GEOMETRY PLAN · 형상 계획") + attempt(3),
+  code: () => head("C", `CODE · vspscript (${RUN.code.split("\n").length}줄, 1회 통과)`) + `<pre class="code">${hl(RUN.code.split("\n").slice(2, 20).join("\n"))}</pre>`,
+  run: () => head("▶", "OPENVSP · 실행 완료") + `<div class="tags"><span class="tag code">returncode ${RUN.runtime}</span><span class="tag code">부품 4개</span><span class="tag code">B-spline 곡면 38개</span></div><div class="fchips" style="margin-top:14px"><a href="files/aircraft.vsp3" download>⬇ aircraft.vsp3</a><a href="files/aircraft.step" download>⬇ aircraft.step</a></div>`,
+  ver: () => head("✓", "VERIFICATION · 모델 검증") + `<div class="ver"><div class="big">${nPass}/${checks.length}<small>요구사항 일치 · PASS</small></div><div class="vlist">${RUN.interpretation.map(c => { const cs = checks.filter(x => x.c === c.id); return `<div><span>${COMP[c.id].ko}</span><em>${cs.filter(x => x.p).length}/${cs.length} ✓</em></div>`; }).join("")}<div><span>LLM 호출</span><em style="color:var(--text)">${Object.keys(U).length}회</em></div><div><span>토큰 (입력/출력)</span><em style="color:var(--text)">${(sum("in")/1000).toFixed(1)}k / ${(sum("out")/1000).toFixed(1)}k</em></div></div></div>`,
+};
+const showCard = k => { $("#card").innerHTML = k ? `<div class="card">${CARDS[k]()}</div>` : ""; };
+const setSeg = (i, finished) => document.querySelectorAll(".seg").forEach((s, j) => s.className = "seg" + (finished || j < i ? " done" : j === i ? " now" : ""));
+
+/* =================== chat engine =================== */
+const msgs = $("#msgs");
+let runId = 0, paused = false, speed = 1;
+const CANCEL = Symbol();
+function makeWait(id){
+  return ms => new Promise((res, rej) => {
+    let left = ms;
+    const tick = () => { if (id !== runId) return rej(CANCEL); if (!paused) left -= 40 * speed; left <= 0 ? res() : setTimeout(tick, 40); };
+    tick();
+  });
+}
+const scrollEnd = () => msgs.scrollTo({top: msgs.scrollHeight, behavior:"smooth"});
+function row(me, name){
+  const r = document.createElement("div"); r.className = "row" + (me ? " me" : "");
+  r.innerHTML = `<div class="av">${me ? "IDEA<br>LAB" : "AI"}</div><div class="col">${name ? `<span class="tagname">${name}</span>` : ""}<div class="bub"></div></div>`;
+  msgs.appendChild(r); scrollEnd(); return r.querySelector(".bub");
+}
+async function ai(W, name, html, extra = ""){
+  const b = row(false, name);
+  b.innerHTML = `<span class="typing"><i></i><i></i><i></i></span>`; b.style.padding = "0"; scrollEnd();
+  await W(900);
+  b.style.padding = ""; b.innerHTML = "";
+  // type the sentence, keeping html tags whole
+  const parts = html.split(/(<[^>]+>)/); let out = "";
+  for (const p of parts) {
+    if (p.startsWith("<")) { out += p; continue; }
+    for (let i = 0; i < p.length; i += 2) { out += p.slice(i, i + 2); b.innerHTML = out; if (i % 12 === 0) scrollEnd(); await W(28); }
+  }
+  b.innerHTML = html + extra; scrollEnd();
+  await W(500);
+}
+function note(text, cls){ const d = document.createElement("div"); d.className = "note " + (cls || ""); d.innerHTML = text; msgs.appendChild(d); scrollEnd(); }
+const hlReq = s => esc(s).replace(/(\d+(?:\.\d+)?\s?(?:m\b|degree)|NACA 0012|\+[XZ]|XZ plane)/g, "<mark>$1</mark>");
+
+async function play(){
+  const id = ++runId, W = makeWait(id);
+  msgs.innerHTML = ""; viewer.reset(); showCard(null); setSeg(0); paused = false; syncPause();
+  const inp = $("#in"), send = $("#send"), IDLE = "";
+  inp.textContent = IDLE; inp.className = "in"; send.className = "send";
+  try {
+    await W(900);
+    // user types a short request; the full dimensional spec (request.txt) is folded under it
+    inp.className = "in typed"; send.className = "send on";
+    const say = "NACA 0012 비행기 전체 형상을 만들고 싶어.";
+    for (let i = 1; i <= say.length; i++) { inp.textContent = say.slice(0, i); await W(55); }
+    await W(600);
+    inp.textContent = IDLE; inp.className = "in"; send.className = "send";
+    const ub = row(true, "");
+    ub.innerHTML = `${say}<div class="en" style="display:none;margin-top:10px">${hlReq(RUN.request)}</div><button class="more">상세 치수 사양 보기 (request.txt) ▾</button>`;
+    ub.querySelector(".more").onclick = e => { const en = ub.querySelector(".en"), open = en.style.display === "none"; en.style.display = open ? "" : "none"; en.classList.toggle("open", open); e.target.textContent = open ? "접기 ▴" : "상세 치수 사양 보기 (request.txt) ▾"; };
+    await W(1200);
+
+    setSeg(1);
+    await ai(W, "해석 에이전트", `요청을 동체, 주익, 수평·수직 꼬리날개로 나누고 <b>필요한 치수 ${nReq}개</b>를 정리했습니다.`);
+    showCard("req"); viewer.guides(); await W(2200);
+
+    setSeg(2);
+    await ai(W, "지식 에이전트", `OpenVSP 형상 생성에 필요한 지식을 검색했습니다.`);
+    showCard("know"); await W(1800);
+
+    setSeg(3);
+    await ai(W, "설계 에이전트", `형상 생성 계획을 수립했습니다.`);
+    showCard("plan1"); await W(500);
+    note(`✗ 규칙 검사 — 수정 필요`, "bad"); await W(1500);
+    await ai(W, "설계 에이전트", `지적된 부분을 반영하여 계획을 수정했습니다.`);
+    showCard("plan2"); await W(500);
+    note(`✗ 규칙 검사 — 1건 추가 수정 필요`, "bad"); await W(1500);
+    await ai(W, "설계 에이전트", `남은 부분을 수정하여 계획을 완성했습니다.`);
+    showCard("plan3"); await W(400);
+    note("✓ 규칙 검사 통과", "ok"); await W(1500);
+
+    setSeg(4);
+    await ai(W, "코드 에이전트", `승인된 계획에 따라 OpenVSP 스크립트를 작성했습니다.`);
+    showCard("code"); await W(2000);
+
+    setSeg(5);
+    note("▶ OpenVSP 형상 생성 완료", "ok");
+    viewer.build(); showCard("run"); await W(3200);
+
+    setSeg(6);
+    await ai(W, "검증 에이전트", `생성된 형상을 요청과 비교한 결과, <b>모든 치수가 일치</b>함을 확인했습니다. ✓`);
+    showCard("ver"); viewer.state(`검증 ${nPass}/${checks.length} PASS · aircraft.step`, true); await W(1500);
+
+    setSeg(7, true);
+    await ai(W, "", `설계가 완료되었습니다. 형상은 마우스로 회전하여 확인할 수 있습니다.`,
+      `<div class="fchips"><a href="files/aircraft.step" download>⬇ aircraft.step</a><a href="files/aircraft.vsp3" download>⬇ aircraft.vsp3</a><a href="files/04_code_agent.vspscript" download>⬇ vspscript</a></div>`);
+    setSpin(true);
+  } catch (e) { if (e !== CANCEL) throw e; }
+}
+function syncPause(){ $("#bPause").textContent = paused ? "▶ 계속" : "❚❚ 일시정지"; }
+$("#bReplay").onclick = () => play();
+$("#bPause").onclick = () => { paused = !paused; syncPause(); };
+document.querySelectorAll("#speed button").forEach(b => b.onclick = () => { speed = +b.dataset.s; document.querySelectorAll("#speed button").forEach(x => x.classList.toggle("on", x === b)); });
+addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); paused = !paused; syncPause(); } });
+play();
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+void build_vehicle()
+{
+    string fuselage = AddGeom("FUSELAGE", "");
+    SetParmVal(fuselage, "Length", "Design", 10.0);
+    SetParmVal(fuselage, "Ellipse_Width", "XSecCurve_1", 1.5);
+    SetParmVal(fuselage, "Ellipse_Height", "XSecCurve_1", 1.5);
+    SetParmVal(fuselage, "Ellipse_Width", "XSecCurve_2", 1.5);
+    SetParmVal(fuselage, "Ellipse_Height", "XSecCurve_2", 1.5);
+    SetParmVal(fuselage, "Ellipse_Width", "XSecCurve_3", 1.5);
+    SetParmVal(fuselage, "Ellipse_Height", "XSecCurve_3", 1.5);
+    SetParmVal(fuselage, "X_Rel_Rotation", "XForm", 0.0);
+
+    string main_wing = AddGeom("WING", "");
+    SetParmVal(main_wing, "Sym_Planar_Flag", "Sym", 2);
+    SetParmVal(main_wing, "Span", "XSec_1", 5.0);
+    SetParmVal(main_wing, "Root_Chord", "XSec_1", 2.0);
+    SetParmVal(main_wing, "Tip_Chord", "XSec_1", 1.0);
+    SetParmVal(main_wing, "Sweep", "XSec_1", 15.0);
+    SetParmVal(main_wing, "Sweep_Location", "XSec_1", 0.25);
+    SetParmVal(main_wing, "Camber", "XSecCurve_0", 0.0);
+    SetParmVal(main_wing, "CamberLoc", "XSecCurve_0", 0.0);
+    SetParmVal(main_wing, "ThickChord", "XSecCurve_0", 0.12);
+    SetParmVal(main_wing, "Camber", "XSecCurve_1", 0.0);
+    SetParmVal(main_wing, "CamberLoc", "XSecCurve_1", 0.0);
+    SetParmVal(main_wing, "ThickChord", "XSecCurve_1", 0.12);
+    SetDriverGroup(main_wing, 0, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER);
+    SetParmVal(main_wing, "X_Rel_Location", "XForm", 4.0);
+    SetParmVal(main_wing, "Y_Rel_Location", "XForm", 0.0);
+    SetParmVal(main_wing, "Z_Rel_Location", "XForm", 0.0);
+
+    string horizontal_tail = AddGeom("WING", "");
+    SetParmVal(horizontal_tail, "Sym_Planar_Flag", "Sym", 2);
+    SetParmVal(horizontal_tail, "Span", "XSec_1", 2.0);
+    SetParmVal(horizontal_tail, "Root_Chord", "XSec_1", 1.2);
+    SetParmVal(horizontal_tail, "Tip_Chord", "XSec_1", 0.6);
+    SetParmVal(horizontal_tail, "Sweep", "XSec_1", 15.0);
+    SetParmVal(horizontal_tail, "Sweep_Location", "XSec_1", 0.25);
+    SetParmVal(horizontal_tail, "Camber", "XSecCurve_0", 0.0);
+    SetParmVal(horizontal_tail, "CamberLoc", "XSecCurve_0", 0.0);
+    SetParmVal(horizontal_tail, "ThickChord", "XSecCurve_0", 0.12);
+    SetParmVal(horizontal_tail, "Camber", "XSecCurve_1", 0.0);
+    SetParmVal(horizontal_tail, "CamberLoc", "XSecCurve_1", 0.0);
+    SetParmVal(horizontal_tail, "ThickChord", "XSecCurve_1", 0.12);
+    SetDriverGroup(horizontal_tail, 0, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER);
+    SetParmVal(horizontal_tail, "X_Rel_Location", "XForm", 8.0);
+    SetParmVal(horizontal_tail, "Y_Rel_Location", "XForm", 0.0);
+    SetParmVal(horizontal_tail, "Z_Rel_Location", "XForm", 0.0);
+
+    string vertical_tail = AddGeom("WING", "");
+    SetParmVal(vertical_tail, "Sym_Planar_Flag", "Sym", 0);
+    SetParmVal(vertical_tail, "Span", "XSec_1", 1.8);
+    SetParmVal(vertical_tail, "Root_Chord", "XSec_1", 1.5);
+    SetParmVal(vertical_tail, "Tip_Chord", "XSec_1", 0.7);
+    SetParmVal(vertical_tail, "Sweep", "XSec_1", 25.0);
+    SetParmVal(vertical_tail, "Sweep_Location", "XSec_1", 0.25);
+    SetParmVal(vertical_tail, "Camber", "XSecCurve_0", 0.0);
+    SetParmVal(vertical_tail, "CamberLoc", "XSecCurve_0", 0.0);
+    SetParmVal(vertical_tail, "ThickChord", "XSecCurve_0", 0.12);
+    SetParmVal(vertical_tail, "Camber", "XSecCurve_1", 0.0);
+    SetParmVal(vertical_tail, "CamberLoc", "XSecCurve_1", 0.0);
+    SetParmVal(vertical_tail, "ThickChord", "XSecCurve_1", 0.12);
+    SetDriverGroup(vertical_tail, 0, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER);
+    SetParmVal(vertical_tail, "X_Rel_Location", "XForm", 8.0);
+    SetParmVal(vertical_tail, "Y_Rel_Location", "XForm", 0.0);
+    SetParmVal(vertical_tail, "Z_Rel_Location", "XForm", 0.0);
+    SetParmVal(vertical_tail, "X_Rel_Rotation", "XForm", 90.0);
+
+    Update();
+}

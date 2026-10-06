@@ -1,0 +1,299 @@
+/* 마무리 정리: 사이트 전체를 차분하고 무게감 있는 톤으로 맞춘다. 모든 페이지에서 가장 마지막에 불러온다.
+   원칙 — 강조색은 남색 하나, 청록은 이름 뒤 점 같은 작은 표시에만. 모서리는 6~10px. 알약 배지·튀는 색·과한 확대 효과는 쓰지 않는다. */
+
+/* 1. 모서리 */
+.hero-stage .profile-card,.rx-hero-figure,.hx-feature-media,.hx-updates-list a,.hx-study-grid a,.ax-card,.rx-phase,.rx-track,
+.rx-pipe,.f-agents,.f-agents li,.f-node,.log-featured,.archive-category-card,.study-item,.rx-video,.pdf-viewer,
+.section-soft .interest-card,.rx-flow li{border-radius:10px}
+.hero-stage .profile-card .portrait,.hx-study-grid figure{border-radius:6px}
+.f-rag,.f-loop{border-radius:8px}
+
+/* 2. 라벨: 알약 → 각진 작은 라벨, 차분한 색 */
+.ax-badge,.hx-updates-list figure span,.rx-phase figure em,.ax-thumb em,.hx-updates-list figure em,.log-meta em,.rx-video em,
+.f-llm,.f-rag b,.f-tools span,.rx-phase-steps a,.cad-prompt span,.cad-steps li,.archive-category-card figure span,.ax-phase>header em,
+.hx-window-bar em,.rx-pipe li.uses-rag .rx-art::after{border-radius:4px}
+.tag-list li,.project-tags span,.demo-meta span{border-radius:4px;padding:6px 11px;font-size:12.5px;font-weight:600}
+.ax-thumb em,.hx-updates-list figure em,.log-meta em,.rx-phase figure em,.ax-phase>header em{background:var(--ink);color:#fff;letter-spacing:.08em;font-size:10.5px}
+.ax-badge,.hx-updates-list figure span{background:rgba(17,24,39,.78);font-size:10.5px;letter-spacing:.1em}
+.rx-video em{background:rgba(255,255,255,.14);color:#e5e7eb}
+.f-llm{background:var(--ink);font-size:12px;letter-spacing:.02em}
+.f-rag{background:#f3f6fa;border-color:var(--line);color:#374151}
+.f-rag b{background:var(--blue)}
+.f-loop{background:#fff;border:1px dashed #b9c6d6;color:#4b5563}
+.f-loop b{background:#e5e9ef;color:var(--ink)}
+.f-agents li.is-rag{border-color:var(--line)}
+.f-agents li.is-rag::before{border-left-color:#9fb3cc}
+.f-agents li b{background:var(--ink)}
+
+/* 3. 버튼: 알약 → 각진 버튼, 그림자 줄이고 움직임은 1px만 */
+.button,.item-actions button,.ax-actions button,.archive-empty button,.sort-toggle,.rx-demo-cta{border-radius:6px}
+.button{padding:13px 22px;box-shadow:none;letter-spacing:-.01em}
+.button:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(17,24,39,.18)}
+.button:active,.item-actions button:active,.ax-actions button:active{transform:translateY(0) scale(.99);box-shadow:none}
+.button:hover b{transform:none}
+.button-light{box-shadow:none}
+.button-light:hover{background:#e8eef6;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.segmented,.archive-search{border-radius:6px}
+.rx-video-swap span{border-radius:6px;font-size:13px;padding:9px 16px}
+
+/* 4. 움직임: 이미지 확대·튕김·반짝임 제거, 카드는 테두리 변화 위주 */
+.ax-card:hover .ax-thumb img,.hx-updates-list a:hover figure img,.log-thumb:hover img,.study-thumb:hover img{transform:none}
+.ax-card:hover,.hx-updates-list a:hover,.hx-study-grid a:hover,.rx-phase:hover,.archive-card:hover,.archive-category-card:hover,.section-soft .interest-card:hover{transform:translateY(-2px)}
+.rx-dot:hover{transform:none}
+.rx-dot.is-latest{box-shadow:0 0 0 4px rgba(14,74,132,.15)}
+
+/* 5. 강조색 정리: 청록 채움 → 남색/잉크 */
+.hx-updates-list li.is-latest a,.ax-card.is-latest{border:1px solid var(--ink);box-shadow:0 10px 28px rgba(17,24,39,.08)}
+.hx-updates-list li:first-child .hx-step b{color:var(--blue)}
+.rx-phase-steps a{background:#f1f4f8;color:var(--ink)}
+.rx-phase-steps a.is-latest{background:var(--ink);color:#fff}
+.rx-phase.is-current{border-color:#c7d6ea}
+.rx-journey{--p1:#9aa8b8;--p2:#4f6f95;--p3:#0e4a84}
+.chip[aria-pressed="true"]{background:var(--ink)}
+.cad-steps li.is-active{border-color:transparent;background:none;color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.cad-prompt span{background:none;border-color:#cbd5e1;color:var(--muted)}
+.cad-prompt code.is-typing::after{background:var(--ink)}
+
+/* 6. 앱 창 장식(신호등 점) 제거 → 얇은 제목 줄 */
+.hx-window-bar i{display:none}
+.hx-window-bar span{margin-left:0;letter-spacing:.02em}
+.hx-window-bar em{background:none;border:1px solid rgba(255,255,255,.25);color:#c9d4e2}
+.hx-feature-media::before{opacity:.5}
+
+/* 7. 글자: 제목은 단단하게, 라벨은 작고 차분하게 */
+h1,h2,h3{font-weight:800;letter-spacing:-.035em}
+.section-number,.eyebrow{font-size:12px;letter-spacing:.14em;font-weight:600}
+.rx-head h2,.hx-updates-head h2,.section-intro h2,.archive-section-header h2{letter-spacing:-.04em}
+
+/* 8. 넓은 화면: 헤더 로고·메뉴를 본문 폭(1160px)에 맞춤, 첫 화면 높이 줄임 */
+.site-header{padding-inline:max(20px,calc((100% - 1160px) / 2))}
+.hero-stage .hero{min-height:0;padding-top:56px;padding-bottom:20px}
+.cad-console{padding-bottom:26px}
+
+/* 9. Research 페이지 크기 한 단계 줄임 */
+.rx-hero-grid{padding-block:56px 52px;gap:36px}
+.rx-hero h1{font-size:clamp(44px,4.6vw,64px);margin:12px 0 16px}
+.rx-lead{font-size:17px;margin-bottom:24px}
+.rx-facts{margin-bottom:28px;row-gap:14px}
+.rx-facts b{font-size:15px}
+.rx-hero-visual{width:min(100%,540px);padding-top:8px}
+.rx-section,.rx-demo{padding-block:72px}
+.rx-head{margin-bottom:28px}
+.rx-head h2{font-size:clamp(26px,2.6vw,34px)}
+.rx-head-note{font-size:15.5px}
+.f-node strong{font-size:18px}
+.f-node>span,.f-agents li span{font-size:13.5px}
+.f-agents li strong{font-size:17px}
+.f-agents li{padding:16px 14px 14px}
+.f-rag,.f-loop{font-size:13.5px}
+.rx-video strong{font-size:17px}
+.rx-video span{font-size:14px}
+.rx-phase h3{font-size:18px}
+.rx-phase-summary{font-size:14px}
+.rx-phase-tag b{font-size:14px}
+
+/* 10. 파이프라인 그림 아이콘 (두 톤) */
+.f-ic{display:grid;place-items:center;width:56px;height:56px;margin-bottom:6px;border-radius:12px;background:#eef3f9}
+.f-ic svg{width:34px;height:34px}
+.f-ic .t{fill:#dbe6f3;stroke:#0e4a84;stroke-width:2.2;stroke-linejoin:round}
+.f-ic .w{fill:#fff;stroke:#0e4a84;stroke-width:2.2}
+.f-ic .l{fill:none;stroke:#0e4a84;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.f-output .f-ic{background:rgba(255,255,255,.1)}
+.f-output .f-ic .t{fill:rgba(255,255,255,.15);stroke:#fff}
+.f-output .f-ic .l{stroke:#fff}
+.f-input .f-ic{background:#f3f6fa}
+.f-agents li .f-ic{margin-bottom:2px}
+.f-agents li b{position:absolute;top:14px;right:14px;width:24px;height:24px;font-size:12px}
+.f-node small{font-size:12px;letter-spacing:.1em}
+.f-ic-sm{width:34px;height:34px;margin:0;border-radius:8px;background:#e5e9ef}
+.f-ic-sm svg{width:22px;height:22px}
+.f-rag b{white-space:nowrap}
+.f-node{justify-content:flex-start;padding-top:28px}
+.f-node.f-output strong{color:#fff}
+
+/* 11. 아카이브 카드: 한 줄 4장, 버튼 줄 없이 카드 전체가 미리보기 */
+.ax-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.ax-card{position:relative}
+.ax-body{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;padding:14px 16px 16px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.ax-body strong{font-size:15px;line-height:1.4;letter-spacing:-.02em;color:var(--ink)}
+.ax-body span{font-size:13px;line-height:1.5;color:var(--muted)}
+.ax-pdf{position:absolute;right:10px;top:10px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.92);color:var(--ink);font-size:11px;font-weight:700;text-decoration:none;opacity:0;transition:opacity .2s}
+.ax-card:hover .ax-pdf,.ax-pdf:focus-visible{opacity:1}
+.ax-thumb em{right:auto;left:auto;top:auto;bottom:10px;left:12px}
+.ax-phase{margin-bottom:36px}
+@media (max-width:1100px){.ax-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.ax-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ax-pdf{opacity:1}}
+
+/* 12. 첫 화면 진행 단계 표시: 둥근 테두리 없이 글자 + 밑줄만 */
+.cad-steps li,.cad-steps li.is-active{border:0;border-radius:0;background:none;box-shadow:none;padding:5px 8px}
+.cad-steps li.is-active{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.ax-body strong,.hx-card-body strong{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ax-body span{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 13. 아카이브 상단: 왼쪽 제목·숫자, 오른쪽 최신 자료 3장 겹침 */
+.archive-hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
+.ax-hero-stats{justify-items:start;margin-top:30px}
+.ax-hero-stats dl>div:first-child{padding-left:0}
+.ax-hero-stack{position:relative;height:300px}
+.ax-hero-stack figure{position:absolute;margin:0;width:62%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#fff;border:1px solid rgba(255,255,255,.18);box-shadow:0 22px 50px rgba(0,0,0,.4)}
+.ax-hero-stack img{display:block;width:100%;height:100%;object-fit:cover}
+.ax-hero-stack figcaption{position:absolute;left:10px;top:10px;padding:3px 8px;border-radius:4px;background:rgba(17,24,39,.8);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.1em}
+.ax-hero-stack .s0{right:0;top:12%;z-index:3;transform:rotate(2deg)}
+.ax-hero-stack .s1{right:22%;top:0;z-index:2;transform:rotate(-3deg);opacity:.92}
+.ax-hero-stack .s2{right:40%;top:30%;z-index:1;transform:rotate(-7deg);opacity:.85}
+@media (max-width:980px){.archive-hero-grid{grid-template-columns:1fr}.ax-hero-stack{height:220px}}
+@media (max-width:560px){.ax-hero-stack{display:none}}
+
+/* 14. Research 상단: 설계도 선을 배경에 은은하게, 글은 왼쪽에 차분하게 + 페이지 전체 크기 축소 */
+.rx-hero{position:relative;background-color:var(--navy);background-image:linear-gradient(90deg,var(--navy) 0%,rgba(16,41,74,.92) 38%,rgba(16,41,74,.35) 70%,rgba(16,41,74,.55) 100%),url(assets/images/text2cad-blueprint.png);background-repeat:no-repeat;background-position:center,right -40px center;background-size:auto,auto 118%}
+.rx-hero-inner{padding-block:64px 60px}
+.rx-hero h1{font-size:clamp(40px,4vw,54px);margin:10px 0 14px}
+.rx-lead{max-width:520px;font-size:16px;line-height:1.75;color:#d3dce8;margin:0 0 26px}
+.rx-meta{display:flex;flex-wrap:wrap;gap:0;list-style:none;margin:0 0 28px;padding:14px 0;max-width:640px;border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14)}
+.rx-meta li{display:flex;flex-direction:column;gap:3px;padding:0 20px;border-left:1px solid rgba(255,255,255,.14);font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
+.rx-meta li:first-child{padding-left:0;border-left:0}
+.rx-meta small{font-size:10.5px;font-weight:700;letter-spacing:.12em;color:#8db8e6}
+.rx-hero .button{padding:11px 18px;font-size:14px}
+/* 페이지 전체 한 단계 축소 */
+.rx-section,.rx-demo{padding-block:60px}
+.rx-head h2{font-size:clamp(24px,2.3vw,30px)}
+.rx-head-note{font-size:14.5px}
+.f-ic{width:46px;height:46px}.f-ic svg{width:28px;height:28px}
+.f-agents li strong{font-size:16px}.f-node strong{font-size:17px}
+.f-agents li span,.f-node>span{font-size:13px}
+.rx-video strong{font-size:16px}.rx-video span{font-size:13.5px}
+.rx-track{padding:22px 22px 18px}
+.rx-dot{width:34px;height:34px;font-size:12px}
+.rx-phase h3{font-size:17px}.rx-phase-summary{font-size:13.5px}
+@media (max-width:760px){.rx-hero{background-position:center,center bottom;background-size:auto,140% auto}.rx-meta li{padding:6px 14px 6px 0;border-left:0}}
+
+/* 15. 파이프라인: 상자 없이 아이콘 6개를 흐름선으로 연결 */
+.rx-steps{position:relative;padding-top:30px}
+.st-group{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:16px}
+.st-group span{grid-column:2/6;position:relative;display:flex;justify-content:center;margin:0 calc(50%/4);padding-top:10px;border-top:1.5px solid #c7d3e1;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--blue)}
+.st-group span::before,.st-group span::after{content:"";position:absolute;top:-1.5px;width:1.5px;height:10px;background:#c7d3e1}
+.st-group span::before{left:0}.st-group span::after{right:0}
+.rx-steps ol{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));list-style:none;margin:0;padding:0}
+.rx-steps ol::before{content:"";position:absolute;top:34px;left:calc(100%/12);right:calc(100%/12);height:2px;background:linear-gradient(90deg,#c7d3e1,#0e4a84 50%,#10294a)}
+.rx-steps li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:0 10px}
+.st-ic{position:relative;z-index:1;display:grid;place-items:center;width:68px;height:68px;margin-bottom:12px;border-radius:50%;background:#fff;border:2px solid #c7d3e1;box-shadow:0 0 0 8px #fff}
+.st-ic svg{width:32px;height:32px}
+.st-ic .t{fill:#e3ecf6;stroke:#0e4a84;stroke-width:2.2;stroke-linejoin:round}
+.st-ic .w{fill:#fff;stroke:#0e4a84;stroke-width:2.2}
+.st-ic .l{fill:none;stroke:#0e4a84;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.rx-steps li:not(.is-start):not(.is-end) .st-ic{border-color:var(--blue)}
+.rx-steps li.is-start .st-ic{border-style:dashed}
+.rx-steps li.is-end .st-ic{background:var(--navy);border-color:var(--navy)}
+.rx-steps li.is-end .st-ic .t{fill:rgba(255,255,255,.15);stroke:#fff}
+.rx-steps li.is-end .st-ic .l{stroke:#fff}
+.rx-steps li.uses-rag .st-ic::after{content:"참고";position:absolute;right:-10px;top:-4px;padding:2px 6px;border-radius:4px;background:var(--ink);color:#fff;font-size:10px;font-weight:700}
+.rx-steps small{font-size:11px;font-weight:700;letter-spacing:.12em;color:#7a8aa0}
+.rx-steps strong{font-size:16.5px;letter-spacing:-.03em;color:var(--ink)}
+.rx-steps li>span{font-size:13px;line-height:1.55;color:var(--muted);max-width:150px}
+.rx-steps em{margin-top:6px;padding:3px 9px;border-radius:4px;background:#f1f4f8;color:var(--blue);font-style:normal;font-size:12px;font-weight:700}
+.st-notes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
+.st-notes p{display:flex;align-items:center;gap:12px;margin:0;font-size:13.5px;line-height:1.6;color:#4b5563}
+.st-notes b{flex:none;display:grid;place-items:center;min-width:34px;height:28px;padding:0 8px;border-radius:4px;font-size:11px}
+.st-rag{background:var(--ink);color:#fff}
+.st-loop{background:#eef2f6}
+.st-loop svg{width:18px;height:18px}.st-loop .l{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:980px){
+  .st-group{display:none}
+  .rx-steps ol{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:30px}
+  .rx-steps ol::before{display:none}
+  .st-notes{grid-template-columns:1fr}
+}
+@media (max-width:560px){.rx-steps ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* 16. 글꼴 통일: 사이트 전체 Noto Sans KR */
+body,button,input,select,textarea,.site-header nav a,.nav-dropdown-trigger,code,.art-code code{font-family:'Noto Sans KR',sans-serif}
+.site-header nav a{font-weight:600;letter-spacing:-.01em}
+
+/* 17. Research 상단 설계도: 본문 폭 안 오른쪽에 온전히, 은은하게 */
+.rx-hero{background-image:linear-gradient(90deg,var(--navy) 0%,rgba(16,41,74,.9) 40%,rgba(16,41,74,.55) 100%),url(assets/images/text2cad-blueprint.png);background-position:center,right max(20px,calc((100% - 1160px) / 2)) center;background-size:auto,min(54vw,680px) auto}
+@media (max-width:980px){.rx-hero{background-image:linear-gradient(180deg,rgba(16,41,74,.9),rgba(16,41,74,.75)),url(assets/images/text2cad-blueprint.png);background-position:center,center 85%;background-size:auto,90% auto}}
+
+/* 18. 아카이브 상단 겹친 자료: 비스듬히 놓인 한 벌의 카드처럼 */
+.ax-hero-stack{height:320px;perspective:1600px}
+.ax-hero-stack figure{width:56%;border-radius:10px;border:1px solid rgba(255,255,255,.22);box-shadow:0 30px 60px rgba(3,10,25,.55),0 2px 0 rgba(255,255,255,.06) inset;opacity:1;transform-origin:center;transition:transform .5s cubic-bezier(.2,.7,.2,1),filter .3s}
+.ax-hero-stack .s2{right:34%;top:2%;z-index:1;transform:rotateY(-18deg) rotateX(8deg) rotateZ(-2deg);filter:brightness(.72) saturate(.85);opacity:1}
+.ax-hero-stack .s1{right:17%;top:17%;z-index:2;transform:rotateY(-18deg) rotateX(8deg) rotateZ(-2deg);filter:brightness(.86);opacity:1}
+.ax-hero-stack .s0{right:0;top:32%;z-index:3;transform:rotateY(-18deg) rotateX(8deg) rotateZ(-2deg)}
+.ax-hero-stack:hover .s2{transform:rotateY(-18deg) rotateX(8deg) rotateZ(-2deg) translate(-14px,-10px)}
+.ax-hero-stack:hover .s0{transform:rotateY(-18deg) rotateX(8deg) rotateZ(-2deg) translate(14px,10px)}
+.ax-hero-stack figcaption{left:12px;top:12px;font-size:10px}
+.ax-hero-stack::before{content:"";position:absolute;inset:20% 0 -10% 10%;background:radial-gradient(ellipse at center,rgba(80,140,220,.35),transparent 65%);filter:blur(10px);z-index:0}
+@media (prefers-reduced-motion:reduce){.ax-hero-stack figure{transition:none}}
+
+/* 19. 스터디 썸네일: 슬라이드 비율(16:9) 그대로, 잘림 없이 */
+.hx-study-grid figure,.ax-study-grid .ax-thumb{aspect-ratio:16/9;background:#0b0d10}
+.hx-study-grid img,.ax-study-grid .ax-thumb img{object-fit:cover;object-position:center}
+.hx-study-grid figure.is-note,.ax-study-grid .ax-thumb.is-note{background:#fff}
+.hx-study-grid figure.is-note img,.ax-study-grid .ax-thumb.is-note img{object-fit:cover;object-position:top}
+
+/* 20. 겹친 카드: 기울임(3D·회전) 없이 반듯하게 → 선명하게. 뒤 카드는 필터 대신 덮개로 어둡게 */
+.ax-hero-stack{perspective:none}
+.ax-hero-stack figure,.ax-hero-stack .s0,.ax-hero-stack .s1,.ax-hero-stack .s2,
+.ax-hero-stack:hover .s0,.ax-hero-stack:hover .s2{transform:none;filter:none}
+.ax-hero-stack figure{width:58%}
+.ax-hero-stack .s2{right:30%;top:0}
+.ax-hero-stack .s1{right:15%;top:16%}
+.ax-hero-stack .s0{right:0;top:32%}
+.ax-hero-stack .s1::after,.ax-hero-stack .s2::after{content:"";position:absolute;inset:0;background:rgba(16,41,74,.28);pointer-events:none}
+.ax-hero-stack .s2::after{background:rgba(16,41,74,.42)}
+.ax-hero-stack figure{transition:translate .4s cubic-bezier(.2,.7,.2,1)}
+.ax-hero-stack:hover .s2{translate:-10px -8px}
+.ax-hero-stack:hover .s0{translate:10px 8px}
+
+/* 21. 프로필 카드: 남색 바탕 (흰 증명사진이 또렷하게) */
+.hero-stage .profile-card{background:var(--navy);border:1px solid var(--navy);box-shadow:0 18px 44px rgba(16,41,74,.28)}
+.hero-stage .profile-card .profile-name{color:#fff}
+.hero-stage .profile-card .profile-info dt{color:#8db8e6}
+.hero-stage .profile-card .profile-info dd{color:#e5ebf3}
+.hero-stage .profile-card .profile-info a{color:#fff;text-decoration-color:rgba(255,255,255,.45)}
+.hero-stage .profile-card .profile-info a:hover{text-decoration-color:#fff}
+
+/* 22. 구간 나눔 없애기: 페이지 바탕 하나로 잇고, 남색 띠는 본문 폭 안의 둥근 패널로 */
+:root{--page:#f4f5f7}
+body{background:var(--page)}
+/* 밝은 섹션: 자체 바탕·경계선 제거 → 바탕이 이어짐 */
+.hx-focus,.hx-updates,.section-soft,.archive-section,.archive-study-section,.archive-preview,.page-index,.rx-section,#study-materials{background:transparent!important;background-image:none!important;border:0!important}
+.archive-toolbar{background:rgba(244,245,247,.94);border-bottom:1px solid var(--line)}
+/* 첫 화면(홈): 바탕색에 녹아들게 */
+.hero-stage{background:var(--page)}
+.hero-stage::after{background:linear-gradient(90deg,rgba(244,245,247,.85) 0%,rgba(244,245,247,.5) 22%,rgba(244,245,247,.1) 36%,rgba(244,245,247,0) 46%),linear-gradient(180deg,rgba(244,245,247,0) 70%,var(--page) 100%)!important}
+/* 남색 띠 → 패널: 바깥 섹션은 투명, 안쪽 본문 폭 상자에 남색 */
+.hx-feature,.rx-demo,.rx-hero,.archive-page-hero{background:transparent!important;background-image:none!important;border:0!important;padding-block:20px!important}
+.hx-feature>.section-shell,.rx-demo>.section-shell,.rx-hero>.section-shell,.archive-page-hero>.section-shell{position:relative;border-radius:18px;background-color:var(--navy);background-image:radial-gradient(ellipse 55% 80% at 88% 0%,rgba(80,140,220,.24),transparent 70%);padding:56px clamp(24px,4vw,56px);overflow:hidden;box-shadow:0 20px 50px rgba(16,41,74,.16)}
+.hx-feature>.section-shell{padding-block:60px}
+/* Research 상단 설계도 배경은 패널 안으로 */
+.rx-hero>.section-shell{background-image:linear-gradient(90deg,var(--navy) 0%,rgba(16,41,74,.9) 42%,rgba(16,41,74,.55) 100%),url(assets/images/text2cad-blueprint.png);background-repeat:no-repeat;background-position:center,right 24px center;background-size:auto,min(48vw,620px) auto}
+.archive-page-hero .archive-hero-inner{padding-block:52px}
+/* 첫 패널은 헤더와 약간 띄움, 섹션 간 여백 정리 */
+main>section:first-child.rx-hero,main>section:first-child.archive-page-hero{padding-top:28px!important}
+.hx-updates{padding-block:64px}
+.rx-section{padding-block:56px}
+@media (max-width:760px){
+  .hx-feature>.section-shell,.rx-demo>.section-shell,.rx-hero>.section-shell,.archive-page-hero>.section-shell{border-radius:14px;padding:36px 20px}
+  .rx-hero>.section-shell{background-position:center,center 92%;background-size:auto,92% auto}
+}
+
+/* 23. 허전함 줄이기: 페이지 전체 옅은 모눈, 넓은 화면 본문 폭 확대, 관심 분야 카드 */
+body{background-color:var(--page);background-image:linear-gradient(rgba(14,74,132,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(14,74,132,.035) 1px,transparent 1px);background-size:40px 40px;background-attachment:fixed}
+@media (min-width:1400px){.section-shell{width:min(1260px,calc(100% - 96px))}.site-header{padding-inline:max(20px,calc((100% - 1260px) / 2))}}
+.hx-focus-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding-block:32px 8px}
+.hx-focus-grid .section-number{display:none}
+.hx-focus-item{display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto auto;column-gap:16px;align-items:center;padding:20px 22px;border-left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(17,24,39,.04)}
+.hx-focus-item strong{grid-column:2;font-size:16.5px}
+.hx-focus-item span{grid-column:2;margin-top:2px;font-size:13.5px}
+.hx-ic{grid-row:1/3;display:grid;place-items:center;width:52px;height:52px;border-radius:10px;background:#eef3f9}
+.hx-ic svg{width:30px;height:30px}
+.hx-ic .t{fill:#dbe6f3;stroke:#0e4a84;stroke-width:2.2;stroke-linejoin:round}
+.hx-ic .w{fill:#fff;stroke:#0e4a84;stroke-width:2.2}
+.hx-ic .l{fill:none;stroke:#0e4a84;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:980px){.hx-focus-grid{grid-template-columns:1fr}}
+.hx-focus-grid{align-items:stretch}
+.hx-focus-item{height:100%}
+.hx-focus-item span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:1100px){.hx-focus-item span{white-space:normal}}
+.ax-thumb img,.hx-updates-list figure img{object-position:center}

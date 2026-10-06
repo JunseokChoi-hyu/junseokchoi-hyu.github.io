@@ -8,50 +8,79 @@
   <link rel="canonical" href="https://junseokchoi-hyu.github.io/archive.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="multipage.css">
+  <link rel="stylesheet" href="archive.css">
+  <link rel="stylesheet" href="refine.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo.png?v=official-20260802" alt="IDEA Lab"></a>
+    <a class="lab-brand" href="./" aria-label="홈"><img src="assets/images/idea-lab-logo-white@1x.png" srcset="assets/images/idea-lab-logo-white@1x.png 1x, assets/images/idea-lab-logo-white@1.25x.png 1.25x, assets/images/idea-lab-logo-white@1.5x.png 1.5x, assets/images/idea-lab-logo-white@1.75x.png 1.75x, assets/images/idea-lab-logo-white@2x.png 2x, assets/images/idea-lab-logo-white@3x.png 3x" alt="IDEA Lab"></a>
     <nav aria-label="주요 메뉴"><a href="./">Home</a><a href="text2cad-demo.html">Research</a><a class="active" href="archive.html">Archive</a></nav>
   </header>
   <main>
     <section class="archive-page-hero">
-      <div class="section-shell archive-hero-inner">
-        <div><p class="eyebrow reveal">ARCHIVE</p><h1 class="reveal delay-1">자료 아카이브<span>.</span></h1><p class="reveal delay-2">연구 결과와 스터디 자료를 구분해 정리합니다.<br>새로운 자료는 각 분류에 계속 추가됩니다.</p></div>
-      </div>
-    </section>
-
-    <section id="research-materials" class="archive-section section-shell">
-      <header class="archive-section-header reveal"><div><span>01</span><h2>Research</h2></div><p>연구 과정, 결과와 실행 데모</p></header>
-      <div class="archive-page-grid research-archive-grid">
-        <a class="archive-card reveal" href="assets/pdfs/Text2CAD_STEP%201.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step01.png?v=20260802f" alt="CADGenBench baseline STEP 생성 성공 및 형상 유효성 결과"><div><span>RESEARCH 01 · PDF</span><h3>Text2CAD_STEP 1</h3><p>CADGenBench baseline을 실행해 STEP 형상을 생성하고 결과를 확인했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-        <a class="archive-card reveal delay-1" href="assets/pdfs/Text2CAD_STEP%202.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step02.png?v=20260802f" alt="Local LLM으로 생성한 비틀림 날개 FreeCAD 결과"><div><span>RESEARCH 02 · PDF</span><h3>Text2CAD_STEP 2</h3><p>Local LLM으로 FreeCAD 형상을 생성하고 실행 과정을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-        <a class="archive-card reveal delay-2" href="assets/pdfs/Text2CAD_STEP%203.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step03.png?v=20260807b" alt="자연어 요청부터 스키마 검증, FreeCAD 실행, STEP 내보내기까지 이어지는 Text2CAD 최종 프로그램 구조 흐름도"><div><span>RESEARCH 03 · PDF</span><h3>Text2CAD_STEP 3</h3><p>LLM은 자연어 해석만 맡고 계산·코드 생성·검증은 프로그램이 담당하도록 구조를 분리한 과정을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-      <a class="archive-card reveal" href="assets/pdfs/Text2CAD_STEP%204.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step04.png" alt="Text2CAD STEP 4 연구 자료 대표 페이지"><div><span>RESEARCH 04 · PDF</span><h3>Text2CAD_STEP 4</h3><p>Local LLM과 RAG를 활용한 CAD 생성 구조와 항공기 형상 연구 진행 내용을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-      <a class="archive-card reveal" href="assets/pdfs/Text2CAD_STEP%205.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step05.png" alt="Text2CAD STEP 5 연구 자료 대표 페이지"><div><span>RESEARCH 05 · PDF</span><h3>Text2CAD_STEP 5</h3><p>Agent 구조와 Skill·RAG 적용 실험을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-      <a class="archive-card reveal" href="assets/pdfs/Text2CAD_STEP%206.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step06.png" alt="Text2CAD STEP 6 연구 자료 대표 페이지"><div><span>RESEARCH 06 · PDF</span><h3>Text2CAD_STEP 6</h3><p>생성 파이프라인을 개선하고 IoU·Chamfer를 활용한 형상 비교 방법을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-      <a class="archive-card reveal" href="assets/pdfs/Text2CAD_STEP%207.pdf" target="_blank" rel="noreferrer"><img class="document-result-thumb" src="assets/thumbnails/text2cad-step07.png" alt="Text2CAD STEP 7 연구 자료 대표 페이지"><div><span>RESEARCH 07 · PDF</span><h3>Text2CAD_STEP 7</h3><p>LLM에서 OpenVSP로 이어지는 생성 구조와 RAG 검색 방법을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-      </div>
-    </section>
-
-    <section id="study-materials" class="archive-section archive-study-section">
-      <div class="section-shell">
-        <header class="archive-section-header reveal"><div><span>02</span><h2>Study</h2></div><p>AI 학습 노트와 스터디 발표 자료</p></header>
-        <div class="archive-page-grid study-archive-grid">
-          <a class="archive-card reveal" href="assets/study/ANN%20코드%20학습%20노트.pdf" target="_blank" rel="noreferrer"><img class="study-thumb note-thumb" src="assets/thumbnails/ann-study.png?v=20260802f" alt="Weight, Bias와 활성화 함수를 정리한 ANN 필기"><div><span>STUDY 01 · PDF</span><h3>ANN 코드 학습 노트</h3><p>Weight, Bias와 활성화 함수의 역할을 그림과 함께 정리한 학습 노트입니다.</p><b>필기 자료 열기 ↗</b></div></a>
-          <a class="archive-card reveal delay-1" href="assets/study/Chap%2005%20스터디%20자료.pdf" target="_blank" rel="noreferrer"><img class="study-thumb" src="assets/thumbnails/chapter-05.png?v=20260802f" alt="Chap 05 합성곱 신경망 스터디 발표 표지"><div><span>STUDY 02 · PDF</span><h3>Chap 05 스터디 자료</h3><p>ResNet18 기반 분류 실습과 예측 결과, 특성 맵 분석을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-          <a class="archive-card reveal delay-2" href="assets/study/Chap%2007%20스터디%20자료.pdf" target="_blank" rel="noreferrer"><img class="study-thumb" src="assets/thumbnails/chapter-07.png?v=20260802f" alt="Chap 07 시계열 분석 스터디 발표 표지"><div><span>STUDY 03 · PDF</span><h3>Chap 07 스터디 자료</h3><p>시계열 데이터를 다루는 순환 신경망의 구조와 차이를 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
-          <a class="archive-card reveal" href="assets/study/Chap%2007%20스터디%20자료%20(코드%20중심).pdf" target="_blank" rel="noreferrer"><img class="study-thumb" src="assets/thumbnails/chapter-07-code.png?v=20260802f" alt="7장 시계열분석 코드 중심 발표 표지"><div><span>STUDY 04 · PDF</span><h3>Chap 07 스터디 자료 (코드 중심)</h3><p>순환 신경망의 핵심 구조를 실제 구현 코드 중심으로 정리했습니다.</p><b>코드 자료 바로 열기 ↗</b></div></a>
-          <a class="archive-card reveal delay-1" href="assets/study/Chap%2008%20스터디%20자료.pdf" target="_blank" rel="noreferrer"><img class="study-thumb" src="assets/thumbnails/chapter-08.png?v=20260807" alt="Chap 08 성능 최적화 스터디 발표 표지"><div><span>STUDY 05 · PDF</span><h3>Chap 08 스터디 자료</h3><p>데이터·알고리즘·하드웨어와 배치 정규화, 드롭아웃 등 성능 최적화 방법을 정리했습니다.</p><b>PDF 바로 열기 ↗</b></div></a>
+      <div class="section-shell archive-hero-inner archive-hero-grid">
+        <div>
+          <p class="eyebrow reveal">ARCHIVE</p>
+          <h1 class="reveal delay-1">자료 아카이브<span>.</span></h1>
+          <p class="reveal delay-2">Text2CAD 연구 기록과 AI 스터디 자료를 정리합니다.<br>각 자료는 페이지 안에서 바로 미리 볼 수 있습니다.</p>
+        <div class="archive-stats ax-hero-stats reveal delay-2">
+          <dl>
+            <div><dt>RESEARCH</dt><dd data-stat="research">10</dd><small>Text2CAD steps</small></div>
+            <div><dt>STUDY</dt><dd data-stat="study">05</dd><small>Notes &amp; slides</small></div>
+            <div><dt>FILES</dt><dd data-stat="files">15</dd><small>PDF documents</small></div>
+          </dl>
         </div>
-        <p class="archive-note">자료는 연구 및 학습 기록 공유를 목적으로 공개합니다.</p>
+
+        </div>
+        <div class="ax-hero-stack reveal delay-1" data-hero-stack aria-hidden="true"></div>
       </div>
     </section>
+
+    <div class="archive-toolbar" role="search">
+      <div class="section-shell archive-toolbar-inner">
+        <div class="segmented" role="tablist" aria-label="분류">
+          <button type="button" role="tab" data-kind="research" aria-selected="true">Research <small></small></button>
+          <button type="button" role="tab" data-kind="study" aria-selected="false">Study <small></small></button>
+        </div>
+        <label class="archive-search">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
+          <input id="archive-search" type="search" placeholder="제목, 내용, 태그 검색" autocomplete="off">
+        </label>
+      </div>
+    </div>
+
+    <section id="research-materials" class="archive-section section-shell" role="tabpanel">
+      <header class="archive-section-header"><div><span>01</span><h2>Research Log</h2></div><p>Text2CAD 연구 단계별 기록 <button type="button" class="sort-toggle" data-sort>최신 단계부터</button></p></header>
+      <div id="research-phases"></div>
+    </section>
+
+    <section id="study-materials" class="archive-section section-shell" role="tabpanel" hidden>
+      <header class="archive-section-header"><div><span>02</span><h2>Study</h2></div><p>AI 학습 노트와 스터디 발표 자료</p></header>
+      <ul id="study-list" class="ax-grid ax-study-grid"></ul>
+    </section>
+
+    <div class="archive-empty section-shell" data-empty hidden>
+      <p>조건에 맞는 자료가 없습니다.</p>
+      <button type="button" data-reset>필터 초기화</button>
+    </div>
+    <noscript><p class="section-shell archive-note">자료 목록을 보려면 JavaScript가 필요합니다.</p></noscript>
   </main>
+
+  <dialog id="pdf-viewer" class="pdf-viewer" aria-labelledby="pdf-title">
+    <div class="pdf-viewer-head">
+      <h2 id="pdf-title"></h2>
+      <a id="pdf-open" href="#" target="_blank" rel="noreferrer">새 탭에서 열기 ↗</a>
+      <button type="button" data-close aria-label="닫기">✕</button>
+    </div>
+    <iframe id="pdf-frame" title="PDF 미리보기" src="about:blank"></iframe>
+  </dialog>
+
   <footer id="contact" class="site-footer"><div class="section-shell footer-inner"><p>CONTACT</p><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a><span>© 2026 Choi Junseok · IDEA Lab</span></div></footer>
+  <script src="archive-data.js"></script>
+  <script src="archive.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

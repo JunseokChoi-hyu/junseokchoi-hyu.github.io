@@ -16,7 +16,7 @@
 .archive-card:hover{transform:translateY(-4px);border-color:#9db5c5;box-shadow:0 16px 40px rgba(11,43,74,.09)}
 .archive-card>img{width:100%;height:100%;min-height:230px;object-fit:cover;background:#e9eff3}
 .archive-card>div{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:25px}
-.archive-card span{font:500 11px 'DM Mono',monospace;letter-spacing:.08em;color:var(--blue)}
+.archive-card span{font:500 11px 'Noto Sans KR',sans-serif;letter-spacing:.08em;color:var(--blue)}
 .archive-card h3{font-size:22px;line-height:1.35;letter-spacing:-.04em;margin:13px 0 8px}
 .archive-card p{font-size:14px;color:var(--muted);margin:0 0 22px}
 .archive-card b{margin-top:auto;font-size:12px}
@@ -27,12 +27,12 @@
 .research-page-hero>p:last-child{font-size:20px;color:var(--muted);margin:0}
 .research-list{padding:40px 0 110px}
 .research-entry{display:grid;grid-template-columns:135px 38% 1fr;gap:32px;padding:56px 0;border-bottom:1px solid var(--line)}
-.research-entry-index span{display:block;font:500 25px 'DM Mono',monospace;color:var(--aqua)}
-.research-entry-index small{display:block;font:500 10px 'DM Mono',monospace;color:var(--muted);margin-top:8px}
+.research-entry-index span{display:block;font:500 25px 'Noto Sans KR',sans-serif;color:var(--aqua)}
+.research-entry-index small{display:block;font:500 10px 'Noto Sans KR',sans-serif;color:var(--muted);margin-top:8px}
 .research-entry-media img{display:block;width:100%;height:100%;min-height:340px;object-fit:cover;object-position:center;background:#eef2f4}
 .research-entry-body h2{font-size:clamp(28px,3.5vw,44px);line-height:1.25;letter-spacing:-.055em;margin:14px 0 20px}
 .research-entry-body>p:not(.project-kicker){font-size:15px;color:var(--muted)}
-.research-entry-flow{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:26px 0;color:var(--blue);font:500 11px 'DM Mono',monospace}
+.research-entry-flow{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:26px 0;color:var(--blue);font:500 11px 'Noto Sans KR',sans-serif}
 .dark-tags span{color:var(--ink);border-color:#afc1cc}
 .research-entry-body .project-actions{margin-top:28px}
 .future-entry{grid-template-columns:135px 1fr;background:var(--mist);padding:42px 32px;margin-top:35px;border:0}
@@ -41,7 +41,7 @@
 .demo-result-image{max-width:900px;margin:36px auto 24px;border:1px solid var(--line);background:var(--mist)}
 .demo-result-image img{display:block;width:100%;height:auto}
 .demo-result-image figcaption{display:flex;gap:25px;align-items:center;padding:16px 20px}
-.demo-result-image figcaption span{font:500 11px 'DM Mono',monospace;color:var(--blue)}
+.demo-result-image figcaption span{font:500 11px 'Noto Sans KR',sans-serif;color:var(--blue)}
 .demo-result-image figcaption p{font-size:14px;color:var(--muted);margin:0}
 .demo-video{max-width:900px;margin:0 auto;display:grid;grid-template-columns:.72fr 1.28fr;gap:30px;align-items:start;padding:30px;background:var(--navy);color:#fff}
 .demo-video+.demo-video{margin-top:18px}
@@ -96,9 +96,9 @@ body{background:#fff}
 .page-index a{display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto;padding:24px 28px;color:var(--ink);text-decoration:none;border-left:1px solid var(--line);transition:background .2s ease}
 .page-index a:last-child{border-right:1px solid var(--line)}
 .page-index a:hover{background:#f3f7f9}
-.page-index span{grid-row:1/3;font:500 12px 'DM Mono',monospace;color:var(--aqua);padding-top:2px}
+.page-index span{grid-row:1/3;font:500 12px 'Noto Sans KR',sans-serif;color:var(--aqua);padding-top:2px}
 .page-index strong{font-size:15px}
-.page-index small{font:400 10px 'DM Mono',monospace;color:var(--muted);margin-top:2px}
+.page-index small{font:400 10px 'Noto Sans KR',sans-serif;color:var(--muted);margin-top:2px}
 
 .section-block{padding:112px 0;border-bottom:1px solid var(--line)}
 .section-soft{background:#f3f6f8;border-top:0}
@@ -114,25 +114,25 @@ body{background:#fff}
 .feature-project{padding:22px 0 4px}
 .feature-project h3{margin-top:32px}
 .feature-project h3.project-title{font-size:clamp(38px,4.4vw,58px);line-height:1.05;letter-spacing:-.055em;margin-bottom:28px}
-.feature-project h3.project-title span{display:block;margin-top:18px;color:#76cbdb;font:500 clamp(13px,1.4vw,17px) 'DM Mono',monospace;letter-spacing:.04em}
+.feature-project h3.project-title span{display:block;margin-top:18px;color:#76cbdb;font:500 clamp(13px,1.4vw,17px) 'Noto Sans KR',sans-serif;letter-spacing:.04em}
 
 .archive-preview{background:#fff}
 .archive-preview .section-intro .button{margin-top:30px}
 .archive-preview-list{border-top:2px solid var(--ink)}
 .preview-row{display:grid;grid-template-columns:94px 1fr 34px;align-items:center;gap:20px;min-height:112px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;transition:padding .2s ease,background .2s ease}
 .preview-row:hover{padding-inline:14px;background:#f5f8fa}
-.preview-row>span{font:500 10px 'DM Mono',monospace;letter-spacing:.08em;color:var(--blue)}
+.preview-row>span{font:500 10px 'Noto Sans KR',sans-serif;letter-spacing:.08em;color:var(--blue)}
 .preview-row strong{display:block;font-size:18px;letter-spacing:-.025em}
 .preview-row small{display:block;font-size:13px;color:var(--muted);margin-top:4px}
-.preview-row>b{font:500 13px 'DM Mono',monospace;color:#8ba3b4}
+.preview-row>b{font:500 13px 'Noto Sans KR',sans-serif;color:#8ba3b4}
 .archive-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .archive-category-card{display:block;overflow:hidden;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .archive-category-card:hover{transform:translateY(-5px);border-color:#9db5c5;box-shadow:0 16px 38px rgba(11,43,74,.1)}
 .archive-category-card figure{position:relative;height:180px;margin:0;overflow:hidden;background:#e9eff3}
 .archive-category-card figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-.archive-category-card figure span{position:absolute;right:12px;bottom:12px;padding:5px 8px;background:rgba(11,43,74,.9);color:#fff;font:500 10px 'DM Mono',monospace;letter-spacing:.08em}
+.archive-category-card figure span{position:absolute;right:12px;bottom:12px;padding:5px 8px;background:rgba(11,43,74,.9);color:#fff;font:500 10px 'Noto Sans KR',sans-serif;letter-spacing:.08em}
 .archive-category-card>div{padding:22px 24px 24px}
-.archive-category-card p{margin:0;color:var(--blue);font:500 10px 'DM Mono',monospace;letter-spacing:.1em}
+.archive-category-card p{margin:0;color:var(--blue);font:500 10px 'Noto Sans KR',sans-serif;letter-spacing:.1em}
 .archive-category-card h3{margin:10px 0 4px;font-size:26px;letter-spacing:-.04em}
 .archive-category-card small{display:block;color:var(--muted);font-size:13px}
 .archive-category-card b{display:block;margin-top:24px;font-size:12px}
@@ -160,7 +160,7 @@ body{background:#fff}
 .archive-study-section{background:#f3f6f8;border-top:1px solid var(--line);padding-block:92px}
 .archive-section-header{display:flex;align-items:end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:34px}
 .archive-section-header>div{display:flex;align-items:baseline;gap:22px}
-.archive-section-header span{font:500 13px 'DM Mono',monospace;color:var(--aqua)}
+.archive-section-header span{font:500 13px 'Noto Sans KR',sans-serif;color:var(--aqua)}
 .archive-section-header h2{font-size:38px;line-height:1;margin:0;letter-spacing:-.05em}
 .archive-section-header p{font-size:14px;color:var(--muted);margin:0}
 .archive-page-grid{display:grid;gap:22px}
@@ -191,7 +191,7 @@ body{background:#fff}
 .project-document-card>img.document-page{object-position:center 18%}
 .project-document-card>img.document-result-page{object-fit:contain;object-position:center;background:#f4f8fa}
 .project-document-card>div{display:flex;flex-direction:column;align-items:flex-start;min-height:190px;padding:20px 22px}
-.project-document-card span{font:500 11px 'DM Mono',monospace;letter-spacing:.08em;color:var(--blue)}
+.project-document-card span{font:500 11px 'Noto Sans KR',sans-serif;letter-spacing:.08em;color:var(--blue)}
 .project-document-card h3{font-size:20px;line-height:1.35;letter-spacing:-.04em;margin:10px 0 7px}
 .project-document-card p{font-size:14px;color:var(--muted);margin:0 0 22px}
 .project-document-card b{margin-top:auto;font-size:12px}
@@ -264,3 +264,209 @@ body{background:#fff}
   .button-ripple{display:none}
   .is-pressed{transform:none!important}
 }
+
+/* Hero background: Text2CAD aircraft build animation (hero-cad.js) */
+.hero-stage{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(180deg,#fbfdfe 0%,#f1f6f9 100%)}
+.hero-cad-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-2;display:block;opacity:0;transition:opacity 1.2s ease}
+.hero-stage.is-ready .hero-cad-canvas{opacity:1}
+.hero-stage::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(252,253,254,.8) 0%,rgba(252,253,254,.5) 22%,rgba(252,253,254,.12) 34%,rgba(252,253,254,0) 44%,rgba(252,253,254,0) 100%),linear-gradient(180deg,rgba(252,253,254,0) 70%,rgba(252,253,254,.75) 100%)}
+.hero-stage .hero{padding-bottom:36px}
+.hero-stage .profile-card{background:linear-gradient(135deg,rgba(249,252,253,.9) 0%,rgba(237,246,248,.86) 100%);box-shadow:0 18px 50px rgba(11,43,74,.08)}
+.cad-console{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 0 34px;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:#5d7183}
+.cad-prompt{display:flex;align-items:center;gap:12px;margin:0;min-width:0}
+.cad-prompt span{flex:none;padding:4px 8px;border:1px solid #c7dce5;background:rgba(255,255,255,.7);color:#15568a;letter-spacing:.08em;font-size:10px}
+.cad-prompt code{font:inherit;font-family:'Noto Sans KR',sans-serif;color:#0b2b4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.4em}
+.cad-prompt code.is-typing::after{content:"";display:inline-block;width:7px;height:1.05em;margin-left:3px;vertical-align:-2px;background:#1fb9c7;animation:cadCaret .8s steps(1) infinite}
+@keyframes cadCaret{50%{opacity:0}}
+.cad-steps{display:flex;gap:6px;margin:0;padding:0;list-style:none;counter-reset:cad}
+.cad-steps li{counter-increment:cad;display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;color:#8a9bab;transition:color .4s,border-color .4s,background .4s;white-space:nowrap}
+.cad-steps li::before{content:"0" counter(cad);font-size:10px;color:inherit;opacity:.7}
+.cad-steps li.is-done{color:#355671}
+.cad-steps li.is-active{color:#15568a;border-color:#9fd8de;background:rgba(255,255,255,.75)}
+@media (max-width:980px){
+  .cad-steps{display:none}
+  .hero-stage .hero{grid-template-columns:1fr}
+  .hero-stage::after{background:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.5) 55%,rgba(255,255,255,.8) 100%)}
+}
+@media (prefers-reduced-motion:reduce){.hero-cad-canvas{transition:none}.cad-prompt code.is-typing::after{animation:none}}
+
+/* Theme: research notebook — 연구실 로고의 남색·청록을 유지하고, 모눈·도면 질감으로 "연구하는 사람" 인상을 준다. */
+:root{--ink:#0b2b4a;--blue:#15568a;--aqua:#1fb9c7;--navy:#0c2640;--paper:#fbfcfd;--mist:#f2f6f9;--line:#d6e1ea;--muted:#56697b;--grid:rgba(21,86,138,.055);--grid-dark:rgba(118,203,219,.075)}
+::selection{background:rgba(31,185,199,.25)}
+body{background:var(--paper)}
+
+/* 밝은 섹션: 연구 노트 모눈 */
+.section-soft,.archive-study-section,.research-page-hero,.demo-hero{background-color:var(--mist);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+.archive-preview{background:var(--paper)}
+
+/* 어두운 섹션: 청사진(blueprint) */
+.research-band,.evaluation,.project-documents,.archive-page-hero,.demo-video{background-color:var(--navy);background-image:radial-gradient(ellipse 60% 70% at 85% 0%,rgba(31,185,199,.16),transparent 70%),linear-gradient(var(--grid-dark) 1px,transparent 1px),linear-gradient(90deg,var(--grid-dark) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+.site-footer{background:#081c30;border-top:1px solid rgba(118,203,219,.18)}
+
+/* 섹션 라벨: 도면 주석처럼 앞에 짧은 선 */
+.section-number,.eyebrow{display:inline-flex;align-items:center;gap:10px}
+.section-number::before,.eyebrow::before{content:"";width:22px;height:1px;background:currentColor;opacity:.6}
+.section-intro.light .section-number{color:#76cbdb}
+
+/* 카드: 위쪽 강조선을 청록→남색 그라데이션으로, 호버 시 살짝 떠오름 */
+.section-soft .interest-card{border-top:0;position:relative;box-shadow:0 1px 0 rgba(11,43,74,.04);transition:transform .25s ease,box-shadow .25s ease}
+.section-soft .interest-card::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:3px;background:linear-gradient(90deg,var(--aqua),var(--blue))}
+.section-soft .interest-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(11,43,74,.1)}
+.archive-card:hover,.archive-category-card:hover{border-color:#9fd8de;box-shadow:0 18px 40px rgba(11,43,74,.1)}
+.archive-section-header{border-bottom:0;background:linear-gradient(90deg,var(--ink),var(--blue) 55%,rgba(31,185,199,.6)) bottom/100% 2px no-repeat}
+
+/* 태그·버튼 */
+.project-tags span,.demo-meta span{border-color:#c5e7ea;background:#e3f4f5;color:#16707a}
+.research-band .project-tags span,.project-documents .project-tags span,.demo-video .project-tags span{border-color:rgba(159,224,230,.45);background:rgba(31,185,199,.1);color:#d9f3f6}
+.button-dark{background:linear-gradient(135deg,var(--ink),var(--blue))}
+.hero-stage{background:linear-gradient(180deg,#fbfdfe 0%,#eef4f8 100%)}
+
+/* 프로필 카드: 정보 칸을 내용 폭에 맞춰 오른쪽 빈 공간을 없애고, 카드를 오른쪽 끝에 붙여 기체가 보일 자리를 만든다. */
+@media (min-width:981px){
+  .hero-stage .profile-card{justify-self:end;grid-template-columns:250px auto}
+  .hero-stage .profile-info{padding:20px 30px 20px 28px}
+}
+
+/* 홈 섹션 바로가기 글씨 크기 */
+.page-index a{grid-template-columns:48px 1fr;padding:28px 32px}
+.page-index span{font-size:15px;padding-top:3px}
+.page-index strong{font-size:19px;letter-spacing:-.03em}
+.page-index small{font-size:12.5px;margin-top:4px}
+
+/* Theme A: 청록 + 코랄 — 로고의 청록을 주색으로, 코랄을 강조색으로, 밝은 면은 따뜻한 미색 */
+:root{--ink:#0b2b4a;--blue:#17788a;--aqua:#1fb9c7;--coral:#e8735a;--navy:#0f3a4a;--paper:#fffdf9;--mist:#f8f3ea;--line:#e7dfd2;--muted:#5d6a72;--grid:rgba(23,120,138,.06);--grid-dark:rgba(159,224,230,.07)}
+body,.site-header,.page-index,.archive-preview{background-color:var(--paper)}
+.site-header{border-bottom-color:var(--line)}
+.page-index a:hover,.row-main:hover{background:#f6efe4}
+.hero h1 span,.archive-page-hero h1 span{color:var(--coral)}
+.hero-stage{background:linear-gradient(180deg,#fffdf9 0%,#f6f0e6 100%)}
+.hero-stage .profile-card{background:linear-gradient(135deg,rgba(255,253,249,.92) 0%,rgba(244,238,228,.88) 100%);border-color:var(--line)}
+.research-band,.evaluation,.project-documents,.archive-page-hero,.demo-video{background-color:var(--navy);background-image:radial-gradient(ellipse 60% 70% at 85% 0%,rgba(232,115,90,.14),transparent 70%),linear-gradient(var(--grid-dark) 1px,transparent 1px),linear-gradient(90deg,var(--grid-dark) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+.site-footer{background:#0b2c38}
+.section-intro.light .section-number,.archive-page-hero .eyebrow,.archive-stats dt{color:#8fd6dc}
+.section-soft .interest-card::before{background:linear-gradient(90deg,var(--aqua),var(--blue) 70%,var(--coral))}
+.archive-section-header{background-image:linear-gradient(90deg,var(--ink),var(--blue) 55%,var(--coral))}
+.button-dark,.item-actions button{background:linear-gradient(135deg,var(--navy),var(--blue))}
+.log-meta em{background:var(--coral)}
+.log-featured{border-color:#f0b7a8;box-shadow:0 0 0 1px rgba(232,115,90,.2),0 18px 40px rgba(232,115,90,.08)}
+.archive-latest{border-color:rgba(232,115,90,.55);background:rgba(232,115,90,.12)}
+.archive-latest b{color:var(--coral)}
+.row-step{color:var(--blue)}
+.tag-list li{background:#e3f4f5;border-color:#c5e7ea;color:#16707a}
+.chip[aria-pressed="true"]{background:var(--blue);color:#fff}
+.chip[aria-pressed="true"]::before{opacity:.8}
+.segmented button[aria-selected="true"]{background:var(--navy)}
+.archive-toolbar{background:rgba(255,253,249,.94)}
+.cad-steps li.is-active{border-color:#f0b7a8;color:#c4553d}
+.cad-prompt code.is-typing::after{background:var(--coral)}
+.site-header nav a.active::after,.nav-dropdown-trigger.active::after{background:var(--coral)}
+::selection{background:rgba(232,115,90,.22)}
+
+/* 한국어 줄바꿈: 단어 중간에서 끊지 않고, 마지막 줄에 한 글자만 남지 않게 한다. */
+body{word-break:keep-all;overflow-wrap:break-word}
+p,li,dd,figcaption,small{text-wrap:pretty}
+h1,h2,h3,.section-intro p,.hero-lead,.home-demo-lead{text-wrap:balance}
+.profile-info dd{word-break:keep-all}
+.profile-info dd a{overflow-wrap:anywhere}
+
+/* Theme A′: 청록 + 코랄 강조는 유지, 바탕은 쿨톤 중성색 (미색 바탕에서 피부가 누렇게 보이는 문제) */
+:root{--paper:#fbfcfd;--mist:#eff5f6;--line:#dae5e9;--muted:#56686f;--grid:rgba(23,120,138,.055)}
+.hero-stage{background:linear-gradient(180deg,#fcfdfe 0%,#edf4f6 100%)}
+.hero-stage .profile-card{background:#fff;border-color:var(--line)}
+.page-index a:hover,.row-main:hover{background:#eef5f6}
+.archive-toolbar{background:rgba(251,252,253,.94)}
+
+/* Theme: 검정 + 남색 (IDEA Lab 사이트 톤) — 검정 헤더·푸터·어두운 섹션, 흰 바탕, 남색 강조, 둥근 카드 */
+:root{--ink:#111827;--blue:#0e4a84;--aqua:#1fb9c7;--navy:#0b0b0d;--paper:#fff;--mist:#f5f6f8;--line:#e5e7eb;--muted:#5b6472;--grid:rgba(14,74,132,.04);--grid-dark:rgba(255,255,255,.04)}
+body,.page-index,.archive-preview{background-color:#fff}
+::selection{background:rgba(14,74,132,.16)}
+.site-header{background:#000;border-bottom:0;box-shadow:none}
+.site-header nav a,.nav-dropdown-trigger{color:#fff}
+.site-header nav a:hover{color:#8db8e6}
+/* 검정 헤더: 연구실 공식 흰색 로고(IDEA Lab 사이트와 동일 파일) */
+.site-header .lab-brand{width:auto}
+.site-header .lab-brand img{display:block;height:46px;width:auto}
+.site-header{height:80px}
+@media (max-width:760px){.site-header{height:68px}.site-header .lab-brand img{height:30px}}
+.site-header nav a.active::after,.nav-dropdown-trigger.active::after{background:var(--aqua)}
+.hero h1 span,.archive-page-hero h1 span{color:var(--aqua)}
+.hero-stage{background:linear-gradient(180deg,#ffffff 0%,#eef0f3 100%)}
+.hero-stage .profile-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(17,24,39,.08)}
+.hero-stage .profile-card .portrait{border-radius:10px}
+.cad-steps li.is-active{border-color:#c7d6ea;color:var(--blue);border-radius:999px}
+.cad-prompt code.is-typing::after{background:var(--blue)}
+.cad-prompt span{border-radius:999px;color:var(--blue);border-color:#c7d6ea}
+.page-index a:hover,.row-main:hover{background:#f3f4f6}
+.page-index span{color:var(--blue)}
+.section-soft,.archive-study-section,.research-page-hero,.demo-hero{background-color:var(--mist);background-image:none}
+.research-band,.evaluation,.project-documents,.archive-page-hero,.demo-video{background-color:var(--navy);background-image:radial-gradient(ellipse 55% 75% at 88% 0%,rgba(14,74,132,.45),transparent 70%),linear-gradient(var(--grid-dark) 1px,transparent 1px),linear-gradient(90deg,var(--grid-dark) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+.site-footer{background:#000;border-top:0}
+.section-intro.light .section-number,.archive-page-hero .eyebrow,.archive-stats dt{color:#8db8e6}
+.section-soft .interest-card{border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(17,24,39,.05)}
+.section-soft .interest-card::before{background:var(--blue)}
+.archive-section-header{background-image:linear-gradient(90deg,var(--ink),var(--blue) 50%,var(--line))}
+.button,.item-actions button,.archive-empty button,.sort-toggle{border-radius:999px}
+.button-dark,.item-actions button{background:var(--blue)}
+.button-dark:hover,.item-actions button:hover{background:#0b3c6b}
+.log-meta em{background:var(--blue);border-radius:999px;padding:2px 9px}
+.archive-latest{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.06);border-radius:999px;padding-inline:18px}
+.archive-latest b{color:#8db8e6}
+.archive-stats dl{border-color:rgba(255,255,255,.16);border-radius:16px;overflow:hidden}
+.archive-stats dl>div{border-left-color:rgba(255,255,255,.12)}
+.log-featured,.archive-card,.archive-category-card,.study-item,.project-document-card,.demo-result-image,.pdf-viewer{border-radius:16px;overflow:hidden}
+.log-featured{border-color:var(--line);box-shadow:0 12px 32px rgba(17,24,39,.07)}
+.archive-card:hover,.archive-category-card:hover,.study-item:hover{border-color:#c7d6ea;box-shadow:0 16px 36px rgba(17,24,39,.09)}
+.row-step{color:var(--blue)}
+.tag-list li,.project-tags span,.demo-meta span{background:#eef3f9;border-color:#d6e2f0;color:var(--blue);border-radius:999px}
+.research-band .project-tags span,.project-documents .project-tags span,.demo-video .project-tags span{background:transparent;border-color:rgba(255,255,255,.3);color:#e5e7eb}
+.segmented{border-radius:999px;overflow:hidden}
+.segmented button[aria-selected="true"]{background:var(--ink)}
+.chip{border-radius:999px}
+.chip[aria-pressed="true"]{background:var(--blue);color:#fff}
+.archive-search{border-radius:999px}
+.archive-toolbar{background:rgba(255,255,255,.95)}
+
+/* 색 리듬: 검정 헤더 → 밝은 첫 화면 → 흰색 → 옅은 회색 → 깊은 남색 연구 섹션 → 옅은 회색 → 검정 푸터 */
+:root{--navy:#10294a;--grid-dark:rgba(255,255,255,.05)}
+.research-band,.evaluation,.project-documents,.archive-page-hero,.demo-video{background-color:var(--navy);background-image:radial-gradient(ellipse 55% 75% at 88% 0%,rgba(80,140,220,.22),transparent 70%),linear-gradient(var(--grid-dark) 1px,transparent 1px),linear-gradient(90deg,var(--grid-dark) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+.archive-preview{background:var(--mist)}
+.archive-preview .archive-category-card{background:#fff;border-radius:16px;box-shadow:0 10px 28px rgba(17,24,39,.06)}
+.archive-preview .archive-category-card figure{background:#eef0f3}
+.archive-preview .archive-category-card figure span{background:var(--blue);border-radius:999px;padding:5px 10px}
+
+/* 헤더 메뉴 글씨 크기 */
+.site-header nav{gap:40px}
+.site-header nav a{font-size:16px;font-weight:600;letter-spacing:0}
+@media (max-width:760px){.site-header nav{gap:16px}.site-header nav a{font-size:13.5px}}
+
+/* 헤더 메뉴: 로고·IDEA Lab 사이트와 같은 DM Sans */
+.site-header nav{gap:6px}
+.site-header nav a{font-family:'DM Sans','Noto Sans KR',sans-serif;font-size:15px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,.82);padding:12px 18px}
+.site-header nav a:hover{color:#fff}
+.site-header nav a.active{color:#fff}
+.site-header nav a.active::after{left:18px;right:18px}
+@media (max-width:760px){.site-header nav{gap:0}.site-header nav a{font-size:14px;padding:10px 9px}.site-header nav a.active::after{left:9px;right:9px}}
+
+/* 태그: 글자 가운데 정렬, 굵게 */
+.project-tags span,.demo-meta span,.tag-list li{display:inline-flex;align-items:center;justify-content:center;line-height:1;padding:7px 14px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;letter-spacing:0}
+
+/* 전체 글자 선명도: 본문 굵기와 대비를 한 단계 올림 */
+body{font-weight:500;color:var(--ink);text-rendering:optimizeLegibility}
+:root{--muted:#4b5563}
+p,li,small,figcaption,dd,span{font-synthesis:none}
+/* 프로필 사진: 표시 크기(250×360)에 맞춘 이미지를 그대로 그린다 */
+.hero-stage .profile-card .portrait{width:250px;height:360px;object-fit:cover;transform:translateZ(0)}
+@media (max-width:980px){.hero-stage .profile-card .portrait{width:100%;height:auto;aspect-ratio:250/360}}
+
+/* 버튼: 누르는 느낌 (떠오름 → 눌림) */
+.button,.item-actions button,.ax-actions button,.archive-empty button,.sort-toggle,.segmented button,.rx-phase-steps a{transition:transform .15s ease,box-shadow .2s ease,background-color .2s ease,color .2s ease;will-change:transform}
+.button{display:inline-flex;align-items:center;gap:12px;padding:13px 24px;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(14,74,132,.22)}
+.button:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(14,74,132,.28)}
+.button:active,.item-actions button:active,.ax-actions button:active,.archive-empty button:active,.sort-toggle:active,.segmented button:active,.rx-phase-steps a:active{transform:translateY(1px) scale(.97);box-shadow:0 2px 6px rgba(14,74,132,.2)}
+.button-light{box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.button-light:hover{background:#eef4fb;box-shadow:0 14px 30px rgba(0,0,0,.32)}
+.button-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55);box-shadow:none}
+.button-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;box-shadow:none}
+.button b{transition:transform .2s}
+.button:hover b{transform:translate(2px,-2px)}
+.ax-actions button:hover,.item-actions button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(14,74,132,.25)}
