@@ -6,6 +6,7 @@
 
   const pad = (n) => String(n).padStart(2, '0');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const encodeURI = (p) => window.encodeURI(p.startsWith('/') || /^https?:/.test(p) ? p : '/' + p);
   const latest = [...data.research].sort((a, b) => b.step - a.step).slice(0, 3);
 
   list.innerHTML = latest.map((r, i) => `<li class="reveal${i ? ` delay-${i}` : ''}${i === 0 ? ' is-latest' : ''}">

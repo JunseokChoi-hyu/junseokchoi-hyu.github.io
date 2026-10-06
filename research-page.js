@@ -6,6 +6,7 @@
 
   const pad = (n) => String(n).padStart(2, '0');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const encodeURI = (p) => window.encodeURI(p.startsWith('/') || /^https?:/.test(p) ? p : '/' + p);
   const steps = [...data.research].sort((a, b) => a.step - b.step);
   const latest = steps[steps.length - 1];
 
@@ -28,7 +29,7 @@
   const cards = phases.map((ph, k) => {
     const isCurrent = ph.items.includes(latest);
     return `<article class="rx-phase p${k + 1}${isCurrent ? ' is-current' : ''} reveal${k ? ` delay-${k}` : ''}">
-      <figure><img src="${ph.img}" alt="${esc(ph.imgAlt)}" loading="lazy">${isCurrent ? '<em>진행 중</em>' : ''}</figure>
+      <figure><img src="${encodeURI(ph.img)}" alt="${esc(ph.imgAlt)}" loading="lazy">${isCurrent ? '<em>진행 중</em>' : ''}</figure>
       <div class="rx-phase-body">
         <p class="rx-phase-label">${ph.label}</p>
         <h3>${esc(ph.title)}</h3>
@@ -39,6 +40,21 @@
   }).join('');
 
   root.innerHTML = track + `<div class="rx-phases">${cards}</div>`;
+  // 타임라인 연결선: 첫 번호~마지막 번호 중심을 잇고, Phase가 바뀌는 지점에서 색이 바뀐다
+  const trackEl = root.querySelector('.rx-track');
+  if (trackEl && steps.length > 1) {
+    const span = steps.length - 1;
+    const stops = [];
+    phases.forEach((ph, k) => {
+      const first = steps.indexOf(ph.items[0]);
+      const last = steps.indexOf(ph.items[ph.items.length - 1]);
+      const from = Math.max(0, (first - 0.5) / span) * 100;
+      const to = Math.min(1, (last + 0.5) / span) * 100;
+      stops.push(`var(--p${k + 1}) ${from.toFixed(1)}% ${to.toFixed(1)}%`);
+    });
+    trackEl.style.setProperty('--track-line', `linear-gradient(90deg, ${stops.join(', ')})`);
+    trackEl.style.setProperty('--n', steps.length);
+  }
 
   const stepEl = document.querySelector('[data-latest-step]');
   if (stepEl && latest) stepEl.textContent = `STEP ${pad(latest.step)}`;

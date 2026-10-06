@@ -5,7 +5,7 @@
 
   const $ = (s, root = document) => root.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const url = (p) => encodeURI(p);
+  const url = (p) => encodeURI(p.startsWith('/') || /^https?:/.test(p) ? p : '/' + p);
   const pad = (n) => String(n).padStart(2, '0');
   const latestStep = Math.max(...data.research.map((r) => r.step));
   const phases = data.phases || [{ label: 'RESEARCH', title: 'Text2CAD', from: 1, to: 9999 }];

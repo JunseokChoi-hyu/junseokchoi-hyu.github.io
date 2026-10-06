@@ -305,3 +305,9 @@ body{background-color:var(--page);background-image:linear-gradient(rgba(14,74,13
 .hero-stage .profile-card .profile-info dt{color:#a9cdf2;font-weight:700}
 .hero-stage .profile-card .profile-name{font-weight:800}
 .hero-stage .profile-card .profile-info a{text-decoration-color:rgba(255,255,255,.6)}
+
+/* 25. 연구 타임라인 연결선: 한 줄로 이어 그림 */
+.rx-track{position:relative}
+.rx-dot::before{display:none}
+.rx-track::before{content:"";position:absolute;top:calc(22px + 17px - 1.5px);height:3px;left:calc(22px + (100% - 44px) / var(--n) / 2);right:calc(22px + (100% - 44px) / var(--n) / 2);background:var(--track-line,#c7d3e1);opacity:.45;border-radius:2px}
+@media (max-width:560px){.rx-track::before{top:calc(22px + 13px - 1.5px);left:calc(10px + (100% - 20px) / var(--n) / 2);right:calc(10px + (100% - 20px) / var(--n) / 2)}}
