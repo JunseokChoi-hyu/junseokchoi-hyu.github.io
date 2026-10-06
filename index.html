@@ -6,21 +6,32 @@
   <title>최준석 | Undergraduate Researcher</title>
   <meta name="description" content="최준석 학부연구생의 제조 AI 연구 및 스터디 아카이브">
   <link rel="canonical" href="https://junseokchoi-hyu.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="IDEA Lab · 최준석">
+  <meta property="og:title" content="최준석 | Undergraduate Researcher">
+  <meta property="og:description" content="한양대학교 ERICA 기계공학과 학부연구생 · IDEA Lab — 제조 AI와 자연어 기반 CAD 생성(Text2CAD) 연구">
+  <meta property="og:url" content="https://junseokchoi-hyu.github.io/">
+  <meta property="og:image" content="https://junseokchoi-hyu.github.io/assets/images/og-idealab.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="IDEA Lab 로고">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://junseokchoi-hyu.github.io/assets/images/og-idealab.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="multipage.css">
-  <link rel="stylesheet" href="home.css">
-  <link rel="stylesheet" href="refine.css">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/multipage.css">
+  <link rel="stylesheet" href="/home.css">
+  <link rel="stylesheet" href="/refine.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="lab-brand" href="#top" aria-label="IDEA Lab 연구 포트폴리오 홈"><img src="assets/images/idea-lab-logo-white@1x.png" srcset="assets/images/idea-lab-logo-white@1x.png 1x, assets/images/idea-lab-logo-white@1.25x.png 1.25x, assets/images/idea-lab-logo-white@1.5x.png 1.5x, assets/images/idea-lab-logo-white@1.75x.png 1.75x, assets/images/idea-lab-logo-white@2x.png 2x, assets/images/idea-lab-logo-white@3x.png 3x" alt="IDEA Lab"></a>
+    <a class="lab-brand" href="#top" aria-label="IDEA Lab 연구 포트폴리오 홈"><img src="/assets/images/idea-lab-logo-white@1x.png" srcset="/assets/images/idea-lab-logo-white@1x.png 1x, /assets/images/idea-lab-logo-white@1.25x.png 1.25x, /assets/images/idea-lab-logo-white@1.5x.png 1.5x, /assets/images/idea-lab-logo-white@1.75x.png 1.75x, /assets/images/idea-lab-logo-white@2x.png 2x, /assets/images/idea-lab-logo-white@3x.png 3x" alt="IDEA Lab"></a>
     <nav aria-label="주요 메뉴">
-      <a class="active" href="./">Home</a>
-      <a href="text2cad-demo.html">Research</a>
-      <a href="archive.html">Archive</a>
+      <a class="active" href="/">Home</a>
+      <a href="/research/">Research</a>
+      <a href="/archive/">Archive</a>
     </nav>
   </header>
 
@@ -34,7 +45,7 @@
         <p class="hero-lead">기계공학 기반의 제조 AI 연구와<br>자연어 기반 CAD 생성을 탐구합니다.</p>
       </div>
       <aside class="profile-card reveal delay-1" aria-label="프로필">
-        <img class="portrait" src="assets/images/choi-junseok-portrait-250.jpg" srcset="assets/images/choi-junseok-portrait-250.jpg 250w, assets/images/choi-junseok-portrait-500.jpg 500w, assets/images/choi-junseok-portrait-750.jpg 750w" sizes="(max-width: 980px) 90vw, 250px" width="250" height="360" alt="최준석 프로필 사진">
+        <img class="portrait" src="/assets/images/choi-junseok-portrait-250.jpg" srcset="/assets/images/choi-junseok-portrait-250.jpg 250w, /assets/images/choi-junseok-portrait-500.jpg 500w, /assets/images/choi-junseok-portrait-750.jpg 750w" sizes="(max-width: 980px) 90vw, 250px" width="250" height="360" alt="최준석 프로필 사진">
         <div class="profile-info">
           <p class="profile-name">Choi Junseok</p>
           <dl>
@@ -71,13 +82,13 @@
           <p class="hx-sub">Natural Language → Local LLM Agents → FreeCAD · OpenVSP</p>
           <p>Local LLM 에이전트가 자연어 요청을 해석해<br>FreeCAD⁠·⁠OpenVSP CAD 모델로 만듭니다.</p>
           <div class="project-tags"><span>Local LLM</span><span>gpt-oss:20b</span><span>Multi-Agent</span><span>RAG</span><span>FreeCAD</span><span>OpenVSP</span></div>
-          <div class="hx-actions"><a class="button button-light" href="text2cad-demo.html">연구 자세히 보기 <b>↗</b></a><a class="button button-ghost" href="demo/" target="_blank" rel="noreferrer">데모 실행하기 <b>↗</b></a></div>
+          <div class="hx-actions"><a class="button button-light" href="/research/">연구 자세히 보기 <b>↗</b></a><a class="button button-ghost" href="/demo/" target="_blank" rel="noreferrer">데모 실행하기 <b>↗</b></a></div>
         </div>
         <figure class="hx-feature-media reveal delay-1">
           <div class="hx-window-bar"><span>Text2CAD 설계 에이전트</span><em>DEMO</em></div>
-          <video controls autoplay muted loop playsinline preload="metadata" poster="assets/images/text2cad-openvsp-result.png">
-            <source src="assets/media/text2cad-openvsp-demo.mp4" type="video/mp4">
-            브라우저에서 영상을 재생할 수 없습니다. <a href="assets/media/text2cad-openvsp-demo.mp4">영상 내려받기</a>
+          <video controls autoplay muted loop playsinline preload="metadata" poster="/assets/images/text2cad-openvsp-result.png">
+            <source src="/assets/media/text2cad-openvsp-demo.mp4" type="video/mp4">
+            브라우저에서 영상을 재생할 수 없습니다. <a href="/assets/media/text2cad-openvsp-demo.mp4">영상 내려받기</a>
           </video>
           <figcaption><span>OpenVSP 항공기 형상 생성 · 자연어 요청부터 검증까지</span></figcaption>
         </figure>
@@ -86,10 +97,10 @@
 
     <section class="hx-updates">
       <div class="section-shell">
-        <header class="hx-updates-head reveal"><div><p class="section-number">LATEST UPDATES</p><h2>최근 연구 기록</h2></div><a class="hx-link" href="archive.html">전체 자료 아카이브 →</a></header>
+        <header class="hx-updates-head reveal"><div><p class="section-number">LATEST UPDATES</p><h2>최근 연구 기록</h2></div><a class="hx-link" href="/archive/">전체 자료 아카이브 →</a></header>
         <ol class="hx-updates-list" data-latest-updates></ol>
         <div class="hx-study">
-          <header class="hx-updates-head hx-study-head reveal"><div><p class="section-number">AI STUDY</p><h2>스터디 자료</h2></div><a class="hx-link" href="archive.html#study-materials">스터디 전체 보기 →</a></header>
+          <header class="hx-updates-head hx-study-head reveal"><div><p class="section-number">AI STUDY</p><h2>스터디 자료</h2></div><a class="hx-link" href="/archive/#study-materials">스터디 전체 보기 →</a></header>
           <ul class="hx-study-grid" data-study-list></ul>
         </div>
       </div>
@@ -97,9 +108,9 @@
   </main>
 
   <footer id="contact" class="site-footer"><div class="section-shell footer-inner"><p>CONTACT</p><a href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a><span>© 2026 Choi Junseok · IDEA Lab</span></div></footer>
-  <script src="archive-data.js"></script>
-  <script src="home.js"></script>
-  <script src="app.js"></script>
-  <script type="module" src="hero-cad.js"></script>
+  <script src="/archive-data.js"></script>
+  <script src="/home.js"></script>
+  <script src="/app.js"></script>
+  <script type="module" src="/hero-cad.js"></script>
 </body>
 </html>
