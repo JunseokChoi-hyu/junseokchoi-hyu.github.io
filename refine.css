@@ -297,3 +297,11 @@ body{background-color:var(--page);background-image:linear-gradient(rgba(14,74,13
 .hx-focus-item span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:1100px){.hx-focus-item span{white-space:normal}}
 .ax-thumb img,.hx-updates-list figure img{object-position:center}
+
+/* 24. 프로필 카드 글씨 선명하게: 대비·굵기 올리고, 불필요한 합성 레이어 제거 */
+.hero-stage .profile-card .portrait{transform:none}
+.hero-stage .profile-card{transform:none;will-change:auto}
+.hero-stage .profile-card .profile-info dd{color:#fff;font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.hero-stage .profile-card .profile-info dt{color:#a9cdf2;font-weight:700}
+.hero-stage .profile-card .profile-name{font-weight:800}
+.hero-stage .profile-card .profile-info a{text-decoration-color:rgba(255,255,255,.6)}
