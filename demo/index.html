@@ -1122,25 +1122,20 @@ const CATS = {
   wingX: {label:"주익 위치", sub:"앞 · 뒤", say:"주익 위치를 변경하고 싶습니다.", ask:"주익을 어느 방향으로 얼마나 이동할까요? 이동량은 동체 길이 기준입니다.",
     opts:() => [{v:-0.2,l:"앞으로 20%"},{v:-0.1,l:"앞으로 10%"},{v:0.1,l:"뒤로 10%"},{v:0.2,l:"뒤로 20%"}],
     phrase:v => `주익을 동체 길이의 ${pct(v)}%만큼 ${v < 0 ? "앞" : "뒤"}으로 이동`, short:v => `주익 ${pct(v)}% ${v < 0 ? "전방" : "후방"} 이동`},
-  wingZ: {label:"주익 높이", sub:"고익 · 중익 · 저익", say:"주익 높이를 변경하고 싶습니다.", ask:"주익을 동체의 어느 높이에 배치할까요?",
-    opts:k => [{v:"high",l:"고익 (동체 위)"},{v:"mid",l:"중익 (동체 중앙)"},{v:"low",l:"저익 (동체 아래)"}].filter(o => o.v !== wingClass(k)),
-    phrase:v => ({high:"주익을 동체 상부로 옮겨 고익으로 배치", mid:"주익을 동체 중앙으로 옮겨 중익으로 배치", low:"주익을 동체 하부로 옮겨 저익으로 배치"})[v],
-    short:v => ({high:"고익 배치", mid:"중익 배치", low:"저익 배치"})[v]},
+  wingZ: {label:"주익 높이", sub:"위 · 아래", say:"주익 높이를 변경하고 싶습니다.", ask:"주익을 위아래 어느 쪽으로 이동할까요? 이동량은 동체 높이 기준입니다.",
+    opts:k => [{v:0.4,l:"위로 40% (고익)"},{v:-0.4,l:"아래로 40% (저익)"}].filter(o => wingRoom(k, Math.sign(o.v)) > 0.15),
+    phrase:v => `주익을 동체 높이의 ${pct(v)}%만큼 ${v > 0 ? "위" : "아래"}로 이동`, short:v => `주익 ${pct(v)}% ${v > 0 ? "상향" : "하향"}`},
   tail: {label:"꼬리날개", sub:"T형 · 쌍수직 등", say:"꼬리날개 형태를 변경하고 싶습니다.", ask:"꼬리날개를 어떤 형태로 바꿀까요?",
     opts:k => (k === "crm" ? [{v:"fin",l:"수직꼬리 추가"}] : []).concat([{v:"T",l:"T형 꼬리"},{v:"twin",l:"쌍수직꼬리"},{v:"swap",l:"주익 ↔ 수평꼬리 교환"}]),
     phrase:v => ({fin:"수직꼬리(높이 9 m)를 추가", T:"T형 꼬리로 변경", twin:"쌍수직꼬리로 변경", swap:"주익과 수평꼬리의 위치를 교환"})[v],
     short:v => ({fin:"수직꼬리 추가", T:"T형 꼬리", twin:"쌍수직꼬리", swap:"주익 ↔ 수평꼬리"})[v]},
-  engine: {label:"추진 장치", sub:"엔진 구성", say:"추진 장치 구성을 변경하고 싶습니다.", ask:"엔진을 어떻게 구성할까요?",
-    opts:k => k === "crm"
-      ? [{v:"none",l:"엔진 제거"},{v:"four",l:"엔진 4개 (날개당 2개)"},{v:"rear",l:"후방 동체 엔진 2개"}]
-      : [{v:"none",l:"엔진·프로펠러 제거"},{v:"two",l:"날개 아래 엔진 2개 추가"},{v:"four",l:"날개 아래 엔진 4개 추가"},{v:"rear",l:"후방 동체 엔진 2개 추가"}]
-          .concat(k === "x57" ? [{v:"hl4",l:"고양력 프로펠러 12 → 4개"}] : []),
-    phrase:v => curKey === "crm"
-      ? ({none:"엔진을 제거", four:"엔진을 날개당 2개씩 총 4개로 변경", rear:"엔진을 후방 동체로 이동"})[v]
-      : ({none:"엔진과 프로펠러를 모두 제거", two:"날개 아래에 엔진 2개를 추가", four:"날개 아래에 엔진 4개를 추가", rear:"후방 동체에 엔진 2개를 추가", hl4:"고양력 프로펠러를 12개에서 4개로 축소"})[v],
-    short:v => curKey === "crm"
-      ? ({none:"엔진 제거", four:"엔진 4개", rear:"후방 동체 엔진"})[v]
-      : ({none:"엔진 제거", two:"엔진 2개 추가", four:"엔진 4개 추가", rear:"후방 엔진 2개 추가", hl4:"프로펠러 12 → 4"})[v]},
+  engine: {label:"추진 장치", sub:"엔진 · 프로펠러", say:"추진 장치 구성을 변경하고 싶습니다.", ask:"추진 장치를 어떻게 구성할까요?",
+    opts:k => ({crm:[{v:"none",l:"엔진 제거"},{v:"quad",l:"엔진 4개 (날개당 2개)"},{v:"rear",l:"후방 동체 장착"}],
+                c172:[{v:"twin",l:"날개 아래 엔진 2개 추가"}],
+                x57:[{v:"four",l:"고양력 프로펠러 12 → 4개"},{v:"none",l:"고양력 프로펠러 제거"}]})[k] || [],
+    phrase:v => ({none:curKey === "x57" ? "고양력 프로펠러를 제거" : "엔진을 제거", quad:"엔진을 날개당 2개씩 총 4개로 변경", rear:"엔진을 후방 동체로 이동",
+                  twin:"날개 아래에 엔진 2개를 추가", four:"고양력 프로펠러를 12개에서 4개로 축소"})[v],
+    short:v => ({none:curKey === "x57" ? "고양력 프로펠러 제거" : "엔진 제거", quad:"엔진 4개", rear:"후방 동체 엔진", twin:"엔진 2개 추가", four:"프로펠러 12 → 4"})[v]},
   swap: {label:"주익 교체", sub:"다른 기체의 날개", say:"주익을 다른 기체의 날개로 교체하고 싶습니다.", ask:"어떤 날개로 교체할까요? 스팬은 현재 주익에 맞춰 조정됩니다.",
     opts:k => ["m6", "x57", "c172", "crm"].filter(d => d !== k).map(d => ({v:d, l: d === "m6" ? "ONERA M6 평면형" : `${AC[d].name} 날개`})),
     phrase:v => v === "m6" ? "주익을 ONERA M6 평면형으로 교체" : `주익을 ${AC[v].name} 날개로 교체`,
@@ -1253,9 +1248,8 @@ const MODS = {
   wingX(st, v){ shift(st, live(st, i => i.onWing), [v*fuseInfo(st).L, 0, 0]); },
   wingZ(st, v){
     hide(st, byRole(st, "strut"));
-    const r = wingRoot(st), th = r.hi - r.lo;
-    const dz = v === "high" ? r.top + 0.1*th - r.hi : v === "low" ? r.bot - 0.1*th - r.lo : (r.top + r.bot)/2 - (r.hi + r.lo)/2;
-    shift(st, live(st, i => i.onWing), [0, 0, dz]);
+    const r = wingRoot(st), th = r.hi - r.lo, up = r.top + 0.1*th - r.hi, down = r.bot - 0.1*th - r.lo;
+    shift(st, live(st, i => i.onWing), [0, 0, Math.min(up, Math.max(down, v*fuseInfo(st).H))]);
   },
   tail(st, v){
     if (v === "fin") { ensureFin(st); return; }
@@ -1276,26 +1270,31 @@ const MODS = {
     }
   },
   engine(st, v){
-    if (v === "hl4") { // X-57 only: keep 2 of the 6 high-lift propellers per side
+    if (st.k === "x57") { // X-57: high-lift propellers 12 -> 4, or removed
+      if (v === "none") { hide(st, byRole(st, "hlnacelle", "hlprop")); return; }
       const rank = role => { const its = byRole(st, role); const ys = [...new Set(its.map(i => Math.abs(ctr(bbox([i]))[1]).toFixed(2)))].sort((a, b) => a - b);
         return its.map(i => [i, ys.indexOf(Math.abs(ctr(bbox([i]))[1]).toFixed(2))]); };
       for (const role of ["hlnacelle", "hlprop"]) hide(st, rank(role).filter(([, r]) => r !== 1 && r !== 4).map(([i]) => i));
       return;
     }
-    if (v === "none") { hide(st, byRole(st, "nacelle", "pylon", "prop", "hlnacelle", "hlprop", "cruiseprop", "tipnacelle")); return; }
-    // jets replace jets (CRM); on propeller aircraft the new engines are added alongside the existing props
     hide(st, byRole(st, "nacelle", "pylon"));
+    if (v === "none") return;
     const R = engineRef();
     if (v === "rear") {
-      const F = fuseInfo(st), sc = 0.82*F.H/R.fuseH;
+      const F = fuseInfo(st), sc = 0.82*F.H/R.fuseH, wi = wingInfo(byRole(st, "wing")), gap = 0.02*F.L;
       for (const sg of [1, -1]) for (const p of R.parts.filter(p => p.role === "nacelle" && p.side === sg)) {
-        const r = sc*R.rad;
-        add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:p.c, to:[F.b.min[0] + 0.7*F.L, sg*(F.W/2 + 1.25*r), F.zc + 0.22*F.H]}});
+        const r = sc*R.rad, nb = bbox([{surfs:p.surfs, xf:ID()}]), half = sc*(nb.max[0] - nb.min[0])/2, aft = F.b.max[0] - 0.08*F.L - half;
+        // pods sit on the aft fuselage clear of the wing root: behind its trailing edge, or ahead of it when the wing is too far aft
+        let x = Math.max(F.b.min[0] + 0.7*F.L, wi.rootTE + gap + half);
+        if (x > aft) x = Math.min(F.b.min[0] + 0.7*F.L, wi.rootX - gap - half);
+        const z = F.zc + 0.22*F.H; let hw = 0;
+        for (const it of st.items) if (it.role === "fuselage") eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 0.6*r) hw = Math.max(hw, Math.abs(fy)); });
+        add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:p.c, to:[x, sg*((hw || F.W/2) + 0.88*r), z]}});
       }
       return;
     }
-    hide(st, byRole(st, "hlnacelle", "hlprop")); // X-57 distributed props would collide with the pods
-    mountPods(st, v === "two" ? [0.34] : [0.3, 0.58]);
+    hide(st, byRole(st, "strut")); // pods under a braced wing would cut through the struts (twin high-wings are cantilever)
+    mountPods(st, v === "twin" ? [0.37] : [0.3, 0.58]);
   },
   foil(st, v){ st.foil = v; for (const it of byRole(st, "wing")) { it.foil = v; it.mat = "chg"; } },
 };
@@ -1307,18 +1306,33 @@ function wingRoot(st){ // root-section z extent of the wing and the fuselage top
   let lo = Infinity, hi = -Infinity; for (const it of W) eachV(it, (x, y, z) => { const a = Math.abs(y); if (a >= y0 && a < y1) { lo = Math.min(lo, z); hi = Math.max(hi, z); } });
   return {lo, hi, top:F.topAt(xm), bot:F.botAt(xm)};
 }
-const _wcls = {};
-function wingClass(k){
-  if (!(k in _wcls)) { const r = wingRoot(baseState(k)), rel = ((r.lo + r.hi)/2 - (r.top + r.bot)/2)/(r.top - r.bot); _wcls[k] = rel > 0.2 ? "high" : rel < -0.2 ? "low" : "mid"; }
-  return _wcls[k];
+const _room = {};
+function wingRoom(k, sg){ // free travel of the wing (fraction of fuselage height) upward (sg = 1) or downward (sg = -1)
+  if (!(k in _room)) { const st = baseState(k), r = wingRoot(st), th = r.hi - r.lo, H = fuseInfo(st).H;
+    _room[k] = {1:(r.top + 0.1*th - r.hi)/H, "-1":(r.lo - r.bot + 0.1*th)/H}; }
+  return _room[k][sg];
 }
 function mountPods(st, stations){ // CRM nacelle + pylon under the wing leading edge, scaled to the local chord
-  const R = engineRef(), W = byRole(st, "wing"), wi = wingInfo(W), minS = 0.5*fuseInfo(st).H/R.fuseH; // narrow wings still get a readable pod
+  const R = engineRef(), W = byRole(st, "wing"), wi = wingInfo(W), k = fuseInfo(st).H/R.fuseH;
   for (const f of stations) for (const sg of [1, -1]) {
-    const y = f*wi.semi, t = leAt(W, sg*y), sc = Math.max(0.85*t.c/R.c, minS);
+    const y = f*wi.semi, t = leAt(W, sg*y), sc = Math.min(0.7*k, Math.max(0.5*k, 0.85*t.c/R.c)); // pod follows the chord, within CRM-like proportions
+    const xt = t.x + sc*R.ptx, zt = t.z + sc*R.dTop, low = wingLowerAt(W, sg*y, xt, t.c);
+    const dz = (low === null ? 0 : low - zt) + 0.06*sc*R.pyH; // pylon top slightly embedded in the wing skin
     for (const p of R.parts.filter(p => p.side === sg))
-      add(st, {role:p.role, onWing:true, surfs:p.surfs, xf:{s:sc, piv:[R.x, sg*R.y, R.z], to:[t.x, sg*y, t.z]}});
+      add(st, {role:p.role, onWing:true, surfs:p.surfs, xf:{s:sc, piv:[R.x, sg*R.y, R.z], to:[t.x, sg*y, t.z + dz]}});
   }
+}
+function wingLowerAt(items, y, x, c){ // lower-surface z of a wing at span station y near chordwise position x
+  const pts = []; for (const it of items) eachV(it, (px, py, pz) => { if (Math.sign(py) === Math.sign(y) && Math.abs(px - x) < 0.18*c) pts.push([py, pz]); });
+  if (!pts.length) return null;
+  let ymin = Infinity, ymax = -Infinity; for (const q of pts) { ymin = Math.min(ymin, q[0]); ymax = Math.max(ymax, q[0]); }
+  const NB = 40, span = Math.max(1e-6, ymax - ymin), B = Array.from({length:NB}, () => ({y:0, z:Infinity, n:0}));
+  for (const q of pts) { const b = B[Math.min(NB - 1, Math.floor((q[0] - ymin)/span*NB))]; b.n++; b.y += q[0]; b.z = Math.min(b.z, q[1]); }
+  const G = B.filter(b => b.n).map(b => [b.y/b.n, b.z]).sort((a, b) => a[0] - b[0]);
+  const yc = Math.min(G[G.length - 1][0], Math.max(G[0][0], y));
+  let i = 0; while (i < G.length - 2 && G[i + 1][0] < yc) i++;
+  const a = G[i], b = G[Math.min(i + 1, G.length - 1)], t = b[0] === a[0] ? 0 : (yc - a[0])/(b[0] - a[0]);
+  return a[1] + t*(b[1] - a[1]);
 }
 function leAt(items, y){ // leading-edge x / z and local chord at span station y (interpolated between sampled stations)
   const sideItems = items.filter(it => { const c = ctr(bbox([it]))[1]; return y >= 0 ? c >= 0 : c < 0; });
@@ -1338,7 +1352,10 @@ function engineRef(){ // CRM nacelle + pylon, expressed relative to the CRM wing
   if (_engRef) return _engRef;
   const b = baseState("crm"), W = b.items.filter(i => i.role === "wing"), N = b.items.filter(i => i.role === "nacelle" || i.role === "pylon");
   const nac = N.find(i => i.role === "nacelle" && ctr(bbox([i]))[1] > 0), nb = bbox([nac]), y = ctr(nb)[1], le = leAt(W, y);
-  return _engRef = {x:le.x, z:le.z, c:le.c, y, rad:(nb.max[2] - nb.min[2])/2, fuseH:fuseInfo(b).H,
+  const py = N.find(i => i.role === "pylon" && ctr(bbox([i]))[1] > 0), pb = bbox([py]), top = [];
+  eachV(py, (x, yy, z) => { if (z > pb.max[2] - 0.15*(pb.max[2] - pb.min[2])) top.push(x); });
+  const ptx = (Math.min(...top) + Math.max(...top))/2 - le.x;
+  return _engRef = {x:le.x, z:le.z, c:le.c, y, rad:(nb.max[2] - nb.min[2])/2, fuseH:fuseInfo(b).H, ptx, dTop:pb.max[2] - le.z, pyH:pb.max[2] - pb.min[2],
     parts:N.map(i => { const c = ctr(bbox([i])); return {role:i.role, surfs:i.surfs, side:Math.sign(c[1]), c}; })};
 }
 function buildState(k, mods){ const st = baseState(k); for (const c of ORDER) if (c in mods) MODS[c](st, mods[c]); return st; }
@@ -1611,7 +1628,7 @@ function specRows(st){
 }
 const PRESETS = [
   {k:"crm", t:"T형 꼬리 + 주익 10% 전방", m:{wingX:-0.1, tail:"T"}},
-  {k:"x57", t:"엔진 4개 + 저익", m:{engine:"four", wingZ:"low"}},
+  {k:"x57", t:"프로펠러 4개 + 저익", m:{engine:"four", wingZ:-0.4}},
   {k:"c172", t:"쌍수직꼬리 + NACA 8440", m:{tail:"twin", foil:"8440"}},
   {k:"crm", t:"M6 날개 + 후방 엔진", m:{swap:"m6", engine:"rear"}},
 ];
