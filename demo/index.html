@@ -3,460 +3,1601 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Text2CAD 설계 에이전트</title>
-<meta name="description" content="자연어 요청을 로컬 LLM 에이전트가 OpenVSP 항공기 형상으로 만드는 과정을 실제 실행 기록으로 자동 재생하는 데모">
+<title>Text2CAD 데모</title>
+<meta name="description" content="자연어 요청만으로 다양한 항공기 형상을 자유롭게 생성하는 Text2CAD(OpenVSP) 대화형 데모">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f3f5fa; --panel:#ffffff; --soft:#f6f8fc; --line:#e4e9f1; --line2:#d5dce8;
-  --text:#152033; --sub:#56677f; --dim:#8c9ab0;
-  --accent:#3b6cf6; --accent2:#6d5cf6; --ok:#13a067; --bad:#e04848;
-  --c-fuse:#8d9bb0; --c-wing:#3b7cf6; --c-htail:#14b3a3; --c-vtail:#f0a020;
+  --bg:#f2f5fa; --panel:#fff; --soft:#f5f7fb; --line:#e2e8f1; --line2:#d1d9e5;
+  --text:#0f1c33; --sub:#52627a; --dim:#8b98ad;
+  --navy:#0e4a84; --navy2:#1c64b8; --teal:#19b5c2; --chg:#2f6fed; --ghost:#ff9a62; --arrow:#e0303a; --red:#d93a3a; --ok:#13a067;
+  --sh:0 1px 2px rgba(15,28,51,.04),0 6px 20px rgba(15,28,51,.06);
   --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif;font-size:17px;line-height:1.55}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,"Pretendard Variable",system-ui,sans-serif;font-size:17px;line-height:1.6;word-break:keep-all;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;cursor:pointer}
-.app{display:flex;flex-direction:column;height:100vh}
 
-/* ---------- top bar ---------- */
-.top{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
-.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:19px;flex:none}
-.top h1{margin:0;font-size:22px;font-weight:800;line-height:1.2}
-.top p{margin:0;font-size:14.5px;color:var(--sub)}
-.chips{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.chip{font-family:var(--mono);font-size:13px;padding:4px 10px;border-radius:8px;border:1px solid var(--line2);color:var(--sub);background:var(--soft);white-space:nowrap}
-.chip b{color:var(--text);font-weight:600}
-.chip.live{color:var(--ok);border-color:rgba(19,160,103,.35);background:rgba(19,160,103,.07)}
-.chip.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px;animation:blink 1.4s infinite}
-@keyframes blink{50%{opacity:.25}}
+/* ================= header ================= */
+.top{position:sticky;top:0;z-index:30;height:66px;display:flex;align-items:center;gap:18px;padding:0 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .lab{height:30px}
+.top .bar{width:1px;height:26px;background:var(--line2)}
+.top .ttl{display:flex;flex-direction:column;line-height:1.25}
+.top .ttl b{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.top .ttl span{font-size:13.5px;color:var(--sub)}
+.top nav{margin-left:auto;display:flex;gap:4px}
+.top nav a{font-size:15px;font-weight:600;color:var(--sub);text-decoration:none;padding:7px 13px;border-radius:9px}
+.top nav a:hover{background:var(--soft);color:var(--navy)}
 
-.main{flex:1;display:grid;grid-template-columns:minmax(380px,40%) 1fr;min-height:0}
-
-/* ---------- chat ---------- */
-.chat{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:var(--panel)}
-.msgs{position:relative;flex:1;overflow-y:auto;padding:26px 26px 30px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
-.row{display:flex;gap:12px;align-items:flex-start;animation:pop .35s ease both}
-@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ================= demo ================= */
+.demo{height:calc(100vh - 66px);min-height:640px;display:grid;grid-template-columns:minmax(380px,32%) 1fr;gap:12px;padding:12px}
+.chat{display:flex;flex-direction:column;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh);overflow:hidden}
+.chead{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.bot{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--navy),var(--teal));display:grid;place-items:center;color:#fff;flex:none}
+.chead b{display:block;font-size:16.5px;font-weight:800}
+.chead span{font-size:13px;color:var(--sub)}
+.chead span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
+.reset{margin-left:auto;white-space:nowrap;flex:none;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:6px 11px;font-size:13.5px;font-weight:600;color:var(--sub)}
+.reset:hover{border-color:var(--navy);color:var(--navy)}
+.msgs{position:relative;flex:1;overflow-y:auto;padding:22px 18px 12px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;background:linear-gradient(#fbfcfe,#fff)}
+.row{display:flex;gap:10px;align-items:flex-end;animation:pop .32s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 .row.me{flex-direction:row-reverse}
-.av{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13.5px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.row.me .av{background:linear-gradient(135deg,#38b6f5,#3b6cf6)}
-.row.me .av{width:42px;height:42px;font-size:10.5px;line-height:1.05;text-align:center;letter-spacing:.3px}
-.col{display:flex;flex-direction:column;gap:4px;max-width:84%}
-.row.me .col{align-items:flex-end}
-.tagname{font-size:12.5px;font-weight:700;color:var(--dim);letter-spacing:.3px}
-.bub{padding:12px 17px;border-radius:16px;background:var(--soft);border:1px solid var(--line);font-size:17px}
-.row:not(.me) .bub{border-top-left-radius:5px}
-.row.me .bub{background:linear-gradient(135deg,#eaf1ff,#eeebff);border-color:#cfdbfb;border-top-right-radius:5px}
-.bub b{font-weight:700}
-.bub code{font-family:var(--mono);font-size:14.5px;background:#eef2f8;padding:1px 6px;border-radius:5px;color:#2d47a8}
-.bub .en{font-family:var(--mono);font-size:14px;line-height:1.6;color:#2b3a55;max-height:150px;overflow:hidden;position:relative;transition:max-height .5s}
-.bub .en.open{max-height:900px}
-.bub .en:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,#eceefe)}
-.bub .en mark{background:rgba(59,108,246,.14);color:#1d3fa8;border-radius:3px;padding:0 2px}
-.more{display:block;margin-top:6px;font-size:13.5px;color:var(--accent);background:none;border:none;padding:0;font-weight:700}
-.typing{display:inline-flex;gap:5px;padding:16px 18px}
-.typing i{width:8px;height:8px;border-radius:50%;background:var(--dim);animation:dot 1s infinite}
+.av{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--navy),var(--teal))}
+.row.me .av{background:#fff;border:1px solid var(--line2);color:var(--navy);font-size:9.5px;font-weight:800;line-height:1.05;text-align:center;width:38px;height:38px}
+.bub{max-width:86%;padding:11px 15px;border-radius:18px;background:#fff;border:1px solid var(--line);font-size:16px;box-shadow:0 1px 2px rgba(15,28,51,.04)}
+.row:not(.me) .bub{border-bottom-left-radius:6px}
+.row.me .bub{background:linear-gradient(135deg,var(--navy),var(--navy2));border:none;color:#fff;border-bottom-right-radius:6px}
+.row.me .bub mark{background:rgba(255,255,255,.18);color:#fff;border-bottom:2px solid var(--teal);border-radius:3px;padding:0 3px;font-weight:700}
+.typing{display:inline-flex;gap:5px;padding:6px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--dim);animation:dot 1s infinite}
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes dot{0%,80%,100%{opacity:.25;transform:none}40%{opacity:1;transform:translateY(-3px)}}
-.note{align-self:center;display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;padding:6px 14px;border-radius:999px;border:1px dashed var(--line2);color:var(--sub);background:#fff;animation:pop .35s ease both}
-.note.bad{color:var(--bad);border-color:rgba(224,72,72,.4);background:rgba(224,72,72,.05)}
-.note.ok{color:var(--ok);border-color:rgba(19,160,103,.4);background:rgba(19,160,103,.06)}
-.fchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.fchips a{font-family:var(--mono);font-size:13.5px;text-decoration:none;color:var(--text);background:#fff;border:1px solid var(--line2);padding:5px 10px;border-radius:8px}
-.fchips a:hover{border-color:var(--accent);color:var(--accent)}
-.composer{margin:0 22px 20px;display:flex;gap:10px;align-items:center;border:1px solid var(--line2);border-radius:14px;padding:8px 8px 8px 16px;background:var(--soft)}
-.composer .in{flex:1;min-height:24px;font-size:15px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.composer .in.typed{color:var(--text)}
-.composer .send{width:40px;height:40px;border-radius:10px;border:none;background:var(--line);display:grid;place-items:center;color:#fff;transition:background .2s}
-.composer .send.on{background:var(--accent)}
+.making{display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:700}
+.spin{width:17px;height:17px;border-radius:50%;border:3px solid rgba(14,74,132,.18);border-top-color:var(--navy);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.res-h{display:flex;align-items:center;gap:8px;font-weight:700}
+.res-h .ck{width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:12px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.tag{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--soft);border:1px solid var(--line2);color:var(--sub);white-space:nowrap}
+.tag.c{border-color:rgba(47,111,237,.35);color:var(--chg);background:rgba(47,111,237,.08)}
+.more{display:inline-flex;align-items:center;gap:4px;margin-top:10px;background:none;border:none;padding:0;color:var(--navy);font-size:13.5px;font-weight:700}
+.spec{display:none;margin-top:10px;border-radius:12px;background:var(--soft);border:1px solid var(--line);padding:6px 12px;font-size:14.5px}
+.spec.open{display:block;animation:pop .25s ease both}
+.spec div{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:5px 0;border-bottom:1px dashed var(--line2)}
+.spec div:last-child{border-bottom:none}
+.spec span{color:var(--sub);white-space:nowrap}
+.spec b{text-align:right;font-weight:700}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.preset{display:flex;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line2);background:#fff;border-radius:14px;padding:8px 10px;transition:all .16s}
+.preset:hover:not(:disabled){border-color:var(--chg);transform:translateY(-2px);box-shadow:0 8px 18px rgba(47,111,237,.14)}
+.preset:disabled{opacity:.45;cursor:default}
+.preset img{width:54px;height:34px;object-fit:contain;flex:none}
+.preset b{display:block;font-size:13.5px;line-height:1.3}
+.preset span{display:block;font-size:12px;color:var(--chg);font-weight:600;line-height:1.35}
+.pres-t{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--dim);letter-spacing:.3px}
+.divider{align-self:center;font-size:12.5px;color:var(--dim);padding:2px 12px;border-radius:999px;background:var(--soft)}
 
-/* ---------- right ---------- */
-.right{display:flex;flex-direction:column;min-height:0;min-width:0}
-.rhead{display:flex;align-items:center;gap:10px;padding:16px 24px 10px}
-.rhead h2{margin:0;font-size:19px;font-weight:800}
-.pill{font-size:12px;font-weight:800;letter-spacing:1px;padding:2px 9px;border-radius:6px;border:1px solid var(--line2);color:var(--sub);font-family:var(--mono)}
-.ctrls{margin-left:auto;display:flex;gap:6px;align-items:center}
-.cb{border:1px solid var(--line2);background:#fff;border-radius:10px;padding:7px 13px;font-size:14.5px;font-weight:700;color:var(--sub)}
-.cb:hover{border-color:var(--accent);color:var(--accent)}
-.cb.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff}
-.speed{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff}
-.speed button{border:none;background:none;padding:7px 10px;font-size:13px;font-family:var(--mono);color:var(--dim)}
-.speed button.on{background:var(--soft);color:var(--text);font-weight:700}
-.segs{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 24px 12px}
-.seg{font-size:13px;color:var(--dim);font-weight:600;text-align:center}
-.seg::before{content:"";display:block;height:5px;border-radius:5px;background:var(--line);margin-bottom:6px;transition:background .4s}
-.seg.done{color:var(--sub)} .seg.done::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.seg.now{color:var(--accent);font-weight:800} .seg.now::before{background:linear-gradient(90deg,var(--accent) 50%,var(--line) 50%);background-size:200% 100%;animation:fillbar 1.2s linear infinite}
-@keyframes fillbar{from{background-position:100% 0}to{background-position:0 0}}
+.tray{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 4px;min-height:20px;border-top:1px solid var(--line)}
+.tray:empty{border-top-color:transparent;padding-top:4px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line2);background:#fff;border-radius:13px;padding:8px 13px;font-size:15px;font-weight:700;color:var(--text);transition:all .16s;animation:pop .3s ease both;text-align:left}
+.chip svg{flex:none;color:var(--navy)}
+.chip small{display:block;font-size:12px;font-weight:500;color:var(--dim);line-height:1.3}
+.chip:hover{border-color:var(--navy);color:var(--navy);transform:translateY(-2px);box-shadow:0 6px 14px rgba(14,74,132,.12)}
+.chip.done{border-color:rgba(47,111,237,.5);background:rgba(47,111,237,.06)}
+.chip.done::after{content:"✓";color:var(--chg);font-weight:800}
+.chip.primary{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff}
+.chip.primary svg{color:#fff}
+.chip.primary:hover{color:#fff;filter:brightness(1.08)}
+.chip.ghostly{border-style:dashed;color:var(--sub);font-weight:500}
+.chip .th{width:52px;height:30px;object-fit:contain}
+.composer{margin:8px 16px 16px;display:flex;gap:10px;align-items:center;border:1.5px solid var(--line2);border-radius:16px;padding:7px 7px 7px 15px;background:var(--soft);min-height:56px;transition:border-color .2s}
+.composer.ready{border-color:var(--navy);background:#fff}
+.sent{flex:1;font-size:15px;line-height:1.5;color:var(--text)}
+.sent mark{background:rgba(47,111,237,.1);color:var(--chg);font-weight:700;border-radius:4px;padding:0 3px}
+.sent .caret{display:inline-block;width:2px;height:1.05em;background:var(--navy);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.send{height:42px;flex:none;border-radius:12px;border:none;background:var(--line);display:inline-flex;align-items:center;gap:6px;padding:0 14px;color:#fff;font-weight:700;font-size:14.5px;transition:all .2s}
+.send.on{background:linear-gradient(135deg,var(--navy),var(--navy2));box-shadow:0 6px 14px rgba(14,74,132,.25)}
 
-.stage{flex:1;display:flex;flex-direction:column;gap:14px;padding:0 24px 20px;min-height:0}
-.viewer{position:relative;flex:1;min-height:300px;border-radius:18px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 45%,#ffffff 0%,#eaeff7 80%);overflow:hidden}
+/* ================= viewer ================= */
+.viewer{position:relative;min-width:0;border-radius:22px;border:1px solid var(--line);box-shadow:var(--sh);overflow:hidden;
+  background:radial-gradient(ellipse at 50% 38%,rgba(255,255,255,.95),rgba(255,255,255,0) 70%),
+    linear-gradient(rgba(14,74,132,.045) 1px,transparent 1px) 0 0/32px 32px,
+    linear-gradient(90deg,rgba(14,74,132,.045) 1px,transparent 1px) 0 0/32px 32px,
+    linear-gradient(180deg,#f7f9fd,#e9eef6)}
 #gl{position:absolute;inset:0}
 #gl canvas{display:block}
-.vstate{position:absolute;top:16px;left:18px;font-size:15px;font-weight:700;color:var(--sub);background:rgba(255,255,255,.9);border:1px solid var(--line);padding:6px 12px;border-radius:10px;pointer-events:none}
-.vstate.ok{color:var(--ok);border-color:rgba(19,160,103,.4)}
-.vtools{position:absolute;top:14px;right:14px;display:flex;gap:5px}
-.vt{border:1px solid var(--line2);background:rgba(255,255,255,.92);border-radius:9px;padding:5px 11px;font-size:13.5px;color:var(--sub)}
-.vt.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--dim);font-size:17px;pointer-events:none;transition:opacity .5s}
-.lbl{font-size:14.5px;font-weight:700;padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.95);border:1.5px solid;white-space:nowrap;box-shadow:0 2px 6px rgba(20,40,80,.1);transition:opacity .4s}
-.lbl em{font-style:normal;color:var(--sub);font-weight:500;margin-left:6px}
-.nolbl .lbl{opacity:0}
-.axl{font:600 12px var(--mono)}
-.noaxes .axl{display:none}
+.vhead{position:absolute;top:18px;left:20px;right:20px;display:flex;align-items:flex-start;gap:12px;pointer-events:none}
+.vtitle b{display:block;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.15}
+.vtitle .badge{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:800;letter-spacing:.5px;padding:3px 10px;border-radius:999px;background:#fff;border:1px solid var(--line2);color:var(--sub)}
+.vtitle .badge.v{background:var(--chg);border-color:var(--chg);color:#fff}
+.seg{margin:0 auto;display:flex;background:rgba(255,255,255,.92);border:1px solid var(--line2);border-radius:12px;padding:3px;pointer-events:auto;box-shadow:var(--sh);transition:opacity .3s}
+.seg button{border:none;background:none;border-radius:9px;padding:6px 14px;font-size:14px;font-weight:700;color:var(--sub);white-space:nowrap}
+.seg button.on{background:var(--navy);color:#fff}
+.vtools{display:flex;gap:4px;pointer-events:auto;margin-left:auto}
+.vt{border:1px solid var(--line2);background:rgba(255,255,255,.92);border-radius:10px;padding:6px 11px;font-size:13.5px;font-weight:600;color:var(--sub)}
+.vt.on{background:var(--text);border-color:var(--text);color:#fff}
+.vfoot{position:absolute;left:16px;right:16px;bottom:14px;display:flex;align-items:flex-end;gap:10px;pointer-events:none}
+.specwrap{position:relative;pointer-events:auto}
+.specbtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:rgba(255,255,255,.95);border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700;color:var(--text);box-shadow:var(--sh)}
+.specbtn:hover{border-color:var(--navy)}
+.specbtn .cnt{background:var(--chg);color:#fff;border-radius:999px;font-size:12px;padding:1px 8px}
+.specbtn .car{transition:transform .25s;color:var(--sub)}
+.specwrap.open .specbtn .car{transform:rotate(180deg)}
+.specpanel{position:absolute;left:0;bottom:calc(100% + 8px);width:min(440px,calc(100vw - 60px));background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 44px rgba(15,28,51,.14);padding:8px 16px 10px;opacity:0;transform:translateY(8px);pointer-events:none;transition:all .25s}
+.specwrap.open .specpanel{opacity:1;transform:none;pointer-events:auto}
+.spt{width:100%;border-collapse:collapse;font-size:14px}
+.spt th{font-size:12px;font-weight:700;color:var(--dim);text-align:right;padding:6px 0 6px 14px;border-bottom:1px solid var(--line)}
+.spt th:first-child{text-align:left;padding-left:0}
+.spt td{padding:6px 0 6px 14px;border-bottom:1px dashed var(--line);text-align:right;font-family:var(--mono);font-weight:700;white-space:nowrap}
+.spt td:first-child{text-align:left;padding-left:0;font-family:inherit;font-weight:600;color:var(--sub)}
+.spt td.b{color:var(--dim);font-weight:500}
+.spt tr:last-child td{border-bottom:none}
+.spt tr.c td:last-child{color:var(--chg)}
+.spt tr.c td:first-child{color:var(--text)}
+.spt tr.c td:first-child::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--chg);margin-right:7px;vertical-align:2px}
+.spt td u{text-decoration:none;font-family:inherit;font-weight:500;color:var(--dim);font-size:12px;margin-left:3px;display:inline-block;min-width:12px;text-align:left}
+.legend{margin-left:auto;display:flex;gap:14px;font-size:13px;color:var(--sub);background:rgba(255,255,255,.93);padding:8px 14px;border-radius:12px;border:1px solid var(--line);white-space:nowrap;transition:opacity .3s}
+.legend i{display:inline-block;width:13px;height:11px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.legend .ar{display:inline-block;width:18px;height:2px;background:var(--arrow);margin-right:9px;vertical-align:4px;position:relative}
+.legend .ar::after{content:"";position:absolute;right:-2px;top:-4px;border:5px solid transparent;border-left:7px solid var(--arrow);border-right:none}
+.foil{position:absolute;right:20px;top:76px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:14px;padding:10px 14px 6px;box-shadow:var(--sh);transition:opacity .4s;pointer-events:none}
+.foil p{margin:0;font-size:13px;font-weight:700;color:var(--sub)}
+.hidden{opacity:0!important;pointer-events:none!important}
+.gone{display:none!important}
 
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 18px 16px;height:200px;overflow:hidden;animation:pop .4s ease both;flex:none}
-.card-h{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:800;letter-spacing:1px;color:var(--sub);margin-bottom:10px}
-.card-h .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.card-h .ck{margin-left:auto;color:var(--ok);font-size:19px}
-.card-h .x{margin-left:auto;color:var(--bad);font-size:14px}
-.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.cbox{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.cbox b{display:flex;align-items:center;gap:7px;font-size:16px}
-.cbox b i{width:11px;height:11px;border-radius:3px}
-.cbox div{font-family:var(--mono);font-size:13.5px;color:var(--sub);line-height:1.6;margin-top:3px}
-.tags{display:flex;flex-wrap:wrap;gap:7px}
-.tag{font-family:var(--mono);font-size:14px;padding:5px 11px;border-radius:8px;background:#e9f7fb;border:1px solid rgba(14,165,198,.35);color:#0b6f86}
-.tag.code{background:#eef1ff;border-color:#cdd5fb;color:#3b4fc4}
-.att{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.att div{border-radius:12px;padding:10px 14px;border:1px solid var(--line);background:var(--soft);font-size:15px}
-.att div strong{display:block;font-size:18px}
-.att .bad{border-color:rgba(224,72,72,.35);background:rgba(224,72,72,.05)} .att .bad strong{color:var(--bad)}
-.att .ok{border-color:rgba(19,160,103,.4);background:rgba(19,160,103,.06)} .att .ok strong{color:var(--ok)}
-.att .wait{opacity:.4}
-.att span{font-size:13.5px;color:var(--sub)}
-pre.code{margin:0;font-family:var(--mono);font-size:13.5px;line-height:1.6;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;height:140px;overflow:hidden;color:#24324a}
-.code .f{color:#1f62d6}.code .s{color:#1c8a4a}.code .n{color:#c2570c}.code .k{color:#7b3fd1}
-.ver{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
-.big{font-family:var(--mono);font-size:44px;font-weight:600;color:var(--ok);line-height:1}
-.big small{display:block;font-family:"Noto Sans KR";font-size:14.5px;color:var(--sub);margin-top:8px;font-weight:500}
-.vlist{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 18px;font-size:14px}
-.vlist div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:2px 0}
-.vlist span{color:var(--sub)} .vlist em{font-style:normal;font-family:var(--mono);color:var(--ok)}
+.intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;transition:opacity .5s}
+.intro .eyebrow{font-size:13.5px;font-weight:800;letter-spacing:2.5px;color:var(--teal)}
+.intro h1{margin:8px 0 2px;font-size:60px;line-height:1.1;font-weight:800;letter-spacing:-1.5px}
+.intro .h1sub{font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px}
+.intro h1 em{font-style:normal;background:linear-gradient(90deg,var(--navy),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.intro p{margin:0 0 30px;color:var(--sub);font-size:16.5px}
+.picks{display:grid;grid-template-columns:repeat(4,minmax(0,190px));gap:14px}
+.pick{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;padding:14px 12px 12px;transition:all .2s;box-shadow:var(--sh)}
+.pick:hover{transform:translateY(-4px);border-color:var(--navy);box-shadow:0 14px 30px rgba(14,74,132,.15)}
+.pick img{width:100%;height:92px;object-fit:contain;transition:transform .3s}
+.pick:hover img{transform:scale(1.06)}
+.pick b{display:block;margin-top:8px;font-size:16px}
+.pick span{font-size:13px;color:var(--sub)}
 
-@media (max-width:1300px){html,body{font-size:16px}.cgrid{grid-template-columns:repeat(2,1fr)}.card{height:auto;min-height:190px}}
-@media (max-width:980px){
-  .app{height:auto}.main{display:flex;flex-direction:column}
-  .chips{display:none}
-  .right{order:1}.chat{order:2;height:78vh;border-right:none;border-top:1px solid var(--line)}
-  .viewer{height:52vh;flex:none}
-  .segs{gap:3px;padding:0 14px 10px}.seg{font-size:11px}
-  .rhead,.stage{padding-left:14px;padding-right:14px}
-  .rhead h2{font-size:16px}.speed{display:none}
-  .msgs{padding:18px 14px}.composer{margin:0 12px 14px}
-  .lbl{font-size:12px;padding:2px 7px}
-  .ver{grid-template-columns:1fr}.vlist{grid-template-columns:1fr}
+.loader{position:absolute;inset:0;display:grid;place-items:center;background:rgba(242,245,250,.6);backdrop-filter:blur(4px);transition:opacity .35s}
+.lcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 26px;box-shadow:0 20px 50px rgba(15,28,51,.12);min-width:300px}
+.lcard b{display:flex;align-items:center;gap:10px;font-size:17px;margin-bottom:12px}
+.lstep{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--dim);padding:4px 0;transition:color .2s}
+.lstep i{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;font-style:normal;font-size:11px;color:transparent;transition:all .2s}
+.lstep.on{color:var(--text);font-weight:600}.lstep.on i{border-color:var(--navy);border-top-color:transparent;animation:sp .7s linear infinite}
+.lstep.done{color:var(--sub)}.lstep.done i{background:var(--ok);border-color:var(--ok);color:#fff;animation:none}
+
+/* ================= sections ================= */
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+.sec{padding:96px 0 0}
+.kicker{font-size:13.5px;font-weight:800;letter-spacing:2.5px;color:var(--teal)}
+.sec h2{font-size:34px;line-height:1.3;margin:8px 0 10px;font-weight:800;letter-spacing:-.8px}
+.lead{color:var(--sub);font-size:17.5px;margin:0 0 34px;max-width:820px}
+
+.fc{background:#fff;border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:var(--sh)}
+.fc-flow{position:relative}
+.fc-row{display:grid;grid-template-columns:1.25fr 30px 3.2fr 30px 1fr 30px 1fr;align-items:stretch}
+.fc-head{align-items:end;margin-bottom:10px}
+.fc-head .c3{grid-column:3;display:flex;flex-direction:column;align-items:center}
+.fc-head .c57{grid-column:5 / 8;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding-bottom:24px}
+.fc-skill{display:flex;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:9px 22px;font-size:15.5px;font-weight:600;white-space:nowrap}
+.fc-skill small{color:var(--sub);font-weight:500;font-size:13px}
+.fc-skill .sep{width:1px;height:18px;background:var(--line2);margin:0 4px}
+.fc-llm{background:var(--navy);color:#fff;border-radius:14px;padding:9px 18px;font-weight:800;font-size:16.5px;white-space:nowrap}
+.fc-llm small{font-family:var(--mono);font-weight:500;font-size:12.5px;margin-left:6px;opacity:.85}
+.fc-noft{border:2px solid var(--red);color:var(--red);border-radius:999px;padding:7px 16px;font-weight:800;font-size:14.5px;white-space:nowrap}
+.fc-down{color:var(--navy);font-size:18px;line-height:1;margin-top:6px}
+.fa{display:grid;place-items:center;color:var(--navy);font-size:18px}
+.fbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 12px 16px;text-align:center;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fbox h4{margin:12px 0 6px;font-size:18.5px;font-weight:800;letter-spacing:-.3px}
+.fbox p{margin:0;color:var(--sub);font-size:14.5px;line-height:1.55}
+.fic{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff}
+.fic.o{background:#fff;border:2.5px solid var(--navy);color:var(--navy)}
+.fic.g{background:#fff;border:2.5px solid #9aa6b8;color:#7c889c}
+.fn{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--text);color:#fff;font-size:13px;font-weight:800;display:grid;place-items:center}
+.freq h4{margin:6px 0 4px}
+.freq q{display:block;color:var(--navy);font-weight:700;font-size:14px;line-height:1.4;margin:0 0 10px;quotes:"\201C" "\201D"}
+.pls{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:100%}
+.freq .pl{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 6px;font-size:12px;font-weight:700;white-space:nowrap}
+.fgroup{border:2px solid var(--navy);border-radius:22px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:linear-gradient(180deg,rgba(14,74,132,.03),rgba(14,74,132,.06))}
+.fgroup .fbox{border-color:rgba(14,74,132,.15)}
+.floop{position:absolute;height:30px;border:2.5px solid var(--red);border-top:none;border-radius:0 0 14px 14px}
+.floop::before{content:"";position:absolute;left:-7.5px;top:-11px;border:6px solid transparent;border-bottom:9px solid var(--red);border-top:none}
+.floop span{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);background:#fff;border:2px solid var(--red);color:var(--red);font-weight:800;font-size:14.5px;padding:3px 18px;border-radius:999px;white-space:nowrap}
+.fpass{position:absolute;width:0;border-left:2.5px solid var(--navy)}
+.fpass::after{content:"";position:absolute;left:-7.5px;bottom:-2px;border:6px solid transparent;border-top:9px solid var(--navy);border-bottom:none}
+.fpass span{position:absolute;left:10px;top:50%;transform:translateY(-50%);background:#eef3fb;border:1px solid var(--line2);color:var(--navy);font-weight:800;font-size:13.5px;padding:2px 12px;border-radius:999px;white-space:nowrap}
+.fc-bottom{margin-top:62px}
+.flegs{grid-column:1 / 4;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.fres{grid-column:5 / 8}
+.fc-mloop{display:none}
+.fleg{border:1px solid var(--line);border-radius:18px;padding:16px 14px;text-align:center}
+.fleg h5{margin:0;display:flex;align-items:center;justify-content:center;gap:8px;font-size:18.5px;font-weight:800}
+.fleg h5 i{width:15px;height:15px;border-radius:50%;background:var(--navy)}
+.fleg h5 i.o{background:#fff;border:2.5px solid var(--navy)} .fleg h5 i.g{background:#fff;border:2.5px solid #9aa6b8}
+.fleg p{margin:2px 0 12px;color:var(--sub);font-size:14px}
+.fleg .pp{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.fleg .pp span{font-size:13px;font-weight:700;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.pp .f{background:var(--navy);color:#fff}.pp .o{border:2px solid var(--navy);color:var(--navy)}.pp .g{border:2px solid #b3bdcc;color:var(--sub)}
+.fres{border:1px solid var(--line);border-radius:18px;padding:16px 18px;position:relative;overflow:hidden;background:linear-gradient(135deg,#fff,#eef4fc);min-height:150px}
+.fres h5{margin:0;font-size:17px;font-weight:800;color:var(--navy);max-width:62%;line-height:1.35}
+.fres code{display:inline-block;margin-top:8px;background:var(--navy);color:#fff;font-family:var(--mono);font-size:13px;padding:2px 10px;border-radius:7px}
+.fres img{position:absolute;right:-4px;bottom:-6px;width:64%}
+
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gcard{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.gcard:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(15,28,51,.1)}
+.gimg{height:170px;display:grid;place-items:center;background:linear-gradient(160deg,#f7f9fd,#e8eef7);padding:14px}
+.gimg img{max-width:100%;max-height:100%;object-fit:contain}
+.gbody{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.gbody h3{margin:0;font-size:19px;font-weight:800}
+.gbody .d{font-size:14px;color:var(--sub);margin-bottom:10px}
+.gspec{margin:0 0 14px;padding:0;list-style:none;font-size:14.5px}
+.gspec li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line2)}
+.gspec li span{color:var(--sub);white-space:nowrap}.gspec li b{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.gbtn{margin-top:auto;border:1.5px solid var(--line2);background:#fff;border-radius:12px;padding:8px;font-size:14.5px;font-weight:700;color:var(--navy)}
+.gbtn:hover{border-color:var(--navy);background:rgba(14,74,132,.04)}
+
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:1.5px solid var(--line2);background:#fff;border-radius:11px;padding:7px 16px;font-size:15px;font-weight:700;color:var(--sub)}
+.tabs button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.cmp{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--sh)}
+.cmp img{width:100%;display:block;border-radius:12px}
+
+footer{margin-top:110px;padding:44px 0 46px;background:#fff;border-top:1px solid var(--line);text-align:center}
+footer img{width:76px;height:auto;display:block;margin:0 auto 14px}
+footer b{display:block;font-size:15.5px;font-weight:800;color:var(--navy)}
+footer span{display:block;font-size:13.5px;color:var(--dim);margin-top:4px}
+
+@media (max-width:1320px){
+  body{font-size:16px}.picks{grid-template-columns:repeat(2,minmax(0,200px))}.intro h1{font-size:36px}
+  .gal{grid-template-columns:repeat(2,1fr)}
 }
+@media (max-width:1080px){
+  .fc-row{grid-template-columns:1fr;gap:10px}.fc-head .c3,.fc-head .c57{grid-column:1}.fc-head .c57{padding-bottom:0}.fc-skill{white-space:normal}
+  .fa{transform:rotate(90deg);height:22px}.fgroup{grid-template-columns:1fr}
+  .floop,.fpass{display:none}.fc-bottom{margin-top:16px}.flegs{grid-column:1;grid-template-columns:1fr}.fres{grid-column:1}
+  .fc-mloop{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}.fc-mloop span{font-weight:800;font-size:14px;padding:4px 14px;border-radius:999px}
+  .fc-mloop .r{border:2px solid var(--red);color:var(--red)}.fc-mloop .g{background:#eef3fb;color:var(--navy)}
+}
+@media (max-width:900px){
+  .top nav,.top .ttl span{display:none}.top{padding:0 14px;gap:12px}.top .lab{height:24px}
+  .demo{display:flex;flex-direction:column;height:auto;padding:10px;gap:10px}
+  .viewer{order:1;height:64vh;min-height:440px}
+  .chat{order:2;height:78vh}
+  .intro{padding:16px}.intro h1{font-size:40px}.intro .h1sub{font-size:18px}.intro p{font-size:14.5px;margin-bottom:16px}.picks{gap:8px}.pick{padding:8px}.pick img{height:56px}
+  .vhead{top:12px;left:12px;right:12px;flex-wrap:wrap}.vtitle b{font-size:20px}.seg{order:3;margin:4px 0 0;flex-basis:100%;justify-content:center}.seg button{padding:5px 9px;font-size:12.5px;flex:1}
+  .vt{padding:4px 8px;font-size:12px}
+  .vfoot{left:10px;right:10px;bottom:10px;flex-wrap:wrap}.legend{margin-left:0;gap:4px 10px;font-size:11.5px;flex-wrap:wrap;padding:6px 10px}.foil{display:none}.specpanel{width:calc(100vw - 44px)}
+  .sec h2{font-size:26px}.gal{grid-template-columns:1fr}.fc{padding:18px}
+}
+
+/* ================= refined visual layer (structure unchanged) ================= */
+:root{
+  --bg:#f6f7f9; --panel:#fff; --soft:#f3f4f6; --line:#e6e8ec; --line2:#d8dce2;
+  --text:#0b1220; --sub:#4a5565; --dim:#98a1ae; --ink:#0b1220;
+  --navy:#0e4a84; --navy2:#0e4a84; --teal:#0e4a84;
+  --sh:none;
+}
+body{font-size:16px;letter-spacing:-.01em}
+::selection{background:rgba(47,111,237,.18)}
+
+/* header */
+.top{height:58px;background:rgba(255,255,255,.96);padding:0 24px}
+.top .lab{height:26px}
+.top .ttl b{font-size:16px;font-weight:700;letter-spacing:-.2px}
+.top .ttl span{font-size:12.5px;color:var(--dim)}
+.top nav a{font-size:14px;font-weight:500;color:var(--sub);padding:6px 12px;border-radius:7px}
+.top nav a:hover{background:var(--soft);color:var(--ink)}
+.demo{height:calc(100vh - 58px);padding:10px;gap:10px}
+
+/* chat */
+.chat{border-radius:14px}
+.chead{padding:13px 16px;gap:10px}
+.bot{width:32px;height:32px;border-radius:8px;background:var(--ink)}
+.bot svg{width:17px;height:17px}
+.chead b{font-size:14.5px;font-weight:700}
+.chead span{font-size:12px;color:var(--dim)}
+.reset{border-radius:8px;font-size:12.5px;font-weight:500;padding:5px 10px}
+.reset:hover{border-color:var(--ink);color:var(--ink)}
+.msgs{background:#fff;padding:20px 16px 12px;gap:12px}
+.row{gap:9px;animation:fadeup .28s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.av{width:28px;height:28px;border-radius:7px;background:var(--ink)}
+.av svg{width:14px;height:14px}
+.row.me .av{width:34px;height:34px;border-radius:8px;font-size:8.5px;color:var(--ink);border-color:var(--line2)}
+.bub{border-radius:12px;background:var(--soft);border:none;box-shadow:none;font-size:15px;line-height:1.6;padding:10px 14px}
+.row:not(.me) .bub{border-bottom-left-radius:4px}
+.row.me .bub{background:var(--ink);border-bottom-right-radius:4px}
+.row.me .bub mark{background:rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.55);border-radius:2px;font-weight:600}
+.making{color:var(--ink);font-weight:600}
+.spin{border-color:rgba(11,18,32,.12);border-top-color:var(--ink)}
+.res-h{font-weight:600}
+.res-h .ck{width:18px;height:18px;font-size:11px}
+.tag{border-radius:6px;font-size:12px;font-weight:600;background:#fff;padding:2px 8px}
+.more{color:var(--ink);font-size:13px;font-weight:600}
+.spec{border-radius:10px;background:#fff}
+.divider{background:none;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
+.tray{gap:6px;padding:10px 14px 2px}
+.chip{border-radius:8px;border:1px solid var(--line2);padding:7px 11px;font-size:14px;font-weight:600;gap:7px;animation:fadeup .25s ease both}
+.chip svg{color:var(--sub);width:16px;height:16px}
+.chip small{font-size:11.5px;color:var(--dim)}
+.chip:hover{border-color:var(--ink);color:var(--ink);transform:none;box-shadow:none;background:var(--soft)}
+.chip.done{border-color:var(--ink);background:var(--soft)}
+.chip.done::after{color:var(--ink)}
+.chip.primary{background:var(--ink);color:#fff}
+.chip.primary:hover{background:#1f2937;filter:none}
+.chip .th{width:44px;height:26px}
+.pres-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:500}
+.presets{gap:6px}
+.preset{border-radius:10px;border:1px solid var(--line);padding:8px 10px}
+.preset:hover:not(:disabled){border-color:var(--ink);transform:none;box-shadow:none}
+.preset img{width:46px;height:30px}
+.preset b{font-size:13px;font-weight:600}
+.preset span{color:var(--sub);font-weight:400;font-size:12px}
+.composer{border-radius:10px;border:1px solid var(--line2);margin:8px 14px 14px;min-height:52px}
+.composer.ready{border-color:var(--ink)}
+.sent{font-size:14.5px}
+.sent mark{border-radius:2px;font-weight:600}
+.sent .caret{background:var(--ink)}
+.send{border-radius:8px;height:38px;font-size:13.5px;font-weight:600}
+.send.on{background:var(--ink);box-shadow:none}
+
+/* viewer */
+.viewer{border-radius:14px;background:radial-gradient(circle,#d5dae1 1px,transparent 1.2px) 0 0/22px 22px,linear-gradient(180deg,#fafbfc,#eef0f3)}
+.vhead{top:16px;left:18px;right:18px}
+.vtitle b{font-size:21px;font-weight:700;letter-spacing:-.4px}
+.vtitle .badge{border-radius:5px;font-size:11.5px;font-weight:600;letter-spacing:0;padding:2px 8px;margin-top:5px}
+.vtitle .badge.v{background:var(--chg)}
+.seg{border-radius:9px;padding:3px;box-shadow:none;background:#fff}
+.seg button{border-radius:6px;font-size:13px;font-weight:600;padding:5px 12px}
+.seg button.on{background:var(--ink)}
+.vt{border-radius:7px;font-size:12.5px;font-weight:500;padding:5px 10px;background:#fff}
+.vt.on{background:var(--ink);border-color:var(--ink)}
+.specbtn{border-radius:8px;box-shadow:none;font-size:13px;font-weight:600;padding:7px 12px;background:#fff}
+.specbtn:hover{border-color:var(--ink)}
+.specbtn .cnt{border-radius:4px;font-size:11px;font-weight:600;padding:1px 6px}
+.specpanel{border-radius:12px;box-shadow:0 14px 34px rgba(16,24,40,.12)}
+.spt{font-size:13.5px}
+.spt th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.spt td{font-weight:600}
+.spt td:first-child{font-weight:500}
+.legend{border-radius:8px;font-size:12.5px;background:#fff}
+.foil{border-radius:12px;box-shadow:none}
+.intro .eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.24em;color:var(--dim)}
+.intro h1{font-size:58px;font-weight:700;letter-spacing:-2px;margin:12px 0 4px}
+.intro h1 em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink)}
+.intro .h1sub{font-size:20px;font-weight:500;color:var(--sub);letter-spacing:-.3px;margin-bottom:10px}
+.intro p{font-size:15px;color:var(--dim);margin-bottom:34px}
+.picks{gap:10px}
+.pick{border-radius:12px;box-shadow:none;background:#fff;padding:14px 12px 12px}
+.pick:hover{transform:none;border-color:var(--ink);box-shadow:none}
+.pick:hover img{transform:none}
+.pick b{font-size:14.5px;font-weight:600;margin-top:10px}
+.pick span{font-size:12px;color:var(--dim)}
+.loader{background:rgba(246,247,249,.7)}
+.lcard{border-radius:12px;box-shadow:0 14px 34px rgba(16,24,40,.1);padding:20px 22px;min-width:270px}
+.lcard b{font-size:15px;font-weight:600}
+.lstep{font-size:14px}
+.lstep i{width:16px;height:16px;border-width:1.5px;font-size:9px}
+.lstep.on i{border-color:var(--ink);border-top-color:transparent}
+
+/* sections */
+.sec{padding-top:88px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.22em;color:var(--dim)}
+.sec h2{font-size:30px;font-weight:700;letter-spacing:-.8px;margin:10px 0 8px}
+.lead{font-size:16px;margin-bottom:28px}
+.fc{border-radius:16px;padding:26px}
+.fc-skill{border-radius:8px;font-size:14px;font-weight:500;padding:8px 16px;background:#fff}
+.fc-skill small{font-size:12px}
+.fc-llm{border-radius:8px;background:var(--ink);font-size:14.5px;font-weight:600;padding:8px 14px}
+.fc-noft{border-radius:8px;border-width:1.5px;font-size:13px;font-weight:600;padding:6px 12px}
+.fc-down,.fa{color:var(--dim)}
+.fbox{border-radius:12px}
+.fbox h4{font-size:16.5px;font-weight:700;margin:12px 0 4px}
+.fbox p{font-size:13.5px}
+.fic,.fic.o,.fic.g{width:44px;height:44px;border-radius:10px;background:var(--soft);border:1px solid var(--line);color:var(--ink)}
+.fic svg{width:22px;height:22px}
+.fn{display:block;background:none;color:var(--dim);font-family:var(--mono);font-size:11.5px;font-weight:500;width:auto;height:auto;top:12px;right:14px;line-height:1}
+.fn::before{content:"0"}
+.freq q{color:var(--ink);font-weight:600}
+.freq .pl{border-radius:6px;background:#fff;font-weight:600;font-size:12px;color:var(--sub)}
+.fgroup{border:1.5px solid var(--ink);border-radius:16px;background:var(--soft)}
+.fgroup .fbox{border-color:var(--line)}
+.floop{border-width:1.5px;border-radius:0 0 10px 10px}
+.floop::before{left:-6.75px;border-width:5px;border-bottom-width:8px;top:-9px}
+.floop span{border-width:1.5px;border-radius:6px;font-size:12.5px;font-weight:600;padding:2px 12px}
+.fpass{border-left-width:1.5px;border-color:var(--ink)}
+.fpass::after{left:-6.75px;border-width:5px;border-top-width:8px;border-top-color:var(--ink)}
+.fpass span{border-radius:6px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
+.fleg{border-radius:12px}
+.fleg h5{font-size:16px;font-weight:700}
+.fleg h5 i{width:10px;height:10px;background:var(--ink)}
+.fleg h5 i.o{border:1.5px solid var(--ink)}.fleg h5 i.g{border:1.5px solid #a3acb9}
+.fleg p{font-size:13px;color:var(--dim)}
+.fleg .pp span{border-radius:6px;font-size:12px;font-weight:600;padding:4px 10px}
+.pp .f{background:var(--ink)}.pp .o{border:1px solid var(--ink);color:var(--ink)}.pp .g{border:1px solid var(--line2)}
+.fres{border-radius:12px;background:var(--soft)}
+.fres h5{color:var(--ink);font-size:15.5px;font-weight:700}
+.fres code{border-radius:5px;background:var(--ink);font-size:12px}
+.gal{gap:12px}
+.gcard{border-radius:14px;box-shadow:none}
+.gcard:hover{transform:none;box-shadow:none;border-color:var(--ink)}
+.gimg{background:var(--soft);height:160px}
+.gbody h3{font-size:17px;font-weight:700}
+.gbody .d{font-size:13px;color:var(--dim)}
+.gspec{font-size:13.5px}
+.gspec li b{font-weight:600}
+.gbtn{border-radius:8px;border:1px solid var(--line2);font-size:13.5px;font-weight:600;color:var(--ink)}
+.gbtn:hover{border-color:var(--ink);background:var(--soft)}
+.tabs button{border-radius:8px;border:1px solid var(--line2);font-size:13.5px;font-weight:600;padding:6px 14px}
+.tabs button.on{background:var(--ink);border-color:var(--ink)}
+.cmp{border-radius:14px;box-shadow:none;padding:14px}
+footer{margin-top:96px;padding:40px 0}
+footer img{width:64px}
+footer b{color:var(--ink);font-size:14px;font-weight:700}
+footer span{font-size:12.5px}
+@media (max-width:900px){.intro h1{font-size:40px}.intro .h1sub{font-size:16px}.intro p{font-size:13.5px}}
+
+/* ================= color layer: navy + cobalt on cool tints ================= */
+:root{--ink:#0e4a84; --cobalt:#2f6fed; --tint:#eaf1fc; --soft:#f2f6fb; --bg:#f2f5fa; --line:#e2e8f1; --line2:#d2dbe7}
+.top{border-top:3px solid var(--ink);height:61px}
+.top .ttl b{color:var(--ink)}
+.top nav a:hover{background:var(--tint);color:var(--ink)}
+.demo{height:calc(100vh - 61px)}
+.bot,.av{background:linear-gradient(135deg,#0e4a84,#2f6fed)}
+.chead{background:linear-gradient(180deg,#fff,#f7faff)}
+.row.me .bub{background:var(--ink)}
+.chip svg{color:var(--cobalt)}
+.chip:hover{background:var(--tint);border-color:var(--cobalt);color:var(--ink)}
+.chip.done{background:var(--tint);border-color:var(--cobalt)}
+.chip.done::after{color:var(--cobalt)}
+.chip.primary{background:var(--ink)}
+.chip.primary:hover{background:#0b3d6e;color:#fff}
+.pres-t{color:var(--cobalt)}
+.preset{background:#fff}
+.preset:hover:not(:disabled){border-color:var(--cobalt);background:var(--tint)}
+.preset span{color:var(--cobalt);font-weight:500}
+.composer.ready{border-color:var(--cobalt);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.send.on{background:var(--ink)}
+.tag.c{background:var(--tint)}
+.res-h .ck{background:var(--cobalt)}
+
+.viewer{background:
+  radial-gradient(circle,rgba(14,74,132,.16) 1px,transparent 1.3px) 0 0/22px 22px,
+  radial-gradient(ellipse at 50% 42%,rgba(255,255,255,.95),rgba(255,255,255,0) 62%),
+  linear-gradient(160deg,#f6f9fe,#e3ebf6)}
+.vtitle b{color:var(--ink)}
+.vtitle .badge{background:#fff;color:var(--sub)}
+.vtitle .badge.v{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.seg button.on,.vt.on{background:var(--ink);border-color:var(--ink)}
+.specbtn .cnt{background:var(--cobalt)}
+.intro .eyebrow{color:var(--cobalt)}
+.intro h1,.intro h1 em{color:var(--ink)}
+.intro .h1sub{color:var(--text);margin-bottom:34px}
+.pick{border-color:var(--line)}
+.pick:hover{border-color:var(--cobalt);background:linear-gradient(180deg,#fff,var(--tint))}
+.pick b{color:var(--text)}
+.lstep.on i{border-color:var(--cobalt);border-top-color:transparent}
+
+.kicker{color:var(--cobalt)}
+.sec h2{color:var(--text)}
+.fc{background:#fff}
+.fc-skill{background:var(--soft)}
+.fic{background:var(--ink);border:none;color:#fff}
+.fic.o{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
+.fic.g{background:#eef1f5;border:1px solid var(--line2);color:#6b7686}
+.fgroup{background:linear-gradient(180deg,#f6f9fe,#edf3fc);border-color:var(--ink)}
+.fn{color:var(--cobalt)}
+.freq q{color:var(--ink)}
+.fleg h5 i{background:var(--ink)}
+.fleg h5 i.o{background:#fff;border-color:var(--ink)}
+.fres{background:linear-gradient(135deg,#f6f9fe,#e3ebf6)}
+.fres h5{color:var(--ink)}
+.gimg{background:linear-gradient(160deg,#f6f9fe,#e3ebf6)}
+.gcard:hover{border-color:var(--cobalt)}
+.gbtn{color:var(--ink)}
+.gbtn:hover{border-color:var(--cobalt);background:var(--tint)}
+.tabs button.on{background:var(--ink)}
+footer{background:linear-gradient(180deg,#fff,#f3f6fb)}
+
+/* ================= brand accents ================= */
+.chead{background:linear-gradient(120deg,#0e4a84,#1f62bf);border-bottom:none}
+.chead b{color:#fff}.chead span{color:rgba(255,255,255,.75)}
+.chead .bot{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25)}
+.chead .reset{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+.chead .reset:hover{background:rgba(255,255,255,.22);color:#fff;border-color:#fff}
+.intro::before{content:"";position:absolute;left:50%;top:44%;width:720px;height:420px;transform:translate(-50%,-50%);background:radial-gradient(ellipse at 35% 45%,rgba(47,111,237,.16),transparent 60%),radial-gradient(ellipse at 70% 55%,rgba(25,181,194,.12),transparent 60%);filter:blur(10px);pointer-events:none;z-index:-1}
+.intro{z-index:0}
+.pick{padding:0;overflow:hidden}
+.pick img{display:block;width:100%;height:104px;padding:12px;background:linear-gradient(160deg,#f3f7fe,#e2eaf6);box-sizing:border-box}
+.pick b{margin:12px 12px 0}
+.pick span{display:block;padding:0 12px 14px}
+
+/* ================= intro: larger, bolder type ================= */
+.intro .eyebrow{font-size:14px;font-weight:700;letter-spacing:.3em}
+.intro h1{font-size:92px;font-weight:800;letter-spacing:-3px;margin:14px 0 6px;line-height:1.02}
+.intro .h1sub{font-size:30px;font-weight:700;letter-spacing:-.6px;color:var(--text);margin-bottom:40px}
+.picks{grid-template-columns:repeat(4,minmax(0,236px));gap:14px}
+.pick{border-radius:16px}
+.pick img{height:136px;padding:14px}
+.pick b{font-size:20px;font-weight:700;margin:14px 14px 2px;letter-spacing:-.3px}
+.pick span{font-size:14.5px;color:var(--sub);padding:0 14px 16px}
+@media (max-width:1320px){.intro h1{font-size:72px}.intro .h1sub{font-size:24px}.picks{grid-template-columns:repeat(2,minmax(0,236px))}}
+@media (max-width:900px){.intro h1{font-size:48px;letter-spacing:-1.5px}.intro .h1sub{font-size:19px;margin-bottom:20px}.pick img{height:72px;padding:8px}.pick b{font-size:15px;margin:8px 8px 0}.pick span{font-size:12px;padding:0 8px 10px}}
+
+/* keyword row */
+.keywords{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.kw-l{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-right:4px}
+.kw{font-size:17px;font-weight:700;color:var(--cobalt);background:rgba(47,111,237,.08);border:1px solid rgba(47,111,237,.28);border-radius:8px;padding:5px 14px;letter-spacing:-.1px}
+@media (max-width:900px){.kw{font-size:13.5px;padding:3px 10px}.kw-l{font-size:11px}}
+
+/* keyword capsule */
+.keywords{display:inline-flex;align-items:center;gap:0;background:#fff;border:1px solid var(--line2);border-radius:999px;padding:4px 18px 4px 4px;box-shadow:0 6px 18px rgba(14,74,132,.08)}
+.kw-l{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.14em;color:#fff;background:var(--ink);border-radius:999px;padding:6px 14px;margin:0 14px 0 0;text-transform:none}
+.kw{font-size:18px;font-weight:700;color:var(--ink);background:none;border:none;padding:0;letter-spacing:-.2px}
+.kw-d{width:5px;height:5px;border-radius:50%;background:var(--cobalt);margin:0 12px}
+@media (max-width:900px){.kw{font-size:14px}.kw-l{font-size:10.5px;padding:4px 10px;margin-right:10px}.keywords{padding-right:12px}}
+
+/* aircraft cards: hover / press / select */
+.pick{position:relative;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .2s}
+.pick img{transition:transform .45s cubic-bezier(.2,.8,.2,1),background .25s}
+.pick:hover{transform:translateY(-6px);border-color:var(--cobalt);box-shadow:0 18px 36px rgba(47,111,237,.18);background:#fff}
+.pick:hover img{transform:scale(1.07) rotate(-2deg);background:linear-gradient(160deg,#e9f1ff,#d6e4fb)}
+.pick:hover b{color:var(--ink)}
+.pick:active{transform:translateY(-2px) scale(.97);box-shadow:0 8px 18px rgba(47,111,237,.16)}
+.pick::after{content:"선택 →";position:absolute;right:12px;top:12px;font-size:12px;font-weight:700;color:#fff;background:var(--cobalt);border-radius:6px;padding:3px 8px;opacity:0;transform:translateY(-4px);transition:all .2s}
+.pick:hover::after{opacity:1;transform:none}
+.pick.sel{border-color:var(--cobalt);box-shadow:0 0 0 3px rgba(47,111,237,.25),0 18px 36px rgba(47,111,237,.2);transform:translateY(-6px) scale(1.02)}
+.pick.sel::after{content:"✓ 선택됨";opacity:1;transform:none}
+.pick span{font-size:15px}
+
+/* ================= one typeface, larger reading sizes ================= */
+:root{--mono:Pretendard,"Pretendard Variable",system-ui,sans-serif}
+body{font-size:17px}
+body,button{font-variant-numeric:tabular-nums}
+.kicker,.pres-t,.divider,.spt th,.intro .eyebrow,.kw-l,.fn{letter-spacing:.02em;text-transform:none}
+/* chat */
+.chead b{font-size:16.5px}.chead span{font-size:13.5px}
+.bub{font-size:16.5px;line-height:1.6;padding:12px 16px}
+.tag{font-size:13.5px;padding:3px 10px}
+.more{font-size:14.5px}
+.spec{font-size:15.5px}
+.chip{font-size:15.5px;padding:9px 13px}
+.chip small{font-size:13px}
+.composer{min-height:58px}.sent{font-size:16px}.send{font-size:15px;height:42px}
+.res-h{font-size:16.5px}
+/* example requests */
+.pres-t{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:15px;font-weight:800;color:var(--ink)}
+.pres-t::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--cobalt)}
+.presets{gap:8px;margin-top:10px}
+.preset{padding:10px 12px;border-color:var(--line2);border-radius:12px}
+.preset img{width:62px;height:40px}
+.preset b{font-size:15.5px;font-weight:700}
+.preset span{font-size:14px;font-weight:600;margin-top:1px}
+/* viewer & panels */
+.vtitle b{font-size:24px}.vtitle .badge{font-size:13px}
+.seg button{font-size:14.5px;padding:6px 14px}.vt{font-size:14px;padding:6px 12px}
+.specbtn{font-size:15px;padding:8px 14px}.specbtn .cnt{font-size:12.5px}
+.spt{font-size:15px}.spt th{font-size:12.5px}
+.legend{font-size:14px}
+.lcard b{font-size:17px}.lstep{font-size:15.5px}
+/* sections */
+.kicker{font-size:14px;font-weight:700}
+.sec h2{font-size:34px}
+.lead{font-size:17.5px}
+.fbox h4{font-size:18px}.fbox p{font-size:15px}
+.fc-skill{font-size:15.5px}.fc-llm{font-size:16px}.fc-noft{font-size:14.5px}
+.freq .pl{font-size:13px}
+.fleg h5{font-size:18px}.fleg p{font-size:14.5px}.fleg .pp span{font-size:13.5px}
+.gbody h3{font-size:19px}.gbody .d{font-size:14.5px}.gspec{font-size:15px}.gbtn{font-size:15px}
+.tabs button{font-size:15px}
+footer b{font-size:15.5px}footer span{font-size:14px}
+
+.bub:has(.presets){max-width:100%;flex:1}
+.presets{grid-template-columns:1fr}
+.preset{display:grid;grid-template-columns:62px auto 1fr;align-items:center;gap:12px}
+.preset > div{display:contents}
+.preset b{white-space:nowrap}
+.preset span{white-space:nowrap;text-align:right;overflow:hidden;text-overflow:ellipsis}
+.pick b{margin:14px 14px 16px}
+.gbody h3{margin-bottom:10px}
+
+.top nav{gap:6px}
+.top nav a{font-size:17px;font-weight:700;color:var(--text);padding:8px 16px;border-radius:9px}
+.top nav a:hover{background:var(--tint);color:var(--ink)}
+footer img{width:84px}
+footer b{font-size:18px;letter-spacing:-.2px}
+
+.top nav{align-items:center;gap:0}
+.top nav a{position:relative;margin:0 6px}
+.top nav a + a::before{content:"";position:absolute;left:-7px;top:50%;width:1px;height:16px;background:var(--line2);transform:translateY(-50%)}
+
+/* press feedback for every clickable control */
+button,.top nav a{transition:transform .12s ease,background-color .2s,border-color .2s,box-shadow .2s,color .2s}
+button:active:not(:disabled),.top nav a:active{transform:scale(.95)}
+.pick:active{transform:translateY(-2px) scale(.96)}
+.rp-host{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);background:currentColor;opacity:.18;animation:rpl .55s ease-out forwards}
+@keyframes rpl{to{transform:scale(1);opacity:0}}
+.top .lab{height:36px;width:auto;image-rendering:auto}
+@media (max-width:900px){.top .lab{height:26px}}
+
+.fres{display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:2px}
+.fres h5{max-width:none}
+.fres img{position:static;display:block;width:72%;max-width:300px;margin:10px auto 0}
+
+/* ===== typography: one family, consistent weights ===== */
+.wrap,.wrap *,footer *{font-family:Pretendard,"Pretendard Variable",system-ui,sans-serif;letter-spacing:normal}
+.wrap h2{font-weight:800;letter-spacing:-.6px}
+.wrap h3,.wrap h4,.wrap h5,.fres h5{font-weight:700}
+.wrap p,.lead,.fbox p,.fleg p{font-weight:400}
+.kicker{font-weight:700;letter-spacing:.08em}
+.fn{font-weight:700}
+.pp span,.freq .pl,.fc-skill,.fc-noft,.tabs button,.gbtn{font-weight:600}
+.fc-llm,.fc-llm small{font-weight:700}
+/* ===== SVG arrows ===== */
+.fa{color:var(--ink)}.fa svg{display:block}
+.fc-down{color:var(--ink);margin-top:6px;line-height:0}
+#fcsvg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.floop{border:none!important;width:0!important;height:0!important;z-index:2}
+.floop::before{display:none!important}
+.floop span{left:0!important;top:0!important;bottom:auto!important;transform:translate(-50%,-50%)!important;background:#fff;border:1.5px solid #d64545;color:#d64545;font-size:13.5px;font-weight:700;padding:4px 14px;border-radius:999px}
+.fpass{border:none!important;width:0!important;height:0!important;z-index:2}
+.fpass::after{display:none!important}
+.fpass span{left:12px!important;top:0!important;transform:translateY(-50%)!important;font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px;background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
+/* ===== shorter page ===== */
+.sec{padding-top:60px}
+.sec h2{margin:6px 0 6px}
+.lead{margin-bottom:20px}
+.fc{padding:20px 22px}
+.fc-bottom{margin-top:58px}
+.gimg{height:124px;padding:10px}
+.gbody{padding:12px 16px 14px}
+.gspec{margin-bottom:10px}.gspec li{padding:4px 0}
+.cmp{padding:12px}
+.cmp > img{max-height:470px;width:100%;object-fit:contain}
+footer{margin-top:60px;padding:28px 0 30px}
+/* ===== ONERA M6 comparison ===== */
+.m6cmp{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:center}
+.m6views{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m6views figure{margin:0;background:var(--soft);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:190px}
+.m6views figure.w{height:84px}
+.m6views img{max-width:100%;max-height:150px;object-fit:contain}
+.m6views figure.w img{max-height:44px}
+.m6views figcaption{font-size:13px;font-weight:600;color:var(--sub);margin-top:6px}
+.m6tab h4{margin:0 0 10px;font-size:18px}
+.m6tab table{width:100%;border-collapse:collapse;font-size:15px}
+.m6tab th{font-size:13px;color:var(--dim);font-weight:600;text-align:right;padding:6px 0 6px 12px;border-bottom:1px solid var(--line)}
+.m6tab th:first-child,.m6tab td:first-child{text-align:left;padding-left:0}
+.m6tab td{padding:8px 0 8px 12px;border-bottom:1px dashed var(--line);text-align:right;font-weight:600}
+.m6tab td:first-child{color:var(--sub);font-weight:500}
+.m6tab td:last-child{color:var(--cobalt)}
+.m6tab p{margin:10px 0 0;font-size:12.5px;color:var(--dim)}
+@media (max-width:900px){.m6cmp{grid-template-columns:1fr}}
+
+/* ===== chat: slightly rounded typeface, a bit larger ===== */
+@font-face{font-family:"NSRound";font-weight:400;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundR.woff2) format("woff2"),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundR.woff) format("woff")}
+@font-face{font-family:"NSRound";font-weight:600 700;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2) format("woff2"),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff) format("woff")}
+@font-face{font-family:"NSRound";font-weight:800 900;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2) format("woff2"),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff) format("woff")}
+.msgs,.msgs *,.tray,.tray *,.composer,.composer *{font-family:"NSRound",Pretendard,system-ui,sans-serif}
+.bub{font-size:17.5px;line-height:1.65}
+.pres-t{font-size:16.5px}
+.preset b{font-size:17px}
+.preset span{font-size:15px}
+.preset img{width:70px;height:44px}
+.preset{grid-template-columns:70px auto 1fr;padding:11px 14px}
+.chip{font-size:16.5px}
+.chip small{font-size:13.5px}
+.tag{font-size:14px}
+.sent{font-size:16.5px}
+.spec{font-size:16px}
+.more{font-size:15px}
+
+/* ===== line breaking: no orphans, words kept whole ===== */
+body{word-break:keep-all;overflow-wrap:break-word;text-wrap:pretty}
+h1,h2,h3,h4,h5,.h1sub,.vtitle b{text-wrap:balance}
+.lead{max-width:none}
+.bub,.spec,.fbox p,.fleg p,.m6tab td,.lead{text-wrap:pretty}
+.pick b,.gbody h3,.tag,.chip,.preset b,.spt td,.stat b,.fc-skill,.pp span,.freq .pl{white-space:nowrap}
+
+/* example rows: name above, change below (no truncation) */
+.preset{display:flex!important;align-items:center;gap:14px}
+.preset > div{display:block!important;min-width:0}
+.preset b{display:block}
+.preset span{display:block;text-align:left!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin-top:2px}
+/* highlighted phrases sit flush with the following word */
+.row.me .bub mark,.sent mark{padding:0 1px}
+
+/* ===== backdrop: clean studio light, no dots ===== */
+.viewer{background:radial-gradient(120% 85% at 50% 6%,#ffffff 0%,#f1f5fb 48%,#dde6f2 100%)!important}
+/* ===== calmer text sizes ===== */
+body{font-size:16px}
+.bub{font-size:16px;line-height:1.62;padding:11px 15px}
+.pres-t{font-size:15px}
+.preset b{font-size:15.5px}.preset span{font-size:14px}
+.preset img{width:62px;height:38px}
+.chip{font-size:15px;padding:8px 12px}.chip small{font-size:12.5px}
+.tag{font-size:13px}.sent{font-size:15.5px}.spec{font-size:15px}.more{font-size:14px}
+.chead b{font-size:16px}.chead span{font-size:13px}
+.lead{font-size:16.5px}.fbox p{font-size:14px}.fbox h4{font-size:17px}
+.gspec{font-size:14.5px}.gbody h3{font-size:18px}
+.spt{font-size:14.5px}
+/* view buttons a bit larger */
+.vt{font-size:15px;padding:7px 14px;border-radius:9px}
+.seg button{font-size:14.5px}
+/* ===== comparison layout ===== */
+.cmp{padding:18px 20px}
+.m6cmp{grid-template-columns:1.35fr 1fr;align-items:start;gap:22px}
+.cmp-leg{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 10px;font-size:14.5px;font-weight:600;color:var(--sub)}
+.cmp-leg i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:7px;vertical-align:0}
+.cmp-leg i.o{background:#f6b26b}.cmp-leg i.b{background:#3a5a9a}
+.m6views{grid-template-columns:1fr 1fr}
+.m6views figure,.m6views figure.w{height:200px;background:#fff;border:1px solid var(--line)}
+.m6views img,.m6views figure.w img{max-height:156px}
+.m6tab{padding-top:30px}
+/* ===== gallery: identical image boxes ===== */
+.gimg{height:150px;padding:8px 12px}
+.gimg img{width:100%;height:100%;object-fit:contain}
+/* ===== footer ===== */
+footer{background:#0b1d36!important;color:#fff;padding:40px 0 38px;margin-top:70px;border-top:none}
+footer img{width:72px;height:72px;border-radius:50%;background:#fff;padding:3px;margin-bottom:14px}
+footer .ct{font-size:13px;font-weight:700;letter-spacing:.24em;color:rgba(255,255,255,.6)}
+footer .mail{display:block;margin:6px 0 8px;font-size:20px;font-weight:700;color:#fff;text-decoration:none}
+footer .mail:hover{text-decoration:underline}
+footer .cr{font-size:13.5px;color:rgba(255,255,255,.6)}
+@media (max-width:900px){.m6views figure{height:150px}.m6views img{max-height:110px}.m6tab{padding-top:0}}
+
+/* footer: mark on the left, text block beside it (light) */
+footer{background:#fff!important;color:var(--text);border-top:1px solid var(--line)!important;padding:30px 0!important;margin-top:64px!important}
+footer .fwrap{display:flex;align-items:center;justify-content:center;gap:30px}
+footer img{width:84px!important;height:84px!important;border-radius:0!important;background:none!important;padding:0!important;margin:0!important;filter:grayscale(1) contrast(.9);opacity:.6}
+footer .ftxt{text-align:center}
+footer .ct{font-size:12.5px;font-weight:700;letter-spacing:.24em;color:var(--dim)}
+footer .mail{display:block;margin:4px 0 6px;font-size:18px;font-weight:700;color:var(--text);text-decoration:none}
+footer .mail:hover{color:var(--cobalt)}
+footer .cr{font-size:13.5px;color:var(--sub)}
+@media (max-width:600px){footer .fwrap{flex-direction:column;gap:12px}}
+
+/* chat type: rounded, medium-heavy body (B) and extra-bold emphasis (EB) */
+@font-face{font-family:"NSRoundM";font-weight:400 600;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2) format("woff2"),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff) format("woff")}
+@font-face{font-family:"NSRoundM";font-weight:700 900;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2) format("woff2"),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff) format("woff")}
+.msgs,.msgs *,.tray,.tray *,.composer,.composer *{font-family:"NSRoundM",Pretendard,system-ui,sans-serif}
+.bub{color:#1b2333;letter-spacing:-.15px}
+.row.me .bub{color:#fff}
+.preset b,.chip,.pres-t{letter-spacing:-.2px}
+.preset span{font-weight:400}
+.chip small{font-weight:400}
+.top .lab{height:42px!important;width:auto}
+@media (max-width:900px){.top .lab{height:28px!important}}
+.top .ttl b{font-size:20px!important;font-weight:800}
+.top .ttl span{font-size:14px!important;color:var(--sub)!important;font-weight:500}
+.top .bar{height:30px}
+.fres img{width:100%!important;max-width:440px!important;margin:4px auto -6px!important}
+.fres{padding:14px 12px 10px}
+
+/* ===== three clearly different role colours ===== */
+:root{--r-llm:#0e4a84;--r-jev:#0c9a8f;--r-prog:#7d889a}
+.fic{background:var(--r-llm)!important;border:none!important;color:#fff!important}
+.fic.o{background:var(--r-jev)!important;color:#fff!important}
+.fic.g{background:var(--r-prog)!important;color:#fff!important}
+.fbox .rt{position:absolute;top:10px;left:12px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.fbox[data-role="llm"] .rt{background:rgba(14,74,132,.1);color:var(--r-llm)}
+.fbox[data-role="jev"] .rt{background:rgba(12,154,143,.12);color:var(--r-jev)}
+.fbox[data-role="prog"] .rt{background:rgba(125,136,154,.15);color:#5d6778}
+.fbox[data-role="jev"]{border-color:rgba(12,154,143,.35)}
+.fbox[data-role="prog"]{border-color:rgba(125,136,154,.4)}
+.fbox[data-role] .fic{margin-top:14px}
+.fc-skill svg{color:var(--r-jev)}
+.fleg h5 i,.fleg h5 i.o,.fleg h5 i.g{width:14px!important;height:14px!important;border:none!important;border-radius:4px}
+.fleg h5 i{background:var(--r-llm)!important}
+.fleg h5 i.o{background:var(--r-jev)!important}
+.fleg h5 i.g{background:var(--r-prog)!important}
+.fleg:nth-child(1){border-top:3px solid var(--r-llm)}
+.fleg:nth-child(2){border-top:3px solid var(--r-jev)}
+.fleg:nth-child(3){border-top:3px solid var(--r-prog)}
+.pp .f{background:var(--r-llm)!important;color:#fff!important;border:none!important}
+.pp .o{background:rgba(12,154,143,.1)!important;color:var(--r-jev)!important;border:1px solid rgba(12,154,143,.45)!important}
+.pp .g{background:rgba(125,136,154,.12)!important;color:#5d6778!important;border:1px solid rgba(125,136,154,.45)!important}
+
+/* ===== shorter page ===== */
+.sec{padding-top:44px!important}
+.lead{margin-bottom:14px!important}
+.fc{padding:16px 20px!important}
+.openbtn{display:block;width:100%;margin-top:14px;padding:10px}
+footer{margin-top:44px!important}
+
+/* ===== one typeface everywhere: Pretendard ===== */
+*,.msgs,.msgs *,.tray,.tray *,.composer,.composer *{font-family:Pretendard,"Pretendard Variable",system-ui,sans-serif!important}
+.bub{font-weight:500;letter-spacing:-.2px}
+.bub b{font-weight:700}
+.preset b,.chip span{font-weight:700}
+.preset span,.chip small{font-weight:500}
+
+/* bottom row: equal, compact heights (result card laid out side by side) */
+.fres{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;text-align:left!important;gap:8px!important;min-height:0!important;padding:14px 16px!important}
+.fres > h5,.fres > code{flex:none}
+.fres h5{max-width:46%!important;font-size:16px}
+.fres code{position:absolute;left:16px;bottom:16px;margin:0}
+.fres img{width:58%!important;max-width:none!important;max-height:128px;object-fit:contain;margin:0!important}
+.fleg{display:flex;flex-direction:column;justify-content:center}
+.flegs,.fc-bottom{align-items:stretch}
+
+/* footer: dark bar, mark left, two centred lines */
+footer{background:#0a0a0a!important;border-top:none!important;padding:26px 0!important;margin-top:48px!important}
+footer .fwrap{gap:44px!important}
+footer img{width:70px!important;height:70px!important;opacity:.75!important;filter:grayscale(1) brightness(1.4)!important}
+footer img.emb{filter:grayscale(1) invert(1) brightness(.9)!important;mix-blend-mode:screen}
+footer .ftxt{text-align:center;line-height:1.9}
+footer .cr1{font-size:15.5px;font-weight:500;color:rgba(255,255,255,.72)}
+footer .cr2{font-size:15.5px;font-weight:500;color:rgba(255,255,255,.72)}
+footer .mail{display:inline!important;margin:0!important;font-size:15.5px!important;font-weight:700!important;color:#fff!important;text-decoration:none}
+footer .mail:hover{text-decoration:underline}
+#how h2{margin-bottom:16px}
+
+/* compact legend instead of three cards */
+.flegs.mini{display:flex!important;flex-direction:column;justify-content:center;gap:10px;padding-left:4px}
+.flegs.mini span{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--text)}
+.flegs.mini em{font-style:normal;font-weight:500;color:var(--sub);font-size:14.5px}
+.flegs.mini i{width:14px;height:14px;border-radius:4px}
+.flegs.mini i.l{background:var(--r-llm)}.flegs.mini i.j{background:var(--r-jev)}.flegs.mini i.p{background:var(--r-prog)}
+.fc-mloop{display:none!important}
+footer img{width:auto!important;height:78px!important;opacity:.6!important;filter:none!important}
+
+/* legend fills the row as three slim cards (no empty gap) */
+.flegs.mini{display:grid!important;grid-template-columns:repeat(3,1fr);gap:12px;padding:0!important;flex-direction:initial}
+.flegs.mini span{flex-direction:column;justify-content:center;gap:6px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:17px;padding:14px 10px;text-align:center}
+.flegs.mini span:nth-child(1){border-top:3px solid var(--r-llm)}
+.flegs.mini span:nth-child(2){border-top:3px solid var(--r-jev)}
+.flegs.mini span:nth-child(3){border-top:3px solid var(--r-prog)}
+.flegs.mini i{width:28px;height:28px;border-radius:8px}
+.flegs.mini em{font-size:14.5px}
+.fres{min-height:140px!important}
+
+/* example requests: compact 2 x 2 tiles, no dead space */
+.presets{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px}
+.preset{display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center;gap:4px!important;padding:10px 8px 11px!important}
+.preset img{width:84px!important;height:42px!important;object-fit:contain}
+.preset > div{display:block!important}
+.preset b{font-size:15px!important}
+.preset span{text-align:center!important;font-size:13.5px!important;margin-top:1px}
+.pres-t{margin-top:12px!important}
+
+/* bigger image and text inside example tiles */
+.preset{padding:12px 10px 14px!important;gap:6px!important}
+.preset img{width:100%!important;max-width:170px;height:78px!important}
+.preset b{font-size:17px!important}
+.preset span{font-size:15px!important}
+
+/* ===== flow chart: one row, titles only ===== */
+.fc-row{grid-template-columns:1.05fr 30px 3fr 30px 1fr 30px 1fr 54px 1.3fr!important}
+.fc-head .c1{grid-column:1 / 2;display:flex;gap:12px;align-items:center;padding-bottom:24px;flex-wrap:wrap}
+.fc-head .c57{grid-column:7 / 10!important}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--sub);white-space:nowrap}
+.lg i{width:11px;height:11px;border-radius:3px}.lg i.l{background:var(--r-llm)}.lg i.j{background:var(--r-jev)}.lg i.p{background:var(--r-prog)}
+.fc-main{padding-bottom:62px!important}
+.fbox{padding:22px 10px!important;justify-content:center}
+.fbox h4{font-size:19px!important;margin:14px 0 0!important}
+.fbox[data-role] .fic{margin-top:0!important}
+.fic,.fic.o,.fic.g{width:54px!important;height:54px!important;border-radius:14px!important}
+.fic svg{width:26px;height:26px}
+.fbox[data-role="llm"]{border-top:3px solid var(--r-llm)}
+.fbox[data-role="prog"]{border-top:3px solid var(--r-prog)}
+.fbox[data-role="jev"]{border-top:3px solid var(--r-jev)}
+.freq q{font-size:15.5px!important;margin:8px 0 0!important}
+.fa.pass{flex-direction:column;gap:2px;display:flex;align-items:center;justify-content:center}
+.fa.pass span{font-size:12.5px;font-weight:700;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:1px 9px}
+.fres{grid-column:auto!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:4px!important;padding:14px 10px!important;min-height:0!important}
+.fres img{width:100%!important;max-height:96px!important;margin:0!important}
+.fres h5{max-width:none!important;font-size:17px!important}
+.fres code{position:static!important}
+.fc-bottom,.flegs,.fpass,.fc-mloop{display:none!important}
+@media (max-width:1080px){.fa.pass{transform:none}.fc-head .c1{grid-column:1;padding-bottom:0}.fc-head .c57{grid-column:1!important}.fc-main{padding-bottom:0!important}}
+.fc-head .c1{grid-column:1 / 4!important;grid-row:1;justify-self:start;flex-wrap:nowrap!important;gap:14px!important}
+.fc-head .c3{grid-row:1}
+.fc-head .c57{grid-row:1}
+.foil{padding:12px 16px 12px!important}
+.foil p{font-size:15.5px!important;margin-bottom:8px!important}
+.foil svg{display:block}
+
+/* changed-part colour: indigo violet */
+:root{--chg:#5b4ff0}
+.vtitle .badge.v,.specbtn .cnt{background:var(--chg)!important;border-color:var(--chg)!important}
+.tag.c{color:var(--chg)!important;border-color:rgba(91,79,240,.35)!important;background:rgba(91,79,240,.08)!important}
+.sent mark{background:rgba(91,79,240,.1)!important;color:var(--chg)!important}
+
+/* academic convention: modified = muted navy blue, original = light apricot */
+:root{--chg:#2b4a9b;--ghost:#f4b183}
+.vtitle .badge.v,.specbtn .cnt{background:var(--chg)!important;border-color:var(--chg)!important}
+.tag.c{color:var(--chg)!important;border-color:rgba(43,74,155,.35)!important;background:rgba(43,74,155,.08)!important}
+.sent mark{background:rgba(43,74,155,.1)!important;color:var(--chg)!important}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="top">
-    <div class="logo">T</div>
-    <div><h1>Text2CAD 설계 에이전트</h1><p>자연어 요청 → 로컬 LLM 멀티 에이전트 → OpenVSP 항공기 CAD 형상</p></div>
-    <div class="chips"><span class="chip live">Live replay</span><span class="chip">LLM <b>gpt-oss:20b</b></span><span class="chip">CAD <b>OpenVSP 3.51.3</b></span><span class="chip">run <b>full_20261003_131525_104</b></span></div>
-  </header>
+<header class="top">
+  <img class="lab" src="img/idea-lab@1x.png" srcset="img/idea-lab@1x.png 1x, img/idea-lab@2x.png 2x, img/idea-lab@3x.png 3x" alt="IDEA Lab" width="247" height="42">
+  <div class="bar"></div>
+  <div class="ttl"><b>Text2CAD</b><span>Hanyang University · IDEA Lab</span></div>
+  <nav><a href="#demo">데모</a><a href="#how">파이프라인</a><a href="#valid">기준 형상</a></nav>
+</header>
 
-  <div class="main">
-    <!-- CHAT -->
-    <section class="chat">
-      <div class="msgs" id="msgs"></div>
-      <div class="composer"><div class="in" id="in"></div><div class="send" id="send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div></div>
-    </section>
-
-    <!-- RESULT -->
-    <section class="right">
-      <div class="rhead">
-        <h2>설계 결과</h2><span class="pill">LIVE</span>
-        <div class="ctrls">
-          <button class="cb primary" id="bReplay">▶ 리플레이</button>
-          <button class="cb" id="bPause">❚❚ 일시정지</button>
-          <div class="speed" id="speed"><button data-s="0.7">0.7×</button><button data-s="1" class="on">1×</button><button data-s="1.6">1.6×</button></div>
-        </div>
-      </div>
-      <div class="segs" id="segs"></div>
-      <div class="stage">
-        <div class="viewer">
-          <div id="gl"></div>
-          <div class="empty" id="empty">자연어 요청을 기다리는 중…</div>
-          <div class="vstate" id="vstate">형상 없음</div>
-          <div class="vtools">
-            <button class="vt on" data-view="iso">등각</button><button class="vt" data-view="top">위</button><button class="vt" data-view="side">측면</button><button class="vt" id="tSpin">회전</button>
-          </div>
-        </div>
-        <div id="card"></div>
-      </div>
-    </section>
+<section class="demo" id="demo">
+  <div class="chat">
+    <div class="chead">
+      <div class="bot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l9-2 3-7 2 7 6 2-6 2-2 7-3-7z"/></svg></div>
+      <div><b>Text2CAD 설계 에이전트</b><span>로컬 LLM · gpt-oss-20b</span></div>
+      <button class="reset" id="reset">↺ 처음부터</button>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="tray" id="tray"></div>
+    <div class="composer" id="composer"><div class="sent" id="sent"></div><button class="send" id="send">형상 생성 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button></div>
   </div>
+
+  <div class="viewer">
+    <div id="gl"></div>
+    <div class="intro" id="intro">
+      <div class="keywords"><span class="kw-l">KEYWORD</span><span class="kw">LLM</span><span class="kw-d"></span><span class="kw">OpenVSP</span></div>
+      <h1><em>Text2CAD</em></h1><div class="h1sub">자연어 기반 항공기 형상 생성</div>
+      <div class="picks" id="picks"></div>
+    </div>
+    <div class="vhead gone" id="vhead">
+      <div class="vtitle"><b id="vname"></b><span class="badge" id="vbadge">기준 형상</span></div>
+      <div class="seg hidden" id="seg"><button data-mode="var" class="on">변형 형상</button><button data-mode="cmp">겹쳐 보기</button><button data-mode="base">기준 형상</button></div>
+      <div class="vtools"><button class="vt on" data-view="iso">3D</button><button class="vt" data-view="front">정면</button><button class="vt" data-view="side">측면</button><button class="vt" data-view="top">평면</button></div>
+    </div>
+    <div class="foil hidden" id="foil"><p id="foilT"></p><svg id="foilSvg" width="260" height="104"></svg></div>
+    <div class="vfoot gone" id="vfoot">
+      <div class="specwrap" id="specwrap"><button class="specbtn" id="specbtn">치수 정보 <span class="cnt gone" id="speccnt"></span><svg class="car" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></button>
+        <div class="specpanel"><table class="spt" id="spt"></table></div></div>
+      <div class="legend hidden" id="legend"><span><i style="background:var(--chg)"></i>바뀐 부품</span><span id="lgGhost"><i style="background:var(--ghost);opacity:.7"></i>기준 형상 (원래 자리)</span><span id="lgArrow"><span class="ar"></span>이동</span></div>
+    </div>
+    <div class="loader hidden" id="loader"><div class="lcard"><b><span class="spin"></span>형상 제작 중</b><div id="lsteps"></div></div></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="sec" id="how">
+    <div class="kicker">FLOW CHART</div>
+    <h2>Text2CAD 파이프라인</h2>
+    
+    <div class="fc">
+      <div class="fc-flow" id="fcflow">
+        <div class="fc-row fc-head">
+          <div class="c3"><div class="fc-skill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg><b>Skill 청크</b><span class="sep"></span>Jev가 부품별로 선택</div><div class="fc-down"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v16"/><path d="M2 13l5 5.5 5-5.5"/></svg></div></div>
+          <div class="c1"><span class="lg"><i class="l"></i>로컬 LLM</span><span class="lg"><i class="j"></i>Jev</span><span class="lg"><i class="p"></i>프로그램</span></div>
+          <div class="c57"><div class="fc-llm">로컬 LLM<small>gpt-oss-20b</small></div><div class="fc-noft">파인튜닝 없음</div></div>
+        </div>
+        <div class="fc-row fc-main">
+          <div class="fbox freq" id="fcReq">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e4a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+            <h4>사용자 요청</h4><q>NASA CRM을 만들어 줘</q>
+          </div>
+          <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
+          <div class="fgroup">
+            <div class="fbox" data-role="llm"><span class="fn">1</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/></svg></div><h4>부품 나누기</h4></div>
+            <div class="fbox" data-role="llm"><span class="fn">2</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V5l15 15z"/><path d="M8 16v-3l3 3z"/><path d="M3 21h18"/></svg></div><h4>부품 설계</h4></div>
+            <div class="fbox" data-role="llm"><span class="fn">3</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></div><h4>코드 작성</h4></div>
+          </div>
+          <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
+          <div class="fbox" data-role="prog"><span class="fn">4</span><div class="fic g"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div><h4>CAD 형상 생성</h4></div>
+          <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
+          <div class="fbox" id="fcCmp" data-role="jev"><span class="fn">5</span><div class="fic o"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 2 2 3-3M3 13l2 2 3-3M3 20l2 2 3-3M12 7h9M12 14h9M12 21h9"/></svg></div><h4>최종 형상 비교</h4></div>
+          <div class="fa pass"><span>통과</span><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
+          <div class="fres"><img src="img/crm.png" alt="NASA CRM 결과 형상"><h5>NASA CRM</h5><code>.vsp3</code></div>
+        </div>
+        <div class="floop" id="floop"><span>다르면 처음부터 다시</span></div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="sec" id="valid">
+    <div class="kicker">REFERENCE SHAPES</div>
+    <h2>기준 형상과 실제 항공기 비교</h2>
+    <div class="tabs" id="tabs"><button class="on" data-k="crm">NASA CRM</button><button data-k="c172">Cessna 172</button><button data-k="x57">NASA X-57</button><button data-k="m6">ONERA M6</button></div>
+    <div class="cmp" id="cmp"></div>
+  </section>
 </div>
 
-<script src="run_data.js"></script>
-<script src="aircraft_mesh.js"></script>
+<footer>
+  <div class="fwrap">
+    <img src="img/hylion.png" alt="한양대학교" onerror="this.onerror=null;this.src='img/hanyang.png';this.classList.add('emb')">
+    <div class="ftxt"><div class="cr1">© 2026 IDEA LAB, Hanyang University ERICA. All rights reserved.</div><div class="cr2">Choi Junseok · <a class="mail" href="mailto:chw10109@hanyang.ac.kr">chw10109@hanyang.ac.kr</a></div></div>
+  </div>
+</footer>
+
+<script src="shapes/crm.js"></script>
+<script src="shapes/c172.js"></script>
+<script src="shapes/x57.js"></script>
+<script src="shapes/m6.js"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const RUN = window.RUN, MESH = window.MESH;
+const S = window.SHAPES;
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const COMP = {
-  fuselage:{ko:"동체", color:0x9aa6b8, css:"var(--c-fuse)"},
-  main_wing:{ko:"주익", color:0x3b7cf6, css:"var(--c-wing)"},
-  horizontal_tail:{ko:"수평꼬리", color:0x14b3a3, css:"var(--c-htail)"},
-  vertical_tail:{ko:"수직꼬리", color:0xf0a020, css:"var(--c-vtail)"},
-};
-const SEGS = ["요청", "해석", "지식 검색", "형상 계획", "코드 생성", "OpenVSP 실행", "검증"];
-$("#segs").innerHTML = SEGS.map(s => `<div class="seg">${s}</div>`).join("");
-const U = RUN.usage, sum = k => Object.values(U).reduce((a, u) => a + (u[k] || 0), 0);
-const v1 = RUN.validation[0].replace(/^rule violations:\s*/, "").split(" | ");
-const v2 = RUN.validation[1].replace(/^rule violations:\s*/, "").split(" | ");
-const nReq = RUN.interpretation.reduce((a, c) => a + c.reqs.length, 0);
-const checks = RUN.verification.checks, nPass = checks.filter(c => c.p).length;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/* =================== 3D viewer =================== */
+/* ======================= aircraft & options ======================= */
+const AC = {
+  crm:  {name:"NASA CRM",   desc:"여객기",   obj:"을", wingGroup:["wing","nacelle","pylon"]},
+  c172: {name:"Cessna 172", desc:"경비행기",  obj:"를", wingGroup:["wing","strut"]},
+  x57:  {name:"NASA X-57",  desc:"전기 추진 항공기", obj:"을", wingGroup:["wing","hlnacelle","hlprop","tipnacelle","cruiseprop"]},
+  m6:   {name:"ONERA M6",   desc:"CFD 검증용 표준 날개",   obj:"를", wingGroup:["wing"]},
+};
+const CAT_LIST = ["wingX", "wingZ", "tail", "engine", "swap", "foil"];
+const ICON = {
+  wingX:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>',
+  wingZ:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/></svg>',
+  tail:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M12 5v15M9 20h6"/></svg>',
+  engine:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M19.8 16.5 13.7 13M4.2 16.5l6.1-3.5"/></svg>',
+  swap:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h14l-3-3M21 16H7l3 3"/></svg>',
+  foil:'<svg width="20" height="18" viewBox="0 0 26 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13c3-5 9-7 22-1-10 3-17 4-22 1z"/></svg>',
+  go:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+};
+const pct = v => Math.round(Math.abs(v) * 100);
+const CATS = {
+  wingX: {label:"주익 위치", sub:"앞 · 뒤", say:"주익 위치를 변경하고 싶습니다.", ask:"주익을 어느 방향으로 얼마나 이동할까요? 이동량은 동체 길이 기준입니다.",
+    opts:() => [{v:-0.2,l:"앞으로 20%"},{v:-0.1,l:"앞으로 10%"},{v:0.1,l:"뒤로 10%"},{v:0.2,l:"뒤로 20%"}],
+    phrase:v => `주익을 동체 길이의 ${pct(v)}%만큼 ${v < 0 ? "앞" : "뒤"}으로 이동`, short:v => `주익 ${pct(v)}% ${v < 0 ? "전방" : "후방"} 이동`},
+  wingZ: {label:"주익 높이", sub:"위 · 아래", say:"주익 높이를 변경하고 싶습니다.", ask:"주익을 위아래 어느 쪽으로 이동할까요? 이동량은 동체 높이 기준입니다.",
+    opts:() => [{v:0.4,l:"위로 40% (고익)"},{v:-0.4,l:"아래로 40% (저익)"}],
+    phrase:v => `주익을 동체 높이의 ${pct(v)}%만큼 ${v > 0 ? "위" : "아래"}로 이동`, short:v => `주익 ${pct(v)}% ${v > 0 ? "상향" : "하향"}`},
+  tail: {label:"꼬리날개", sub:"T형 · 쌍수직 등", say:"꼬리날개 형태를 변경하고 싶습니다.", ask:"꼬리날개를 어떤 형태로 바꿀까요?",
+    opts:k => (k === "crm" ? [{v:"fin",l:"수직꼬리 추가"}] : []).concat([{v:"T",l:"T형 꼬리"},{v:"twin",l:"쌍수직꼬리"},{v:"swap",l:"주익 ↔ 수평꼬리 교환"}]),
+    phrase:v => ({fin:"수직꼬리(높이 9 m)를 추가", T:"T형 꼬리로 변경", twin:"쌍수직꼬리로 변경", swap:"주익과 수평꼬리의 위치를 교환"})[v],
+    short:v => ({fin:"수직꼬리 추가", T:"T형 꼬리", twin:"쌍수직꼬리", swap:"주익 ↔ 수평꼬리"})[v]},
+  engine: {label:"추진 장치", sub:"엔진 · 프로펠러", say:"추진 장치 구성을 변경하고 싶습니다.", ask:"추진 장치를 어떻게 구성할까요?",
+    opts:k => ({crm:[{v:"none",l:"엔진 제거"},{v:"quad",l:"엔진 4개 (날개당 2개)"},{v:"rear",l:"후방 동체 장착"}],
+                c172:[{v:"twin",l:"날개 아래 엔진 2개 추가"}],
+                x57:[{v:"four",l:"고양력 프로펠러 12 → 4개"},{v:"none",l:"고양력 프로펠러 제거"}]})[k] || [],
+    phrase:v => ({none:curKey === "x57" ? "고양력 프로펠러를 제거" : "엔진을 제거", quad:"엔진을 날개당 2개씩 총 4개로 변경", rear:"엔진을 후방 동체로 이동",
+                  twin:"날개 아래에 엔진 2개를 추가", four:"고양력 프로펠러를 12개에서 4개로 축소"})[v],
+    short:v => ({none:curKey === "x57" ? "고양력 프로펠러 제거" : "엔진 제거", quad:"엔진 4개", rear:"후방 동체 엔진", twin:"엔진 2개 추가", four:"프로펠러 12 → 4"})[v]},
+  swap: {label:"주익 교체", sub:"다른 기체의 날개", say:"주익을 다른 기체의 날개로 교체하고 싶습니다.", ask:"어떤 날개로 교체할까요? 스팬은 현재 주익에 맞춰 조정됩니다.",
+    opts:k => ["m6", "x57", "c172", "crm"].filter(d => d !== k).map(d => ({v:d, l: d === "m6" ? "ONERA M6 평면형" : `${AC[d].name} 날개`})),
+    phrase:v => v === "m6" ? "주익을 ONERA M6 평면형으로 교체" : `주익을 ${AC[v].name} 날개로 교체`,
+    short:v => `주익 → ${AC[v].name}`},
+  foil: {label:"에어포일", sub:"주익 단면", say:"주익 에어포일을 변경하고 싶습니다.", ask:"어떤 에어포일을 적용할까요?",
+    opts:() => [{v:"8440",l:"NACA 8440"},{v:"4415",l:"NACA 4415"},{v:"0012",l:"NACA 0012"}],
+    phrase:v => `주익 에어포일을 NACA ${v}${v === "8440" ? "으로" : "로"} 변경`, short:v => `NACA ${v}`},
+};
+const ORDER = ["swap", "wingX", "wingZ", "tail", "engine", "foil"];
+
+/* ======================= geometry (OpenVSP coords: x aft, y right, z up) ======================= */
+const ID = () => ({s:1, piv:[0,0,0], to:[0,0,0]});
+const tf = (xf, x, y, z) => [xf.to[0] + xf.s*(x - xf.piv[0]), xf.to[1] + xf.s*(y - xf.piv[1]), xf.to[2] + xf.s*(z - xf.piv[2])];
+function eachV(item, fn){ for (const s of item.surfs) { const p = s.p; for (let i = 0; i < p.length; i += 3) fn(...tf(item.xf, p[i], p[i+1], p[i+2])); } }
+function bbox(items){
+  const b = {min:[Infinity,Infinity,Infinity], max:[-Infinity,-Infinity,-Infinity]};
+  for (const it of items) eachV(it, (x, y, z) => { if (x < b.min[0]) b.min[0] = x; if (y < b.min[1]) b.min[1] = y; if (z < b.min[2]) b.min[2] = z; if (x > b.max[0]) b.max[0] = x; if (y > b.max[1]) b.max[1] = y; if (z > b.max[2]) b.max[2] = z; });
+  return b;
+}
+const ctr = b => [(b.min[0]+b.max[0])/2, (b.min[1]+b.max[1])/2, (b.min[2]+b.max[2])/2];
+function wingInfo(items){
+  let semi = 0; for (const it of items) eachV(it, (x, y) => { semi = Math.max(semi, Math.abs(y)); });
+  let rX = Infinity, rZ = 0, rTE = -Infinity, tX = Infinity, tZ = 0, tTE = -Infinity;
+  for (const it of items) eachV(it, (x, y, z) => {
+    const a = Math.abs(y);
+    if (a < 0.04*semi) { if (x < rX) { rX = x; rZ = z; } if (x > rTE) rTE = x; }
+    if (a > 0.96*semi) { if (x < tX) { tX = x; tZ = z; } if (x > tTE) tTE = x; }
+  });
+  return {semi, rootX:rX, rootZ:rZ, rootTE:rTE, tipX:tX, tipZ:tZ, tipTE:tTE, sweep:Math.atan2(tX - rX, semi), dih:(tZ - rZ)/semi};
+}
+function finInfo(items){
+  const b = bbox(items), h = b.max[2] - b.min[2]; let tipX = Infinity, rootX = Infinity;
+  for (const it of items) eachV(it, (x, y, z) => { if (z > b.max[2] - 0.05*h && x < tipX) tipX = x; if (z < b.min[2] + 0.05*h && x < rootX) rootX = x; });
+  return {top:b.max[2], base:b.min[2], h, tipX, rootX};
+}
+function fuseInfo(st){
+  const f = st.items.filter(i => i.role === "fuselage"); const b = bbox(f);
+  const topAt = X => { let z = -Infinity; for (const it of f) eachV(it, (x, y, zz) => { if (Math.abs(x - X) < 0.012*(b.max[0]-b.min[0]) && zz > z) z = zz; }); return z; };
+  return {b, L:b.max[0] - b.min[0], H:b.max[2] - b.min[2], W:b.max[1] - b.min[1], zc:(b.max[2] + b.min[2])/2, topAt};
+}
+function naca(code){
+  const m = +code[0]/100, p = +code[1]/10, t = +code.slice(2)/100;
+  const yt = s => 5*t*(0.2969*Math.sqrt(s) - 0.1260*s - 0.3516*s*s + 0.2843*s**3 - 0.1036*s**4);
+  const yc = s => m === 0 ? 0 : s < p ? m/(p*p)*(2*p*s - s*s) : m/((1-p)**2)*((1 - 2*p) + 2*p*s - s*s);
+  return {yt, yc};
+}
+function makeWing({le, cr, ct, span, sweep, vertical, t = "0012"}){
+  const {yt} = naca(t), nu = 9, half = 22, p = [];
+  const ss = []; for (let k = 0; k <= half; k++) ss.push((1 - Math.cos(Math.PI*k/half))/2);
+  const loop = [...ss.slice().reverse().map(s => [s, 1]), ...ss.slice(1).map(s => [s, -1])];
+  for (let j = 0; j < nu; j++) {
+    const e = j/(nu - 1), c = cr + (ct - cr)*e, xle = le[0] + e*span*Math.tan(sweep*Math.PI/180), b = e*span;
+    for (const [s, sg] of loop) { const off = sg*yt(s)*c; p.push(...(vertical ? [xle + s*c, le[1] + off, le[2] + b] : [xle + s*c, le[1] + b, le[2] + off])); }
+  }
+  return [{nu, nv:loop.length, p}];
+}
+function makeNacelle({front, len, r}){
+  const nu = 18, nv = 26, p = [];
+  for (let i = 0; i < nu; i++) {
+    const s = i/(nu - 1), rad = r*(0.84 + 0.16*Math.sin(Math.PI*Math.min(1, s*1.7)))*(s > 0.62 ? 1 - 0.45*((s - 0.62)/0.38)**1.6 : 1);
+    for (let j = 0; j < nv; j++) { const a = 2*Math.PI*j/(nv - 1); p.push(front[0] + s*len, front[1] + rad*Math.cos(a), front[2] + rad*Math.sin(a)); }
+  }
+  return [{nu, nv, p}];
+}
+
+/* ======================= modification engine ======================= */
+function baseState(k){
+  return {k, ghosts:[], arrows:[], foil:null, items:S[k].parts.map(p => ({role:p.role, id:p.id, sym:p.sym, surfs:p.surfaces, xf:ID(), mat:"base", onWing:AC[k].wingGroup.includes(p.role)}))};
+}
+const live = (st, f) => st.items.filter(i => !i.hidden && f(i));
+const byRole = (st, ...r) => live(st, i => r.includes(i.role));
+const cp = xf => ({s:xf.s, piv:[...xf.piv], to:[...xf.to]});
+function ghost(st, it){ if (it.ghosted || it.isNew) return; it.ghosted = true; it.orig = cp(it.xf); st.ghosts.push({...it, xf:cp(it.xf), mat:"ghost"}); }
+function move(it, d){ it.xf.to = it.xf.to.map((v, i) => v + d[i]); }
+function shift(st, items, d, arrow = true){
+  const before = ctr(bbox(items));
+  for (const it of items) { ghost(st, it); move(it, d); it.mat = "chg"; }
+  if (arrow) st.arrows.push([before, before.map((v, i) => v + d[i])]);
+}
+const hide = (st, items) => items.forEach(it => { ghost(st, it); it.hidden = true; });
+const add = (st, it) => { it.isNew = true; it.mat = "chg"; it.xf = it.xf || ID(); st.items.push(it); return it; };
+function ensureFin(st){
+  const f = byRole(st, "vtail"); if (f.length) return f;
+  const F = fuseInfo(st), H = wingInfo(byRole(st, "htail")), x0 = H.rootX - 0.06*F.L;
+  return [add(st, {role:"vtail", surfs:makeWing({le:[x0, 0, F.topAt(H.rootX) - 0.4], cr:0.155*F.L, ct:0.058*F.L, span:9, sweep:42, vertical:true}), xf:ID()})];
+}
+const MODS = {
+  swap(st, d){
+    const W = byRole(st, "wing"), wi = wingInfo(W);
+    hide(st, W); hide(st, byRole(st, "strut")); if (st.k === "x57") hide(st, byRole(st, "hlnacelle", "hlprop", "tipnacelle", "cruiseprop"));
+    const roles = d === "x57" ? ["wing","hlnacelle","hlprop","tipnacelle","cruiseprop"] : ["wing"];
+    const donor = S[d].parts.filter(p => roles.includes(p.role)).map(p => ({role:p.role, surfs:p.surfaces, xf:ID()}));
+    const di = wingInfo(donor.filter(p => p.role === "wing")), s = wi.semi/di.semi;
+    for (const it of donor) add(st, {...it, onWing:true, xf:{s, piv:[di.rootX, 0, di.rootZ], to:[wi.rootX, 0, wi.rootZ]}});
+  },
+  wingX(st, v){ shift(st, live(st, i => i.onWing), [v*fuseInfo(st).L, 0, 0]); },
+  wingZ(st, v){ hide(st, byRole(st, "strut")); shift(st, live(st, i => i.onWing), [0, 0, v*fuseInfo(st).H]); },
+  tail(st, v){
+    if (v === "fin") { ensureFin(st); return; }
+    if (v === "T") { const fi = finInfo(ensureFin(st)), ht = byRole(st, "htail"), hi = wingInfo(ht);
+      shift(st, ht, [fi.tipX - hi.rootX + 0.03*fi.h, 0, fi.top - hi.rootZ - 0.02*fi.h]); return; }
+    if (v === "twin") {
+      const fin = ensureFin(st), fi = finInfo(fin), hi = wingInfo(byRole(st, "htail"));
+      hide(st, fin.filter(f => !f.isNew)); fin.filter(f => f.isNew).forEach(f => f.hidden = true);
+      for (const sg of [1, -1]) for (const f of fin)
+        add(st, {role:"vtail2", surfs:f.surfs, xf:{s:0.7, piv:[fi.rootX, 0, fi.base], to:[hi.tipX + 0.15*(hi.tipTE - hi.tipX), sg*hi.semi*0.985, hi.tipZ - 0.02*fi.h]}});
+      return;
+    }
+    if (v === "swap") {
+      hide(st, byRole(st, "strut"));
+      const W = live(st, i => i.onWing), wi = wingInfo(byRole(st, "wing")), ht = byRole(st, "htail"), hi = wingInfo(ht);
+      const wm = (wi.rootX + wi.rootTE)/2, hm = (hi.rootX + hi.rootTE)/2;
+      shift(st, W, [hm - wm, 0, 0]); shift(st, ht, [wm - hm, 0, 0]);
+    }
+  },
+  engine(st, v){
+    if (st.k === "crm") {
+      const N = byRole(st, "nacelle"), P = byRole(st, "pylon");
+      if (v === "none") hide(st, [...N, ...P]);
+      if (v === "quad") { const wi = wingInfo(byRole(st, "wing")), dy = 0.24*wi.semi;
+        for (const it of [...N, ...P]) { const sg = Math.sign(ctr(bbox([it]))[1]);
+          add(st, {role:it.role, surfs:it.surfs, onWing:true, xf:{s:it.xf.s, piv:[...it.xf.piv], to:[it.xf.to[0] + dy*Math.tan(wi.sweep), it.xf.to[1] + sg*dy, it.xf.to[2] + dy*wi.dih]}}); } }
+      if (v === "rear") { const F = fuseInfo(st); hide(st, P); let first = true;
+        for (const it of N) { const nb = bbox([it]), c = ctr(nb), sg = Math.sign(c[1]), r = (nb.max[2] - nb.min[2])/2;
+          shift(st, [it], [0.66*F.L - c[0], sg*(F.W/2 + r*1.35) - c[1], F.zc + 0.18*F.H - c[2]], first); first = false; } }
+    }
+    if (st.k === "c172" && v === "twin") { const wi = wingInfo(byRole(st, "wing"));
+      for (const sg of [1, -1]) { const y = 0.36*wi.semi;
+        add(st, {role:"nacelle", onWing:true, surfs:makeNacelle({front:[wi.rootX + y*Math.tan(wi.sweep) - 0.55, sg*y, wi.rootZ + y*wi.dih - 0.3], len:1.45, r:0.21}), xf:ID()}); } }
+    if (st.k === "x57") {
+      const rank = role => { const its = byRole(st, role); const ys = [...new Set(its.map(i => Math.abs(ctr(bbox([i]))[1]).toFixed(2)))].sort((a, b) => a - b);
+        return its.map(i => [i, ys.indexOf(Math.abs(ctr(bbox([i]))[1]).toFixed(2))]); };
+      const keep = v === "four" ? [1, 4] : [];
+      for (const role of ["hlnacelle", "hlprop"]) hide(st, rank(role).filter(([, r]) => !keep.includes(r)).map(([i]) => i));
+    }
+  },
+  foil(st, v){ st.foil = v; for (const it of byRole(st, "wing")) { it.foil = v; it.mat = "chg"; } },
+};
+function buildState(k, mods){ const st = baseState(k); for (const c of ORDER) if (c in mods) MODS[c](st, mods[c]); return st; }
+function stats(st){
+  const W = byRole(st, "wing"), wi = wingInfo(W), bw = bbox(W), span = bw.max[1] - bw.min[1];
+  if (st.k === "m6") return [["스팬", span, "m"], ["루트 코드", wi.rootTE - wi.rootX, "m"], ["팁 코드", wi.tipTE - wi.tipX, "m"], ["앞전 후퇴각", wi.sweep*180/Math.PI, "°"]];
+  // a propeller is exported blade by blade: count one per (geom, side), one per geom for the centre prop
+  const uniq = (r, side) => new Set(byRole(st, r).map(i => i.id + (side ? ":" + Math.sign(ctr(bbox([i]))[1]) : "") + ":" + i.xf.to.join())).size;
+  const thr = byRole(st, "nacelle").length + uniq("hlprop", true) + uniq("cruiseprop", true) + uniq("prop", false);
+  return [["동체 길이", fuseInfo(st).L, "m"], ["주익 스팬", span, "m"], ["주익 위치", wi.rootX, "m", "기수 → 앞전"], ["앞전 후퇴각", wi.sweep*180/Math.PI, "°"], ["추진기", thr, "개"]];
+}
+function specList(st){
+  const W = byRole(st, "wing"), wi = wingInfo(W), bw = bbox(W), span = bw.max[1] - bw.min[1], deg = wi.sweep*180/Math.PI;
+  const foil = st.foil ? `NACA ${st.foil}` : st.k === "m6" ? "ONERA D" : "기준 익형";
+  if (st.k === "m6") return [["스팬", span, "m"], ["루트 코드", wi.rootTE - wi.rootX, "m"], ["팁 코드", wi.tipTE - wi.tipX, "m"], ["앞전 후퇴각", deg, "°"], ["에어포일", foil, ""]];
+  const F = fuseInfo(st), H = byRole(st, "htail"), hb = H.length ? bbox(H) : null, V = byRole(st, "vtail", "vtail2"), vb = V.length ? bbox(V) : null;
+  const thr = stats(st).find(r => r[0] === "추진기")[1];
+  const tail = V.some(v => v.role === "vtail2") ? "쌍수직" : !V.length ? "수직꼬리 없음" : hb && vb && hb.min[2] > vb.min[2] + 0.6*(vb.max[2] - vb.min[2]) ? "T형" : "기본형";
+  return [["동체 길이", F.L, "m"], ["주익 스팬", span, "m"], ["주익 루트 코드", wi.rootTE - wi.rootX, "m"], ["주익 위치 (기수 → 앞전)", wi.rootX, "m"],
+    ["주익 높이 (동체 중심 기준)", wi.rootZ - F.zc, "m"], ["앞전 후퇴각", deg, "°"], ["에어포일", foil, ""],
+    ["수평꼬리 스팬", hb ? hb.max[1] - hb.min[1] : 0, "m"], ["꼬리 형태", tail, ""], ["추진기", thr, "개"]];
+}
+const fmt = (v, u) => u === "개" ? `${v}` : u === "°" ? v.toFixed(1) : v.toFixed(Math.abs(v) >= 10 ? 1 : 2);
+
+/* ======================= 3D viewer ======================= */
 const host = $("#gl");
 const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); host.appendChild(renderer.domElement);
-const lr = new CSS2DRenderer(); lr.domElement.style.cssText = "position:absolute;inset:0;pointer-events:none"; host.appendChild(lr.domElement);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+host.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 500);
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 2000);
 const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-scene.add(new THREE.HemisphereLight(0xffffff, 0xaab6c8, 1.5));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(-6, 10, 8); scene.add(sun);
-const fillL = new THREE.DirectionalLight(0x9cc7ff, 0.6); fillL.position.set(8, -3, -6); scene.add(fillL);
-const grid = new THREE.GridHelper(30, 30, 0xbcc8d8, 0xdbe2ec); grid.position.y = -1.6; scene.add(grid);
-// OpenVSP (x aft, y right, z up) → three (y up), centred on fuselage mid-length
-const V = (x, y, z) => new THREE.Vector3(x - 5, z, -y);
-const world = new THREE.Group(); scene.add(world);
+const keyL = new THREE.DirectionalLight(0xffffff, 1.2); keyL.position.set(-3, 6, 4); scene.add(keyL);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c3d1, 0.6));
+const BASE = new THREE.Color(0xc5cad1), CHG = new THREE.Color(0x2b4a9b), GH = new THREE.Color(0xf4b183);
+const baseMat = new THREE.MeshStandardMaterial({color:BASE, roughness:0.42, metalness:0.35, side:THREE.DoubleSide});
+// changed parts: glossy coated paint so they read clearly against the matte base model
+const chgMat = new THREE.MeshStandardMaterial({color:CHG, roughness:0.55, metalness:0.12, side:THREE.DoubleSide});
+const shadowTex = (() => { const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d");
+  const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, "rgba(20,40,80,.2)"); gr.addColorStop(1, "rgba(20,40,80,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); })();
+let model = new THREE.Group(); scene.add(model);
+let fitPts = [], box = null, curView = "iso", camAnim = null, morph = null, viewKey = "iso", spin = 0;
 
-const axes = new THREE.Group(); world.add(axes);
-[[1,0,0,0xe04848,"+X"],[0,1,0,0x13a067,"+Y"],[0,0,1,0x3b6cf6,"+Z"]].forEach(([a,b,c,col,t]) => {
-  axes.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0,0,0), V(a*1.3,b*1.3,c*1.3)]), new THREE.LineBasicMaterial({color:col})));
-  const d = document.createElement("div"); d.className = "axl"; d.style.color = "#" + col.toString(16).padStart(6, "0"); d.textContent = t;
-  const o = new CSS2DObject(d); o.position.copy(V(a*1.55,b*1.55,c*1.55)); axes.add(o);
-});
-
-// requirement guides (dashed) — planforms drawn from the request numbers
-const guides = new THREE.Group(); guides.visible = false; world.add(guides);
-const dashMat = new THREE.LineDashedMaterial({color:0x5d6c84, dashSize:0.18, gapSize:0.12, transparent:true, opacity:0.8});
-const dashed = pts => { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), dashMat); l.computeLineDistances(); guides.add(l); };
-function planform(le, cr, ct, semi, sweep, vertical){
-  const tip = le + 0.25*cr + semi*Math.tan(sweep*Math.PI/180) - 0.25*ct;
-  for (const s of vertical ? [1] : [1, -1]) { const P = (x, b) => vertical ? V(x, 0, b) : V(x, s*b, 0); dashed([P(le,0), P(tip,semi), P(tip+ct,semi), P(le+cr,0), P(le,0)]); }
+function itemPositions(it, C, noFoil){
+  let n = 0; for (const s of it.surfs) n += s.nu*s.nv;
+  const v = new Float32Array(n*3); let o = 0;
+  for (const s of it.surfs) { const p = s.p; for (let i = 0; i < p.length; i += 3) { const q = tf(it.xf, p[i], p[i+1], p[i+2]); v[o++] = q[0]; v[o++] = q[1]; v[o++] = q[2]; } }
+  if (it.foil && !noFoil) applyFoil(v, it.foil);
+  for (let i = 0; i < v.length; i += 3) { const x = v[i], y = v[i+1], z = v[i+2]; v[i] = x - C[0]; v[i+1] = z - C[2]; v[i+2] = -(y - C[1]); }
+  return v;
 }
-planform(4, 2, 1, 5, 15); planform(8, 1.2, 0.6, 2, 15); planform(8, 1.5, 0.7, 1.8, 25, true);
-{ const h = 0.75, c = [[0,-h,-h],[10,-h,-h],[10,h,-h],[0,h,-h]];
-  dashed([...c.map(p => V(...p)), V(...c[0])]); dashed([...c.map(p => V(p[0],p[1],h)), V(0,-h,h)]); for (const p of c) dashed([V(...p), V(p[0],p[1],h)]); }
-
-
-// actual geometry: B-spline surfaces of aircraft.step, grouped per OpenVSP Geom (creation order)
-const PLANE_COLOR = 0x9fb0c8;
-const wingOrder = ["main_wing", "horizontal_tail", "vertical_tail"], parts = {};
-{
-  const ids = [];
-  for (const g of MESH.groups) {
-    let key;
-    if (g.name.includes("Fuselage")) key = "fuselage";
-    else { const id = g.name.split(",")[0]; if (!ids.includes(id)) ids.push(id); key = wingOrder[ids.indexOf(id)]; }
-    if (!parts[key]) {
-      const grp = new THREE.Group(); grp.visible = false; world.add(grp);
-      parts[key] = {grp,
-        mat:new THREE.MeshStandardMaterial({color:PLANE_COLOR, metalness:0.2, roughness:0.42, side:THREE.DoubleSide, transparent:true, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1}),
-        lmat:new THREE.LineBasicMaterial({color:0x22304a, transparent:true, opacity:0.25})};
-    }
-    const P = parts[key];
-    for (const s of g.surfaces) {
-      const pos = new Float32Array(s.nu * s.nv * 3);
-      for (let i = 0; i < s.nu * s.nv; i++) { const v = V(s.p[3*i], s.p[3*i+1], s.p[3*i+2]); pos.set([v.x, v.y, v.z], 3*i); }
-      const idx = [];
-      for (let i = 0; i < s.nu - 1; i++) for (let j = 0; j < s.nv - 1; j++) { const a = i*s.nv + j, b = a + s.nv; idx.push(a, b, a+1, b, b+1, a+1); }
-      const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
-      P.grp.add(new THREE.Mesh(geo, P.mat));
-      const edge = (fix, n, alongV) => { const pts = []; for (let k = 0; k < n; k++) { const id = alongV ? fix*s.nv + k : k*s.nv + fix; pts.push(new THREE.Vector3(pos[3*id], pos[3*id+1], pos[3*id+2])); } return pts; };
-      for (const pts of [edge(0, s.nv, true), edge(s.nu-1, s.nv, true), edge(0, s.nu, false), edge(s.nv-1, s.nu, false)])
-        P.grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), P.lmat));
-    }
+function itemGeometry(it, C){
+  const pos = itemPositions(it, C), idx = []; let base = 0;
+  for (const s of it.surfs) { for (let i = 0; i < s.nu - 1; i++) for (let j = 0; j < s.nv - 1; j++) { const a = base + i*s.nv + j, b = a + s.nv; idx.push(a, b, a+1, b, b+1, a+1); } base += s.nu*s.nv; }
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function applyFoil(v, code){ // keep the planform and chord line, replace thickness/camber with a NACA 4-digit section
+  const {yt, yc} = naca(code), n = v.length/3;
+  let ymin = Infinity, ymax = -Infinity;
+  for (let i = 1; i < v.length; i += 3) { if (v[i] < ymin) ymin = v[i]; if (v[i] > ymax) ymax = v[i]; }
+  const span = Math.max(1e-6, ymax - ymin), NB = 60, bins = [];
+  for (let k = 0; k < NB; k++) bins.push({le:null, te:null, cnt:0});
+  for (let i = 0; i < n; i++) {
+    const x = v[3*i], y = v[3*i+1], z = v[3*i+2], b = bins[Math.min(NB - 1, Math.floor((y - ymin)/span*NB))];
+    b.cnt++;
+    if (!b.le || x < b.le[1]) b.le = [y, x, z];
+    if (!b.te || x > b.te[1]) b.te = [y, x, z];
+  }
+  // a bin is trusted only if it saw a full section (enough points and a chord close to its neighbours')
+  const ch = bins.map(b => b.le ? b.te[1] - b.le[1] : 0), med = [...ch].filter(c => c > 0).sort((a, b) => a - b);
+  const typ = med.length ? med[Math.floor(med.length/2)] : 1;
+  const good = bins.filter((b, k) => b.cnt >= 8 && ch[k] > 0.35*typ && (k === 0 || k === NB - 1 || ch[k] > 0.6*Math.min(ch[k-1] || ch[k], ch[k+1] || ch[k])));
+  const LE = good.map(b => b.le).sort((a, b) => a[0] - b[0]), TE = good.map(b => b.te).sort((a, b) => a[0] - b[0]);
+  const at = (P, y) => { // piecewise-linear interpolation through (y, x, z) samples
+    if (y <= P[0][0]) return P[0]; if (y >= P[P.length - 1][0]) return P[P.length - 1];
+    let lo = 0, hi = P.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; P[m][0] <= y ? lo = m : hi = m; }
+    const t = (y - P[lo][0])/Math.max(1e-9, P[hi][0] - P[lo][0]);
+    return [y, P[lo][1] + t*(P[hi][1] - P[lo][1]), P[lo][2] + t*(P[hi][2] - P[lo][2])];
+  };
+  if (LE.length < 2) return;
+  for (let i = 0; i < n; i++) {
+    const y = v[3*i+1], l = at(LE, y), r = at(TE, y), c = r[1] - l[1]; if (c < 1e-6) continue;
+    const s = Math.min(1, Math.max(0, (v[3*i] - l[1])/c)), zl = l[2] + s*(r[2] - l[2]), up = v[3*i+2] >= zl;
+    v[3*i] = l[1] + s*c;
+    v[3*i+2] = zl + c*(yc(s) + (up ? yt(s) : -yt(s)));
   }
 }
-
-const VIEWS = {iso:[-0.62, 0.42, 0.66], top:[0, 1, 0.002], side:[0, 0.06, 1]};
-const TGT = new THREE.Vector3(0, 0.25, 0);
-const BOX = []; for (const x of [0, 10]) for (const y of [-5, 5]) for (const z of [-0.75, 1.8]) BOX.push(V(x, y, z));
-let curView = "iso", camAnim = null, spin = false, builds = [];
-function fitPos(k){ // closest distance that keeps the whole aircraft on screen
-  const dir = new THREE.Vector3(...VIEWS[k]).normalize(), cam = camera.clone();
-  let lo = 2, hi = 120;
-  for (let n = 0; n < 32; n++) {
-    const d = (lo + hi) / 2; cam.position.copy(TGT).addScaledVector(dir, d); cam.lookAt(TGT); cam.updateMatrixWorld();
-    const ok = BOX.every(c => { const p = c.clone().project(cam); return p.z < 1 && Math.abs(p.x) < 0.9 && p.y < 0.72 && p.y > -0.8; });
-    ok ? hi = d : lo = d;
+function arrowMesh(a, b, r){
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(); if (L < 1e-6) return null;
+  const g = new THREE.Group(), m = new THREE.MeshBasicMaterial({color:0xe0303a}), head = Math.min(L*0.35, r*7);
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(r, r, L - head, 12), m); shaft.position.y = (L - head)/2;
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(r*2.6, head, 16), m); tip.position.y = L - head/2;
+  g.add(shaft, tip); g.position.copy(A); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); return g;
+}
+const toThree = (p, C) => [p[0] - C[0], p[2] - C[2], -(p[1] - C[1])];
+/** draw a state; mode "cmp" adds ghosts + arrows; animate morphs from the baseline into the result */
+function render(st, {mode = "cmp", animate = false, C} = {}){
+  scene.remove(model); model.traverse(o => { if (o.geometry) o.geometry.dispose(); }); model = new THREE.Group(); scene.add(model);
+  const all = [...live(st, () => true), ...st.ghosts], b = bbox(all), center = C || ctr(b);
+  const M = {moves:[], fades:[], ghosts:[], arrows:[], foils:[], tints:[]};
+  for (const it of live(st, () => true)) {
+    const g = itemGeometry(it, center), chg = it.mat === "chg" && mode !== "base";
+    const mat = chg ? chgMat.clone() : baseMat; if (chg && animate) mat.color.copy(BASE);
+    const m = new THREE.Mesh(g, mat); model.add(m);
+    if (!animate || !chg) continue;
+    M.tints.push(mat);
+    if (it.isNew) { mat.transparent = true; mat.opacity = 0; M.fades.push(m); }
+    else if (it.orig && it.orig.s === it.xf.s) { const d = it.orig.to.map((v, i) => v - it.xf.to[i]); m.userData.off = new THREE.Vector3(d[0], d[2], -d[1]); M.moves.push(m); }
+    if (it.foil) { m.userData.from = itemPositions(it, center, true); m.userData.to = g.attributes.position.array.slice(); M.foils.push(m); }
   }
-  return TGT.clone().addScaledVector(dir, hi);
+  const size = Math.max(b.max[0] - b.min[0], b.max[1] - b.min[1]);
+  if (mode === "cmp") {
+    for (const it of st.ghosts) { const mat = new THREE.MeshStandardMaterial({color:animate ? BASE : GH, roughness:.6, metalness:0, transparent:true, opacity:animate ? 1 : 0.45, depthWrite:false, side:THREE.DoubleSide});
+      const m = new THREE.Mesh(itemGeometry(it, center), mat); m.renderOrder = 2; model.add(m); M.ghosts.push(mat); }
+    for (const [a, c] of st.arrows) { const m = arrowMesh(toThree(a, center), toThree(c, center), size*0.0045); if (m) { m.renderOrder = 3; model.add(m); if (animate) { m.scale.setScalar(0.0001); M.arrows.push(m); } } }
+  }
+  const sh = new THREE.Mesh(new THREE.PlaneGeometry(size*1.3, size*1.3), new THREE.MeshBasicMaterial({map:shadowTex, transparent:true, depthWrite:false}));
+  sh.rotation.x = -Math.PI/2; sh.position.y = b.min[2] - center[2] - size*0.04; model.add(sh);
+  const pg = new THREE.PolarGridHelper(size*0.66, 12, 5, 96, 0x2f6fed, 0x0e4a84);
+  pg.material.transparent = true; pg.material.opacity = 0.13; pg.material.depthWrite = false; pg.position.y = sh.position.y - 0.001; model.add(pg);
+  model.updateMatrixWorld(true); box = new THREE.Box3(); fitPts = [];
+  model.children.forEach(o => { if (o === sh || o === pg) return; box.expandByObject(o);
+    o.traverse(m => { const a = m.geometry && m.geometry.attributes.position; if (!a) return; const step = Math.max(1, Math.floor(a.count/400));
+      for (let i = 0; i < a.count; i += step) fitPts.push(new THREE.Vector3().fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld)); }); });
+  M.moves.forEach(m => m.position.copy(m.userData.off)); // start at the baseline position; fit above used the final one
+  morph = animate ? {...M, t0:performance.now() + 450} : null;
+  return center;
+}
+const VIEWS = {iso:[-0.6, 0.5, 0.62], front:[-1, 0.06, 0.0001], side:[0.0001, 0.06, 1], top:[0.0001, 1, 0.002]};
+function fitPos(k){
+  const dir = new THREE.Vector3(...(k === "iso" && curKey === "m6" ? [-0.35, 0.8, 0.5] : VIEWS[k])).normalize(), cam = camera.clone(), T = new THREE.Vector3();
+  const small = innerWidth < 900, R = 0.88, top = small ? 0.48 : 0.68, bot = small ? -0.58 : -0.76;
+  let lo = 0.1, hi = 3000;
+  for (let n = 0; n < 40; n++) { const d = (lo + hi)/2; cam.position.copy(T).addScaledVector(dir, d); cam.lookAt(T); cam.updateMatrixWorld();
+    const ok = fitPts.every(p => { const q = p.clone().project(cam); return q.z < 1 && Math.abs(q.x) < R && q.y < top && q.y > bot; }); ok ? hi = d : lo = d; }
+  return T.clone().addScaledVector(dir, hi);
 }
 function setView(k, instant){
-  curView = k; const to = fitPos(k);
-  document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === k));
-  if (instant) { camera.position.copy(to); controls.target.copy(TGT); return; }
+  curView = k; document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === k));
+  if (!box) return; const to = fitPos(k);
+  if (instant || camera.position.lengthSq() < 1e-6) { camera.position.copy(to); controls.target.set(0, 0, 0); camAnim = null; return; }
   camAnim = {from:camera.position.clone(), to, ft:controls.target.clone(), t0:performance.now()};
 }
-function resize(){
-  const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return;
-  renderer.setSize(w, h); lr.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); setView(curView, true);
-}
+function resize(){ const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix(); if (box) setView(curView, true); }
 new ResizeObserver(resize).observe(host); resize();
-function loop(t){
+const ease = u => u < .5 ? 4*u*u*u : 1 - (-2*u + 2)**3/2;
+(function loop(t){
   requestAnimationFrame(loop);
-  if (camAnim) { const u = Math.min(1, (t - camAnim.t0) / 900), e = u < .5 ? 2*u*u : 1 - Math.pow(-2*u + 2, 2)/2;
-    camera.position.lerpVectors(camAnim.from, camAnim.to, e); controls.target.lerpVectors(camAnim.ft, TGT, e); if (u >= 1) camAnim = null; }
-  builds = builds.filter(b => {
-    const u = (t - b.t0) / 700; if (u < 0) return true;
-    b.P.grp.visible = true; const e = 1 - Math.pow(1 - Math.min(1, u), 3);
-    b.P.mat.opacity = e; b.P.lmat.opacity = .25 * e; b.P.grp.position.y = (1 - e) * 1.2; return u < 1;
-  });
-  if (spin) world.rotation.y += 0.0035;
-  controls.update(); renderer.render(scene, camera); lr.render(scene, camera);
-}
-requestAnimationFrame(loop);
-document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { setSpin(false); setView(b.dataset.view); });
-const setSpin = on => { spin = on; $("#tSpin").classList.toggle("on", on); if (!on) world.rotation.y = 0; };
-$("#tSpin").onclick = () => setSpin(!spin);
-
-const viewer = {
-  reset(){ axes.visible = true; host.classList.remove("noaxes"); guides.visible = false; host.classList.add("nolbl"); builds = []; Object.values(parts).forEach(P => P.grp.visible = false); setSpin(false); $("#empty").style.opacity = 1; this.state("형상 없음"); setView("iso"); },
-  guides(){ guides.visible = true; host.classList.remove("nolbl"); $("#empty").style.opacity = 0; this.state("요청 치수 윤곽 (점선)"); },
-  build(){ guides.visible = false; axes.visible = false; host.classList.add("nolbl", "noaxes"); ["fuselage", "main_wing", "horizontal_tail", "vertical_tail"].forEach(k => builds.push({P:parts[k], t0:performance.now()})); this.state("aircraft.step · 실제 생성 형상", true); },
-  state(t, ok){ const e = $("#vstate"); e.textContent = t; e.className = "vstate" + (ok ? " ok" : ""); },
-};
-
-/* =================== result cards =================== */
-const hl = code => esc(code).replace(/(&quot;[^&]*?&quot;)/g, '<span class="s">$1</span>')
-  .replace(/\b(AddGeom|SetParmVal|SetDriverGroup|Update)\b/g, '<span class="f">$1</span>')
-  .replace(/\b(void|string)\b/g, '<span class="k">$1</span>')
-  .replace(/(?<![\w"])(-?\d+\.\d+|\b\d+\b)(?![\w"])/g, '<span class="n">$1</span>');
-const head = (ic, t, mark = '<span class="ck">✓</span>') => `<div class="card-h"><span class="ic">${ic}</span>${t}${mark}</div>`;
-const KEY = {
-  fuselage:"길이 10 m<br>폭·높이 1.5 m<br>기수 = 원점",
-  main_wing:"스팬 10 m (대칭)<br>코드 2 → 1 m<br>Λ¼ 15° · NACA 0012",
-  horizontal_tail:"스팬 4 m (대칭)<br>코드 1.2 → 0.6 m<br>Λ¼ 15° · x = 8 m",
-  vertical_tail:"높이 1.8 m (+Z)<br>코드 1.5 → 0.7 m<br>Λ¼ 25° · x = 8 m",
-};
-const attempt = (n) => `<div class="att">
-  <div class="${n >= 1 ? "bad" : "wait"}"><strong>1차 ✗</strong><span>규칙 위반 ${v1.length}건</span></div>
-  <div class="${n >= 2 ? "bad" : "wait"}"><strong>2차 ✗</strong><span>위반 ${v2.length}건 · 수평꼬리 위치</span></div>
-  <div class="${n >= 3 ? "ok" : "wait"}"><strong>3차 ✓</strong><span>승인 · Span = 10 / 2 = 5.0 m</span></div></div>`;
-const CARDS = {
-  req: () => head("R", `REQUIREMENTS · 요구사항 ${nReq}개`) + `<div class="cgrid">${RUN.interpretation.map(c => `<div class="cbox"><b><i style="background:${COMP[c.id].css}"></i>${COMP[c.id].ko}</b><div>${KEY[c.id]}</div></div>`).join("")}</div>`,
-  know: () => head("K", "KNOWLEDGE · OpenVSP 지식 검색") + `<div class="tags">${RUN.geometry_knowledge.filter(k => k.holds).map(k => `<span class="tag">${k.id.split(":")[1]}</span>`).join("")}${RUN.code_knowledge.map(k => `<span class="tag code">code: ${k.id.split(":")[1]}</span>`).join("")}</div><p style="margin:12px 0 0;font-size:15px;color:var(--sub)">형상 지식 ${RUN.geometry_knowledge.filter(k => k.holds).length}개 · 코드 지식 ${RUN.code_knowledge.length}개를 다음 에이전트에 전달</p>`,
-  plan1: () => head("P", "GEOMETRY PLAN · 형상 계획", '<span class="x">반려</span>') + attempt(1),
-  plan2: () => head("P", "GEOMETRY PLAN · 형상 계획", '<span class="x">반려</span>') + attempt(2),
-  plan3: () => head("P", "GEOMETRY PLAN · 형상 계획") + attempt(3),
-  code: () => head("C", `CODE · vspscript (${RUN.code.split("\n").length}줄, 1회 통과)`) + `<pre class="code">${hl(RUN.code.split("\n").slice(2, 20).join("\n"))}</pre>`,
-  run: () => head("▶", "OPENVSP · 실행 완료") + `<div class="tags"><span class="tag code">returncode ${RUN.runtime}</span><span class="tag code">부품 4개</span><span class="tag code">B-spline 곡면 38개</span></div><div class="fchips" style="margin-top:14px"><a href="files/aircraft.vsp3" download>⬇ aircraft.vsp3</a><a href="files/aircraft.step" download>⬇ aircraft.step</a></div>`,
-  ver: () => head("✓", "VERIFICATION · 모델 검증") + `<div class="ver"><div class="big">${nPass}/${checks.length}<small>요구사항 일치 · PASS</small></div><div class="vlist">${RUN.interpretation.map(c => { const cs = checks.filter(x => x.c === c.id); return `<div><span>${COMP[c.id].ko}</span><em>${cs.filter(x => x.p).length}/${cs.length} ✓</em></div>`; }).join("")}<div><span>LLM 호출</span><em style="color:var(--text)">${Object.keys(U).length}회</em></div><div><span>토큰 (입력/출력)</span><em style="color:var(--text)">${(sum("in")/1000).toFixed(1)}k / ${(sum("out")/1000).toFixed(1)}k</em></div></div></div>`,
-};
-const showCard = k => { $("#card").innerHTML = k ? `<div class="card">${CARDS[k]()}</div>` : ""; };
-const setSeg = (i, finished) => document.querySelectorAll(".seg").forEach((s, j) => s.className = "seg" + (finished || j < i ? " done" : j === i ? " now" : ""));
-
-/* =================== chat engine =================== */
-const msgs = $("#msgs");
-let runId = 0, paused = false, speed = 1;
-const CANCEL = Symbol();
-function makeWait(id){
-  return ms => new Promise((res, rej) => {
-    let left = ms;
-    const tick = () => { if (id !== runId) return rej(CANCEL); if (!paused) left -= 40 * speed; left <= 0 ? res() : setTimeout(tick, 40); };
-    tick();
-  });
-}
-const scrollEnd = () => msgs.scrollTo({top: msgs.scrollHeight, behavior:"smooth"});
-function row(me, name){
-  const r = document.createElement("div"); r.className = "row" + (me ? " me" : "");
-  r.innerHTML = `<div class="av">${me ? "IDEA<br>LAB" : "AI"}</div><div class="col">${name ? `<span class="tagname">${name}</span>` : ""}<div class="bub"></div></div>`;
-  msgs.appendChild(r); scrollEnd(); return r.querySelector(".bub");
-}
-async function ai(W, name, html, extra = ""){
-  const b = row(false, name);
-  b.innerHTML = `<span class="typing"><i></i><i></i><i></i></span>`; b.style.padding = "0"; scrollEnd();
-  await W(900);
-  b.style.padding = ""; b.innerHTML = "";
-  // type the sentence, keeping html tags whole
-  const parts = html.split(/(<[^>]+>)/); let out = "";
-  for (const p of parts) {
-    if (p.startsWith("<")) { out += p; continue; }
-    for (let i = 0; i < p.length; i += 2) { out += p.slice(i, i + 2); b.innerHTML = out; if (i % 12 === 0) scrollEnd(); await W(28); }
+  if (camAnim) { const u = Math.min(1, (t - camAnim.t0)/900), e = ease(u);
+    camera.position.lerpVectors(camAnim.from, camAnim.to, e); controls.target.lerpVectors(camAnim.ft, new THREE.Vector3(), e); if (u >= 1) camAnim = null; }
+  if (morph) {
+    const u = Math.min(1, Math.max(0, (t - morph.t0)/1300)), e = ease(u);
+    morph.moves.forEach(m => m.position.copy(m.userData.off).multiplyScalar(1 - e));
+    morph.fades.forEach(m => { m.material.opacity = e; if (u >= 1) m.material.transparent = false; });
+    morph.tints.forEach(mt => mt.color.copy(BASE).lerp(CHG, e));
+    morph.ghosts.forEach(mt => { mt.color.copy(BASE).lerp(GH, e); mt.opacity = 1 - 0.55*e; });
+    morph.foils.forEach(m => { const a = m.geometry.attributes.position, f = m.userData.from, to = m.userData.to;
+      for (let i = 0; i < a.array.length; i++) a.array[i] = f[i] + (to[i] - f[i])*e; a.needsUpdate = true; m.geometry.computeVertexNormals(); });
+    const ua = Math.min(1, Math.max(0, (t - morph.t0 - 1100)/450)); morph.arrows.forEach(m => m.scale.setScalar(Math.max(0.0001, ease(ua))));
+    if (u >= 1 && ua >= 1) morph = null;
   }
-  b.innerHTML = html + extra; scrollEnd();
-  await W(500);
+  if (spin) model.rotation.y += 0.0025;
+  controls.update(); renderer.render(scene, camera);
+})(0);
+renderer.domElement.addEventListener("pointerdown", () => { spin = 0; model.rotation.y = 0; });
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { spin = 0; model.rotation.y = 0; setView(b.dataset.view); });
+
+/* ---------- viewer UI ---------- */
+let curKey = null, mods = {}, curState = null, baseStats = null, center = null;
+function specTable(st, ref){
+  const cur = specList(st), base = ref ? specList(ref) : null; let changed = 0;
+  const cell = ([v, u]) => typeof v === "number" ? `${fmt(v, u)}<u>${u}</u>` : `${v}<u></u>`;
+  const rows = cur.map((r, i) => { const b = base && base[i], diff = b && (typeof r[1] === "number" ? Math.abs(r[1] - b[1]) > Math.max(0.005, Math.abs(b[1])*0.004) : r[1] !== b[1]);
+    if (diff) changed++;
+    return `<tr class="${diff ? "c" : ""}"><td>${r[0]}</td>${base ? `<td class="b">${cell(b.slice(1))}</td>` : ""}<td>${cell(r.slice(1))}</td></tr>`; }).join("");
+  $("#spt").innerHTML = `<tr><th>항목</th>${base ? "<th>기준</th><th>변형</th>" : "<th>값</th>"}</tr>` + rows;
+  $("#speccnt").textContent = `${changed}건 변경`; $("#speccnt").classList.toggle("gone", !changed);
 }
-function note(text, cls){ const d = document.createElement("div"); d.className = "note " + (cls || ""); d.innerHTML = text; msgs.appendChild(d); scrollEnd(); }
-const hlReq = s => esc(s).replace(/(\d+(?:\.\d+)?\s?(?:m\b|degree)|NACA 0012|\+[XZ]|XZ plane)/g, "<mark>$1</mark>");
-
-async function play(){
-  const id = ++runId, W = makeWait(id);
-  msgs.innerHTML = ""; viewer.reset(); showCard(null); setSeg(0); paused = false; syncPause();
-  const inp = $("#in"), send = $("#send"), IDLE = "";
-  inp.textContent = IDLE; inp.className = "in"; send.className = "send";
-  try {
-    await W(900);
-    // user types a short request; the full dimensional spec (request.txt) is folded under it
-    inp.className = "in typed"; send.className = "send on";
-    const say = "NACA 0012 비행기 전체 형상을 만들고 싶어.";
-    for (let i = 1; i <= say.length; i++) { inp.textContent = say.slice(0, i); await W(55); }
-    await W(600);
-    inp.textContent = IDLE; inp.className = "in"; send.className = "send";
-    const ub = row(true, "");
-    ub.innerHTML = `${say}<div class="en" style="display:none;margin-top:10px">${hlReq(RUN.request)}</div><button class="more">상세 치수 사양 보기 (request.txt) ▾</button>`;
-    ub.querySelector(".more").onclick = e => { const en = ub.querySelector(".en"), open = en.style.display === "none"; en.style.display = open ? "" : "none"; en.classList.toggle("open", open); e.target.textContent = open ? "접기 ▴" : "상세 치수 사양 보기 (request.txt) ▾"; };
-    await W(1200);
-
-    setSeg(1);
-    await ai(W, "해석 에이전트", `요청을 동체, 주익, 수평·수직 꼬리날개로 나누고 <b>필요한 치수 ${nReq}개</b>를 정리했습니다.`);
-    showCard("req"); viewer.guides(); await W(2200);
-
-    setSeg(2);
-    await ai(W, "지식 에이전트", `OpenVSP 형상 생성에 필요한 지식을 검색했습니다.`);
-    showCard("know"); await W(1800);
-
-    setSeg(3);
-    await ai(W, "설계 에이전트", `형상 생성 계획을 수립했습니다.`);
-    showCard("plan1"); await W(500);
-    note(`✗ 규칙 검사 — 수정 필요`, "bad"); await W(1500);
-    await ai(W, "설계 에이전트", `지적된 부분을 반영하여 계획을 수정했습니다.`);
-    showCard("plan2"); await W(500);
-    note(`✗ 규칙 검사 — 1건 추가 수정 필요`, "bad"); await W(1500);
-    await ai(W, "설계 에이전트", `남은 부분을 수정하여 계획을 완성했습니다.`);
-    showCard("plan3"); await W(400);
-    note("✓ 규칙 검사 통과", "ok"); await W(1500);
-
-    setSeg(4);
-    await ai(W, "코드 에이전트", `승인된 계획에 따라 OpenVSP 스크립트를 작성했습니다.`);
-    showCard("code"); await W(2000);
-
-    setSeg(5);
-    note("▶ OpenVSP 형상 생성 완료", "ok");
-    viewer.build(); showCard("run"); await W(3200);
-
-    setSeg(6);
-    await ai(W, "검증 에이전트", `생성된 형상을 요청과 비교한 결과, <b>모든 치수가 일치</b>함을 확인했습니다. ✓`);
-    showCard("ver"); viewer.state(`검증 ${nPass}/${checks.length} PASS · aircraft.step`, true); await W(1500);
-
-    setSeg(7, true);
-    await ai(W, "", `설계가 완료되었습니다. 형상은 마우스로 회전하여 확인할 수 있습니다.`,
-      `<div class="fchips"><a href="files/aircraft.step" download>⬇ aircraft.step</a><a href="files/aircraft.vsp3" download>⬇ aircraft.vsp3</a><a href="files/04_code_agent.vspscript" download>⬇ vspscript</a></div>`);
-    setSpin(true);
-  } catch (e) { if (e !== CANCEL) throw e; }
+function setMode(mode, animate){
+  document.querySelectorAll("[data-mode]").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
+  const has = Object.keys(mods).length > 0 && curState, isBase = mode === "base" || !has;
+  const st = isBase ? baseState(curKey) : curState;
+  center = render(st, {mode, animate, C:center});
+  $("#vbadge").textContent = isBase ? "기준 형상" : "변형 형상"; $("#vbadge").className = "badge" + (isBase ? "" : " v");
+  specTable(st, isBase ? null : baseState(curKey));
+  const cmp = mode === "cmp" && has;
+  $("#legend").classList.toggle("hidden", isBase);
+  $("#lgGhost").style.display = cmp && curState.ghosts.length ? "" : "none";
+  $("#lgArrow").style.display = cmp && curState.arrows.length ? "" : "none";
+  airfoilInset(isBase ? null : curState);
 }
-function syncPause(){ $("#bPause").textContent = paused ? "▶ 계속" : "❚❚ 일시정지"; }
-$("#bReplay").onclick = () => play();
-$("#bPause").onclick = () => { paused = !paused; syncPause(); };
-document.querySelectorAll("#speed button").forEach(b => b.onclick = () => { speed = +b.dataset.s; document.querySelectorAll("#speed button").forEach(x => x.classList.toggle("on", x === b)); });
-addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); paused = !paused; syncPause(); } });
-play();
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => setMode(b.dataset.mode, false));
+$("#specbtn").onclick = () => $("#specwrap").classList.toggle("open");
+function showAircraft(k, st, animate){
+  curKey = k; curState = st; baseStats = stats(baseState(k)); center = null;
+  $("#intro").classList.add("hidden"); setTimeout(() => $("#intro").classList.add("gone"), 500);
+  $("#vhead").classList.remove("gone"); $("#vfoot").classList.remove("gone");
+  $("#vname").textContent = AC[k].name;
+  const has = Object.keys(mods).length > 0;
+  $("#seg").classList.toggle("hidden", !has);
+  setMode(has ? "var" : "base", animate);
+  setView(viewKey, false);
+}
+function airfoilInset(st){
+  const el = $("#foil"); if (!st || !st.foil) { el.classList.add("hidden"); return; }
+  const b0 = baseState(st.k), base = b0.items.find(i => i.role === "wing" && i.sym === 0) || b0.items.find(i => i.role === "wing");
+  const v = itemPositions(base, [0, 0, 0], true);
+  let semi = 0; for (let i = 2; i < v.length; i += 3) semi = Math.max(semi, Math.abs(v[i]));
+  const target = 0.85*semi; let best = Infinity;
+  for (let i = 2; i < v.length; i += 3) best = Math.min(best, Math.abs(Math.abs(v[i]) - target));
+  const sec = []; for (let i = 0; i < v.length; i += 3) if (Math.abs(Math.abs(v[i+2]) - target) < best + semi*0.004) sec.push([v[i], v[i+1]]);
+  const x0 = Math.min(...sec.map(p => p[0])), x1 = Math.max(...sec.map(p => p[0])), c = x1 - x0;
+  const p0 = sec.find(p => p[0] === x0), p1 = sec.find(p => p[0] === x1);
+  const norm = sec.map(([x, z]) => { const s = (x - x0)/c; return [s, (z - (p0[1] + s*(p1[1] - p0[1])))/c]; });
+  const up = norm.filter(p => p[1] >= 0).sort((a, b) => a[0] - b[0]), lo = norm.filter(p => p[1] < 0).sort((a, b) => b[0] - a[0]);
+  const {yt, yc} = naca(st.foil), N = []; for (let k = 0; k <= 60; k++) { const s = (1 - Math.cos(Math.PI*k/60))/2; N.push([s, yc(s) + yt(s)]); }
+  for (let k = 60; k >= 0; k--) { const s = (1 - Math.cos(Math.PI*k/60))/2; N.push([s, yc(s) - yt(s)]); }
+  const W = 230, X = s => 15 + s*W, Y = z => 60 - z*W;
+  const path = pts => pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("") + "Z";
+  $("#foilSvg").innerHTML = `<path d="${path(N)}" fill="#2b4a9b"/><path d="${path([...up, ...lo])}" fill="none" stroke="#e8955a" stroke-width="2.2"/>`;
+  { // crop the drawing to the section itself
+    const all = [...N, ...up, ...lo], xs = all.map(p => X(p[0])), ys = all.map(p => Y(p[1])), pad = 6;
+    const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) - x0 + pad, h = Math.max(...ys) - y0 + pad, sv = $("#foilSvg");
+    sv.setAttribute("viewBox", `${x0} ${y0} ${w} ${h}`); sv.setAttribute("width", 280); sv.setAttribute("height", Math.round(280*h/w));
+  }
+  $("#foilT").innerHTML = `주익 단면 · <span style="color:#e08a4a">기준</span> → <span style="color:#2b4a9b">NACA ${st.foil}</span>`; el.classList.remove("hidden");
+}
+
+/* ======================= chat ======================= */
+const msgs = $("#msgs"), tray = $("#tray"), sent = $("#sent"), send = $("#send");
+const scrollEnd = () => msgs.scrollTo({top:msgs.scrollHeight, behavior:"smooth"});
+// when the option tray grows or a message lands, keep the latest message fully visible
+new ResizeObserver(() => { msgs.scrollTop = msgs.scrollHeight; }).observe(msgs);
+new MutationObserver(() => requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; })).observe(msgs, {childList:true, subtree:true, characterData:true});
+const BOT_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l9-2 3-7 2 7 6 2-6 2-2 7-3-7z"/></svg>';
+function row(me){ const r = document.createElement("div"); r.className = "row" + (me ? " me" : ""); r.innerHTML = `<div class="av">${me ? "IDEA<br>LAB" : BOT_SVG}</div><div class="bub"></div>`; msgs.appendChild(r); scrollEnd(); return r.querySelector(".bub"); }
+async function bot(html, wait = 600){ const b = row(false); b.innerHTML = `<span class="typing"><i></i><i></i><i></i></span>`; scrollEnd(); await sleep(wait); b.innerHTML = html; scrollEnd(); return b; }
+function user(html){ row(true).innerHTML = html; }
+let pick = null, pickMode = null;
+function chips(list, mode){
+  tray.innerHTML = ""; pickMode = mode || null;
+  return new Promise(res => {
+    pick = v => { pick = null; pickMode = null; tray.innerHTML = ""; res(v); };
+    list.forEach((o, i) => { const b = document.createElement("button");
+      b.className = "chip" + (o.primary ? " primary" : "") + (o.done ? " done" : "") + (o.back ? " ghostly" : "");
+      b.style.animationDelay = i*35 + "ms";
+      b.innerHTML = (o.img ? `<img class="th" src="${o.img}" alt="">` : "") + (o.icon || "") + `<span>${o.l}${o.sub ? `<small>${o.sub}</small>` : ""}</span>`;
+      b.onclick = () => pick && pick(o.v); tray.appendChild(b); });
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  });
+}
+let canSend = false, tipShown = false;
+function sentence(final){
+  if (!curKey) return "";
+  const a = AC[curKey], ps = ORDER.filter(c => c in mods).map(c => `<mark>${CATS[c].phrase(mods[c])}</mark>`);
+  if (curKey === "m6") return "ONERA M6 날개를 생성해 주세요.";
+  if (!ps.length) return final ? `${a.name} 기준 형상을 생성해 주세요.` : `${a.name}${a.obj} 기준으로 `;
+  return `${a.name}${a.obj} 기준으로 ${ps.join("하고, ")}${final ? "해 주세요." : "…"}`;
+}
+function composer(ready){ canSend = ready; sent.innerHTML = sentence(false) + (curKey ? '<span class="caret"></span>' : ""); send.classList.toggle("on", ready); $("#composer").classList.toggle("ready", ready); }
+send.onclick = () => { if (canSend && pick && pickMode === "cats") pick("go"); };
+
+function specRows(st){
+  const list = stats(st), ch = ORDER.filter(c => c in mods).map(c => CATS[c].short(mods[c]));
+  const rows = [["기준 형상", AC[st.k].name], ...list.filter(r => r[0] !== "추진기" && r[0] !== "주익 위치").slice(0, 3).map(([k, v, u]) => [k, `${fmt(v, u)} ${u}`])];
+  rows.push(st.k === "m6" ? ["에어포일", "ONERA D"] : ["변경 사항", ch.length ? ch.join(" · ") : "없음"]);
+  return rows.slice(0, 5);
+}
+const PRESETS = [
+  {k:"crm", t:"T형 꼬리 + 주익 10% 전방", m:{wingX:-0.1, tail:"T"}},
+  {k:"x57", t:"프로펠러 4개 + 저익", m:{engine:"four", wingZ:-0.4}},
+  {k:"c172", t:"쌍수직꼬리 + NACA 8440", m:{tail:"twin", foil:"8440"}},
+  {k:"crm", t:"M6 날개 + 후방 엔진", m:{swap:"m6", engine:"rear"}},
+];
+const STEPS = ["부품 나누기", "부품 설계", "코드 작성", "CAD 형상 생성", "최종 형상 비교"];
+async function generate(){
+  user(sentence(true)); composer(false); sent.innerHTML = "";
+  const b = await bot(`<span class="making"><span class="spin"></span>형상을 제작하고 있습니다…</span>`, 350);
+  const L = $("#loader"); $("#lsteps").innerHTML = STEPS.map(s => `<div class="lstep"><i>✓</i>${s}</div>`).join(""); L.classList.remove("hidden");
+  const els = [...document.querySelectorAll(".lstep")];
+  for (const el of els) { el.classList.add("on"); await sleep(270); el.classList.remove("on"); el.classList.add("done"); }
+  const st = buildState(curKey, mods); await sleep(150);
+  const ks = Object.keys(mods);
+  viewKey = "iso";
+  L.classList.add("hidden"); showAircraft(curKey, st, ks.length > 0);
+  const shorts = ORDER.filter(c => c in mods).map(c => `<span class="tag c">${CATS[c].short(mods[c])}</span>`).join("");
+  b.innerHTML = `<div class="res-h"><span class="ck">✓</span>${ks.length ? "변형 형상을 생성했습니다." : `${AC[curKey].name} 형상을 생성했습니다.`}</div>
+    <div class="tags"><span class="tag">${AC[curKey].name}</span>${shorts}</div>
+    <button class="more">상세 스펙 ▾</button><div class="spec">${specRows(st).map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
+  const mb = b.querySelector(".more"); mb.onclick = () => { const s = b.querySelector(".spec"); s.classList.toggle("open"); mb.textContent = s.classList.contains("open") ? "접기 ▴" : "상세 스펙 ▾"; scrollEnd(); };
+  if (ks.length && !tipShown) { tipShown = true; await bot("<b>겹쳐 보기</b>에서 기준 형상과의 차이를,<br><b>치수 정보</b>에서 바뀐 치수를 확인할 수 있습니다.", 900); }
+  scrollEnd();
+}
+async function chooseAircraft(first){
+  if (!first) { const d = document.createElement("div"); d.className = "divider"; d.textContent = "새 형상"; msgs.appendChild(d); }
+  await bot(first ? "기준이 될 항공기를 선택해 주세요." : "새로 시작할 항공기를 선택해 주세요.");
+  mods = {}; composer(false);
+  const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, img:`img/${k}.png`})), "aircraft");
+  document.querySelectorAll(".preset").forEach(b => b.disabled = true);
+  if (typeof k === "object") { const p = PRESETS[k.preset]; curKey = p.k; mods = {...p.m}; composer(false); await generate(); return after(); }
+  curKey = k;
+  if (k === "m6") { await generate(); return after(); }
+  user(`${AC[k].name}${AC[k].obj} 기준으로 하겠습니다.`); composer(true);
+  const b = await bot(`<span class="making"><span class="spin"></span>${AC[k].name} 기준 형상을 불러오는 중입니다…</span>`, 300);
+  await sleep(450); viewKey = "iso"; showAircraft(k, buildState(k, {}), false);
+  b.innerHTML = `<b>${AC[k].name}</b> 기준 형상을 불러왔습니다.`;
+  await chooseMods(true);
+}
+async function chooseMods(first){
+  for (;;) {
+    await bot(first ? "변경할 항목을 선택해 주세요.<br>여러 항목을 선택한 뒤 한 번에 생성할 수 있습니다." : Object.keys(mods).length ? "추가로 변경할 부분이 있나요?" : "어떤 부분을 변경할까요?");
+    first = false; composer(true);
+    const n = Object.keys(mods).length;
+    const c = await chips([...CAT_LIST.map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})),
+      {l:n ? "이대로 생성" : "기준 형상 그대로 생성", v:"go", primary:true, icon:ICON.go}], "cats");
+    if (c === "go") break;
+    user(CATS[c].say); composer(false);
+    await bot(CATS[c].ask);
+    const v = await chips([...CATS[c].opts(curKey).map(o => ({l:o.l, v:o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
+    if (v === "__back") { user("다른 항목을 보겠습니다."); continue; }
+    if (v === "__undo") { user("이 변경은 취소하겠습니다."); delete mods[c]; composer(true); await bot("해당 변경을 취소했습니다."); continue; }
+    user(CATS[c].opts(curKey).find(o => o.v === v).l);
+    if (c === "tail" && v === "swap") delete mods.wingX;
+    mods[c] = v; composer(true);
+    await bot(`${CATS[c].phrase(v)}하겠습니다.`);
+  }
+  await generate(); await after();
+}
+async function after(){
+  const opts = curKey === "m6" ? [] : [{l:"이 형상에서 계속 변경", v:"more", primary:true, icon:ICON.go}];
+  const v = await chips([...opts, {l:"다른 항공기로 시작", v:"new"}]);
+  if (v === "more") { user("이 형상에서 계속 변경하겠습니다."); composer(true); return chooseMods(false); }
+  user("다른 항공기로 시작하겠습니다."); return chooseAircraft(false);
+}
+function layoutFlow(){
+  const f = $("#fcflow"), lbl = $("#floop"); if (!f) return;
+  let svg = $("#fcsvg");
+  if (!svg) { svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.id = "fcsvg"; f.appendChild(svg); }
+  if (getComputedStyle(lbl).display === "none") { svg.innerHTML = ""; return; }
+  const F = f.getBoundingClientRect(), a = $("#fcReq").getBoundingClientRect(), c = $("#fcCmp").getBoundingClientRect();
+  const x1 = a.left + a.width/2 - F.left, x2 = c.left + c.width/2 - F.left, ya = a.bottom - F.top, yc = c.bottom - F.top;
+  const yl = Math.max(a.bottom, c.bottom) - F.top + 26, RR = 14, red = "#d64545";
+  svg.setAttribute("width", F.width); svg.setAttribute("height", F.height);
+  svg.innerHTML = `<defs><marker id="ahR" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 1.6 8.6 5 2 8.4" fill="none" stroke="${red}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <path d="M${x2} ${yc + 2} V${yl - RR} Q${x2} ${yl} ${x2 - RR} ${yl} H${x1 + RR} Q${x1} ${yl} ${x1} ${yl - RR} V${ya + 4}" fill="none" stroke="${red}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ahR)"/>`;
+  Object.assign(lbl.style, {left:(x1 + x2)/2 + "px", top:yl + "px"});
+}
+new ResizeObserver(layoutFlow).observe(document.body); addEventListener("load", layoutFlow);
+
+// ripple on press for buttons, chips, cards and nav links
+document.addEventListener("pointerdown", e => {
+  const el = e.target.closest("button, .top nav a"); if (!el || el.disabled) return;
+  el.classList.add("rp-host");
+  const r = el.getBoundingClientRect(), d = Math.max(r.width, r.height)*2.2, sp = document.createElement("span");
+  sp.className = "ripple"; Object.assign(sp.style, {width:d + "px", height:d + "px", left:(e.clientX - r.left - d/2) + "px", top:(e.clientY - r.top - d/2) + "px"});
+  el.appendChild(sp); setTimeout(() => sp.remove(), 600);
+});
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+window.scrollTo(0, 0);
+document.querySelectorAll('.top nav a[href^="#"]').forEach(a => a.onclick = e => { e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
+$("#reset").onclick = () => { location.hash = ""; location.reload(); };
+
+/* ======================= intro picks & sections ======================= */
+$("#picks").innerHTML = Object.keys(AC).map(k => `<button class="pick" data-k="${k}"><img src="img/${k}.png" alt=""><b>${AC[k].name}</b></button>`).join("");
+document.querySelectorAll(".pick").forEach(b => b.onclick = () => { if (!(pick && pickMode === "aircraft")) return; b.classList.add("sel"); const k = b.dataset.k; setTimeout(() => pick && pickMode === "aircraft" && pick(k), 320); });
+const REF = {
+  crm:  {src:"NASA CRM 공식 형상 (Vassberg 외, AIAA 2008-6919)", rows:[["동체 길이", 62.75, "m", st => fuseInfo(st).L], ["주익 스팬", 58.76, "m", st => spanOf(st, "wing")], ["수평꼬리 스팬", 21.34, "m", st => spanOf(st, "htail")], ["동체 최대 지름", 6.20, "m", st => fuseInfo(st).W], ["엔진", 2, "개", st => stats(st).find(r => r[0] === "추진기")[1]]]},
+  c172: {src:"Cessna 172 제조사 3면도", rows:[["전체 길이", 8.20, "m", st => { const b = bbox(live(st, () => true)); return b.max[0] - b.min[0]; }], ["주익 스팬", 11.02, "m", st => spanOf(st, "wing")], ["수평꼬리 스팬", 3.45, "m", st => spanOf(st, "htail")], ["프로펠러 지름", 1.93, "m", st => spanOf(st, "prop")]]},
+  x57:  {src:"NASA X-57 공식 OpenVSP 모델", rows:[["주익 스팬", 9.64, "m", st => spanOf(st, "wing")], ["주익 뿌리 시위", 0.756, "m", st => { const w = wingInfo(byRole(st, "wing")); return w.rootTE - w.rootX; }], ["주익 끝 시위", 0.529, "m", st => { const w = wingInfo(byRole(st, "wing")); return w.tipTE - w.tipX; }], ["수평꼬리 스팬", 3.14, "m", st => spanOf(st, "htail")], ["추진기", 14, "개", st => stats(st).find(r => r[0] === "추진기")[1]]]},
+  m6:   {src:"NASA GRC NPARC 검증 자료 (AGARD AR 138)", rows:[["반쪽 날개 길이", 1.196, "m", st => spanOf(st, "wing")/2], ["테이퍼비 (끝/뿌리)", 0.562, "", st => { const w = wingInfo(byRole(st, "wing")); return (w.tipTE - w.tipX)/(w.rootTE - w.rootX); }], ["앞전 후퇴각", 30.0, "°", st => wingInfo(byRole(st, "wing")).sweep*180/Math.PI], ["날개 단면", "ONERA D", "", () => "ONERA D"], ["비틀림", "없음", "", () => "없음"]]},
+};
+function spanOf(st, role){ const b = bbox(byRole(st, role)); return b.max[1] - b.min[1]; }
+const nf = (v, u) => typeof v !== "number" ? v : u === "개" ? `${v}개` : u === "°" ? `${v.toFixed(1)}°` : `${v.toFixed(v < 1 ? 3 : 2)}${u ? " " + u : ""}`;
+function renderCmp(k){
+  const st = baseState(k), R = REF[k];
+  const views = k === "m6"
+    ? [["m6_top.png", "평면도"], ["m6.png", "3D"], ["m6_side.png", "측면도"], ["m6_front.png", "정면도"]]
+    : [[`${k}_top.jpg`, "평면도 겹침"], [`${k}_side.jpg`, "측면도 겹침"], [`${k}_ref.jpg`, "실제 항공기 모델"], [`${k}_gen.jpg`, "Text2CAD 생성 형상"]];
+  const legend = k === "m6" ? `<div class="cmp-leg"><span>NASA가 공개한 ONERA M6 날개 제원과 비교합니다</span></div>`
+    : `<div class="cmp-leg"><span><i class="o"></i>주황색: 실제 항공기 모델</span><span><i class="b"></i>파란색: Text2CAD 생성 형상</span></div>`;
+  $("#cmp").innerHTML = `<div class="m6cmp"><div>${legend}<div class="m6views">${views.map(([f, c]) => `<figure><img src="img/${f}" alt="${c}" loading="lazy"><figcaption>${c}</figcaption></figure>`).join("")}</div></div>
+    <div class="m6tab"><h4>실제 모델과 치수 비교</h4><table><tr><th>항목</th><th>실제 모델</th><th>생성 형상</th></tr>
+    ${R.rows.map(([n, ref, u, f]) => `<tr><td>${n}</td><td>${nf(ref, u)}</td><td>${nf(f(st), u)}</td></tr>`).join("")}</table><p>출처: ${R.src}</p><button class="gbtn openbtn" data-k="${k}">데모에서 이 형상 열기 ↑</button></div></div>`;
+  $("#cmp .openbtn").onclick = () => { $("#demo").scrollIntoView({behavior:"smooth"}); if (pick && pickMode === "aircraft") pick(k); };
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b)); renderCmp(b.dataset.k); });
+renderCmp("crm");
+
+(async () => {
+  await sleep(300);
+  const g = await bot(`안녕하세요, <b>Text2CAD</b>입니다.<br>기준 형상을 선택한 뒤 변경할 항목을 지정해 주세요.
+    <div class="pres-t">예시 요청</div><div class="presets">${PRESETS.map((p, i) => `<button class="preset" data-i="${i}"><img src="img/${p.k}.png" alt=""><div><b>${AC[p.k].name}</b><span>${p.t}</span></div></button>`).join("")}</div>`, 500);
+  g.querySelectorAll(".preset").forEach(b => b.onclick = () => { if (pick && pickMode === "aircraft") pick({preset:+b.dataset.i}); });
+  await chooseAircraft(true);
+})();
 </script>
 </body>
 </html>
