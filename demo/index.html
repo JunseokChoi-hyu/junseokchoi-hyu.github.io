@@ -914,10 +914,10 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .sent mark{background:rgba(91,79,240,.1)!important;color:var(--chg)!important}
 
 /* academic convention: modified = muted navy blue, original = light apricot */
-:root{--chg:#2b4a9b;--ghost:#f4b183}
+:root{--chg:#2855b4;--ghost:#f4b183}
 .vtitle .badge.v,.specbtn .cnt{background:var(--chg)!important;border-color:var(--chg)!important}
-.tag.c{color:var(--chg)!important;border-color:rgba(43,74,155,.35)!important;background:rgba(43,74,155,.08)!important}
-.sent mark{background:rgba(43,74,155,.1)!important;color:var(--chg)!important}
+.tag.c{color:var(--chg)!important;border-color:rgba(40,85,180,.35)!important;background:rgba(40,85,180,.08)!important}
+.sent mark{background:rgba(40,85,180,.1)!important;color:var(--chg)!important}
 
 /* demo always fits the visible window (no scrolling to reach the chat input) */
 .demo{height:calc(100dvh - 61px)!important;min-height:520px!important;box-sizing:border-box}
@@ -1224,6 +1224,7 @@ function ghost(st, it){ if (it.ghosted || it.isNew) return; it.ghosted = true; i
 function move(it, d){ it.xf.to = it.xf.to.map((v, i) => v + d[i]); }
 function shift(st, items, d, arrow = true){
   const before = ctr(bbox(items));
+  if (Math.hypot(...d) < 1e-6) return;
   for (const it of items) { ghost(st, it); move(it, d); it.mat = "chg"; }
   if (arrow) st.arrows.push([before, before.map((v, i) => v + d[i])]);
 }
@@ -1304,9 +1305,14 @@ const MODS = {
       const sc = Math.max(0.5*nom, Math.min(nom, (b - a)/len0)), half = sc*len0/2, r = sc*R.rad;
       const x = Math.min(b - half, Math.max(a + half, F.b.min[0] + 0.72*F.L)), z = F.zc + 0.22*F.H;
       let hw = 0;
-      for (const it of st.items) if (it.role === "fuselage") eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 0.6*r) hw = Math.max(hw, Math.abs(fy)); });
-      for (const sg of [1, -1]) for (const p of nac.filter(p => p.side === sg))
-        add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:[(nb.min[0] + nb.max[0])/2, sg*ctr(nb)[1], ctr(nb)[2]], to:[x, sg*((hw || F.W/2) + 0.88*r), z]}});
+      for (const it of live(st, i => i.role === "fuselage")) eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 1.05*r) hw = Math.max(hw, Math.abs(fy)); });
+      hw = hw || F.W/2; const yc = hw + 1.35*r, cr = 0.42*2*half;
+      for (const sg of [1, -1]) {
+        for (const p of nac.filter(p => p.side === sg))
+          add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:[(nb.min[0] + nb.max[0])/2, sg*ctr(nb)[1], ctr(nb)[2]], to:[x, sg*yc, z]}});
+        const y0 = 0.85*hw; // stub pylon from inside the fuselage skin to the pod axis
+        add(st, {role:"pylon", surfs:makeWing({le:[x - 0.32*half, sg*y0, z], cr, ct:0.85*cr, span:sg*(yc - y0), sweep:sg*12, t:"0014"}), xf:ID()});
+      }
       return;
     }
     hide(st, byRole(st, "strut")); // pods under a braced wing would cut through the struts (twin high-wings are cantilever)
@@ -1403,6 +1409,13 @@ function leAt(items, y){ // leading-edge x / z and local chord at span station y
   return {x:a[1] + t*(b[1] - a[1]), z:a[2] + t*(b[2] - a[2]), c:a[3] + t*(b[3] - a[3])};
 }
 let _engRef = null;
+function fanFace(nac){ // disc closing the duct a little behind the inlet lip
+  const b = bbox([nac]), c = ctr(b), len = b.max[0] - b.min[0], x0 = b.min[0] + 0.06*len, x1 = b.min[0] + 0.14*len;
+  let r = Infinity; eachV(nac, (x, y, z) => { if (x > x0 && x < x1) r = Math.min(r, Math.hypot(y - c[1], z - c[2])); });
+  if (!isFinite(r)) r = 0.4*(b.max[2] - b.min[2]);
+  const nv = 33, p = []; for (const rr of [0, 1.02*r]) for (let j = 0; j < nv; j++) { const a = 2*Math.PI*j/(nv - 1); p.push((x0 + x1)/2, c[1] + rr*Math.cos(a), c[2] + rr*Math.sin(a)); }
+  return [{nu:2, nv, p}];
+}
 function engineRef(){ // CRM nacelle + pylon, expressed relative to the CRM wing leading edge at the engine station
   if (_engRef) return _engRef;
   const b = baseState("crm"), W = b.items.filter(i => i.role === "wing"), N = b.items.filter(i => i.role === "nacelle" || i.role === "pylon");
@@ -1411,7 +1424,8 @@ function engineRef(){ // CRM nacelle + pylon, expressed relative to the CRM wing
   eachV(py, (x, yy, z) => { if (z > pb.max[2] - 0.15*(pb.max[2] - pb.min[2])) top.push(x); });
   const ptx = (Math.min(...top) + Math.max(...top))/2 - le.x;
   return _engRef = {x:le.x, z:le.z, c:le.c, y, rad:(nb.max[2] - nb.min[2])/2, fuseH:fuseInfo(b).H, ptx, dTop:pb.max[2] - le.z, pyH:pb.max[2] - pb.min[2],
-    parts:N.map(i => { const c = ctr(bbox([i])); return {role:i.role, surfs:i.surfs, side:Math.sign(c[1]), c}; })};
+    parts:N.map(i => { const c = ctr(bbox([i])); return {role:i.role, surfs:i.surfs, side:Math.sign(c[1]), c}; })
+      .concat(N.filter(i => i.role === "nacelle").map(i => { const s = fanFace(i); return {role:"nacelle", surfs:s, side:Math.sign(ctr(bbox([i]))[1]), c:ctr(bbox([i]))}; }))};
 }
 function buildState(k, mods){ const st = baseState(k); for (const c of ORDER) if (c in mods) MODS[c](st, mods[c]); return st; }
 function stats(st){
@@ -1445,11 +1459,13 @@ scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnviron
 const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 2000);
 const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
 const keyL = new THREE.DirectionalLight(0xffffff, 1.2); keyL.position.set(-3, 6, 4); scene.add(keyL);
-scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c3d1, 0.6));
+scene.add(new THREE.HemisphereLight(0xffffff, 0xdfe5ee, 0.75));
+const fillL = new THREE.DirectionalLight(0xffffff, 0.45); fillL.position.set(3, -5, -2); scene.add(fillL);
 const BASE = new THREE.Color(0xc5cad1), CHG = new THREE.Color(0x2b4a9b), GH = new THREE.Color(0xf4b183);
 const baseMat = new THREE.MeshStandardMaterial({color:BASE, roughness:0.42, metalness:0.35, side:THREE.DoubleSide});
 // changed parts: glossy coated paint so they read clearly against the matte base model
-const chgMat = new THREE.MeshStandardMaterial({color:CHG, roughness:0.55, metalness:0.12, side:THREE.DoubleSide});
+const CHG_D = CHG.clone().multiplyScalar(0.45), CHG_E = CHG.clone().multiplyScalar(0.85), BLACK = new THREE.Color(0);
+const chgMat = new THREE.MeshStandardMaterial({color:CHG_D, emissive:CHG_E, roughness:0.8, metalness:0, envMapIntensity:0.35, side:THREE.DoubleSide});
 const shadowTex = (() => { const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d");
   const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, "rgba(20,40,80,.2)"); gr.addColorStop(1, "rgba(20,40,80,0)");
   g.fillStyle = gr; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); })();
@@ -1515,7 +1531,7 @@ function render(st, {mode = "cmp", animate = false, C} = {}){
   const M = {moves:[], fades:[], ghosts:[], arrows:[], foils:[], tints:[]};
   for (const it of live(st, () => true)) {
     const g = itemGeometry(it, center), chg = it.mat === "chg" && mode !== "base";
-    const mat = chg ? chgMat.clone() : baseMat; if (chg && animate) mat.color.copy(BASE);
+    const mat = chg ? chgMat.clone() : baseMat; if (chg && animate) { mat.color.copy(BASE); mat.emissive.copy(BLACK); }
     const m = new THREE.Mesh(g, mat); model.add(m);
     if (!animate || !chg) continue;
     M.tints.push(mat);
@@ -1567,7 +1583,7 @@ const ease = u => u < .5 ? 4*u*u*u : 1 - (-2*u + 2)**3/2;
     const u = Math.min(1, Math.max(0, (t - morph.t0)/1300)), e = ease(u);
     morph.moves.forEach(m => m.position.copy(m.userData.off).multiplyScalar(1 - e));
     morph.fades.forEach(m => { m.material.opacity = e; if (u >= 1) m.material.transparent = false; });
-    morph.tints.forEach(mt => mt.color.copy(BASE).lerp(CHG, e));
+    morph.tints.forEach(mt => { mt.color.copy(BASE).lerp(CHG_D, e); mt.emissive.copy(BLACK).lerp(CHG_E, e); });
     morph.ghosts.forEach(mt => { mt.color.copy(BASE).lerp(GH, e); mt.opacity = 1 - 0.55*e; });
     morph.foils.forEach(m => { const a = m.geometry.attributes.position, f = m.userData.from, to = m.userData.to;
       for (let i = 0; i < a.array.length; i++) a.array[i] = f[i] + (to[i] - f[i])*e; a.needsUpdate = true; m.geometry.computeVertexNormals(); });
