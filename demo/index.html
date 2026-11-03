@@ -928,6 +928,11 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .demo .chat{order:2}
 .preset span{font-size:14px!important;white-space:nowrap!important}
 .preset b{font-size:16px!important}
+
+/* demo block: comfortably inside the window, never taller than 860px, centred on wide screens */
+.demo{height:min(calc(100dvh - 61px - 28px), 860px)!important;min-height:500px!important;max-width:1680px;margin:14px auto 0!important;padding:0 14px!important}
+@supports not (height:100dvh){.demo{height:min(calc(100vh - 61px - 28px), 860px)!important}}
+@media (max-width:900px){.demo{height:auto!important;margin:8px auto 0!important;padding:0 8px!important}}
 </style>
 </head>
 <body>
