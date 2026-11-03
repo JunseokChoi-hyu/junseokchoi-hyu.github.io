@@ -1120,13 +1120,13 @@ const ICON = {
 const pct = v => Math.round(Math.abs(v) * 100);
 const CATS = {
   wingX: {label:"주익 위치", sub:"앞 · 뒤", say:"주익 위치를 변경하고 싶습니다.", ask:"주익을 어느 방향으로 얼마나 이동할까요? 이동량은 동체 길이 기준입니다.",
-    opts:() => [{v:-0.2,l:"앞으로 20%"},{v:-0.1,l:"앞으로 10%"},{v:0.1,l:"뒤로 10%"},{v:0.2,l:"뒤로 20%"}],
+    opts:k => [{v:-0.2,l:"앞으로 20%"},{v:-0.1,l:"앞으로 10%"},{v:0.1,l:"뒤로 10%"},{v:0.2,l:"뒤로 20%"}].filter(o => wingXOk(k, o.v)),
     phrase:v => `주익을 동체 길이의 ${pct(v)}%만큼 ${v < 0 ? "앞" : "뒤"}으로 이동`, short:v => `주익 ${pct(v)}% ${v < 0 ? "전방" : "후방"} 이동`},
   wingZ: {label:"주익 높이", sub:"위 · 아래", say:"주익 높이를 변경하고 싶습니다.", ask:"주익을 위아래 어느 쪽으로 이동할까요? 이동량은 동체 높이 기준입니다.",
-    opts:k => [{v:0.4,l:"위로 40% (고익)"},{v:-0.4,l:"아래로 40% (저익)"}].filter(o => wingRoom(k, Math.sign(o.v)) > 0.15),
+    opts:k => [{v:0.4,l:"위로 40% (고익)"},{v:-0.4,l:"아래로 40% (저익)"}].filter(o => wingClass(k) !== (o.v > 0 ? "high" : "low")),
     phrase:v => `주익을 동체 높이의 ${pct(v)}%만큼 ${v > 0 ? "위" : "아래"}로 이동`, short:v => `주익 ${pct(v)}% ${v > 0 ? "상향" : "하향"}`},
-  tail: {label:"꼬리날개", sub:"T형 · 쌍수직 등", say:"꼬리날개 형태를 변경하고 싶습니다.", ask:"꼬리날개를 어떤 형태로 바꿀까요?",
-    opts:k => (k === "crm" ? [{v:"fin",l:"수직꼬리 추가"}] : []).concat([{v:"T",l:"T형 꼬리"},{v:"twin",l:"쌍수직꼬리"},{v:"swap",l:"주익 ↔ 수평꼬리 교환"}]),
+  tail: {label:"꼬리날개", sub:"T형 · 쌍수직", say:"꼬리날개 형태를 변경하고 싶습니다.", ask:"꼬리날개를 어떤 형태로 바꿀까요?",
+    opts:k => (k === "crm" ? [{v:"fin",l:"수직꼬리 추가"}] : []).concat([{v:"T",l:"T형 꼬리"},{v:"twin",l:"쌍수직꼬리"}]),
     phrase:v => ({fin:"수직꼬리(높이 9 m)를 추가", T:"T형 꼬리로 변경", twin:"쌍수직꼬리로 변경", swap:"주익과 수평꼬리의 위치를 교환"})[v],
     short:v => ({fin:"수직꼬리 추가", T:"T형 꼬리", twin:"쌍수직꼬리", swap:"주익 ↔ 수평꼬리"})[v]},
   engine: {label:"추진 장치", sub:"엔진 · 프로펠러", say:"추진 장치 구성을 변경하고 싶습니다.", ask:"추진 장치를 어떻게 구성할까요?",
@@ -1215,7 +1215,7 @@ function makeNacelle({front, len, r}){
 
 /* ======================= modification engine ======================= */
 function baseState(k){
-  return {k, ghosts:[], arrows:[], foil:null, items:S[k].parts.map(p => ({role:p.role, id:p.id, sym:p.sym, surfs:p.surfaces, xf:ID(), mat:"base", onWing:AC[k].wingGroup.includes(p.role)}))};
+  return {k, ghosts:[], arrows:[], bad:[], foil:null, items:S[k].parts.map(p => ({role:p.role, id:p.id, sym:p.sym, surfs:p.surfaces, xf:ID(), mat:"base", onWing:AC[k].wingGroup.includes(p.role)}))};
 }
 const live = (st, f) => st.items.filter(i => !i.hidden && f(i));
 const byRole = (st, ...r) => live(st, i => r.includes(i.role));
@@ -1236,20 +1236,28 @@ function ensureFin(st){
 }
 const MODS = {
   swap(st, d){
-    const W = byRole(st, "wing"), wi = wingInfo(W), pods = byRole(st, "nacelle").filter(i => i.onWing).length;
+    const W = byRole(st, "wing"), wi = wingInfo(W), pods = byRole(st, "nacelle").filter(i => i.onWing).length, rel = seatOf(st, W);
     hide(st, W); hide(st, byRole(st, "strut", "nacelle", "pylon").filter(i => i.onWing)); hide(st, byRole(st, "hlnacelle", "hlprop"));
     const donor = S[d].parts.filter(p => p.role === "wing").map(p => ({role:p.role, surfs:p.surfaces, xf:ID()}));
     const di = wingInfo(donor), sc = wi.semi/di.semi;
     for (const it of donor) add(st, {...it, onWing:true, xf:{s:sc, piv:[di.rootX, 0, di.rootZ], to:[wi.rootX, 0, wi.rootZ]}});
+    reseat(st, byRole(st, "wing"), rel, byRole(st, "wing"));
     if (pods) mountPods(st, pods > 2 ? [0.3, 0.58] : [0.34]);
     const tip = byRole(st, "tipnacelle", "cruiseprop"); // X-57 wing-tip cruise motors follow the new tip
     if (tip.length) { const ni = wingInfo(byRole(st, "wing")); shift(st, tip, [ni.tipX - wi.tipX, 0, ni.tipZ - wi.tipZ], false); }
   },
-  wingX(st, v){ shift(st, live(st, i => i.onWing), [v*fuseInfo(st).L, 0, 0]); },
+  wingX(st, v){
+    const rel = seatOf(st, byRole(st, "wing")), [lo, hi] = wingXRange(st), items = live(st, i => i.onWing);
+    const want = v*fuseInfo(st).L; if (want < lo - 1e-6 || want > hi + 1e-6) st.bad.push("wingX: out of range");
+    shift(st, items, [Math.min(hi, Math.max(lo, want)), 0, 0]);
+    reseat(st, byRole(st, "wing"), rel, items);
+  },
   wingZ(st, v){
     hide(st, byRole(st, "strut"));
     const r = wingRoot(st), th = r.hi - r.lo, up = r.top + 0.1*th - r.hi, down = r.bot - 0.1*th - r.lo;
-    shift(st, live(st, i => i.onWing), [0, 0, Math.min(up, Math.max(down, v*fuseInfo(st).H))]);
+    const want = v*fuseInfo(st).H, dz = Math.min(up, Math.max(down, want));
+    if (Math.abs(dz) < 0.7*Math.abs(want)) st.bad.push("wingZ: no room");
+    shift(st, live(st, i => i.onWing), [0, 0, dz]);
   },
   tail(st, v){
     if (v === "fin") { ensureFin(st); return; }
@@ -1263,34 +1271,42 @@ const MODS = {
       return;
     }
     if (v === "swap") {
-      hide(st, byRole(st, "strut"));
+      st.tailSwap = true; hide(st, byRole(st, "strut"));
       const W = live(st, i => i.onWing), wi = wingInfo(byRole(st, "wing")), ht = byRole(st, "htail"), hi = wingInfo(ht);
       const wm = (wi.rootX + wi.rootTE)/2, hm = (hi.rootX + hi.rootTE)/2;
-      shift(st, W, [hm - wm, 0, 0]); shift(st, ht, [wm - hm, 0, 0]);
+      const rw = seatOf(st, byRole(st, "wing")), rh = seatOf(st, ht), F = fuseInfo(st);
+      const over = Math.max(0, wi.rootTE + hm - wm - (F.b.max[0] - 0.02*F.L));
+      shift(st, W, [hm - wm - over, 0, 0]); shift(st, ht, [wm - hm, 0, 0]);
+      reseat(st, byRole(st, "wing"), rw, W); reseat(st, ht, rh, ht);
     }
   },
   engine(st, v){
     if (st.k === "x57") { // X-57: high-lift propellers 12 -> 4, or removed
       if (v === "none") { hide(st, byRole(st, "hlnacelle", "hlprop")); return; }
-      const rank = role => { const its = byRole(st, role); const ys = [...new Set(its.map(i => Math.abs(ctr(bbox([i]))[1]).toFixed(2)))].sort((a, b) => a - b);
-        return its.map(i => [i, ys.indexOf(Math.abs(ctr(bbox([i]))[1]).toFixed(2))]); };
-      for (const role of ["hlnacelle", "hlprop"]) hide(st, rank(role).filter(([, r]) => r !== 1 && r !== 4).map(([i]) => i));
+      const ay = i => Math.abs(ctr(bbox([i]))[1]), N = byRole(st, "hlnacelle");
+      const ys = [...new Set(N.map(i => ay(i).toFixed(2)))].map(Number).sort((a, b) => a - b);
+      const rank = i => { const y = ay(i); let best = 0; ys.forEach((v, j) => { if (Math.abs(v - y) < Math.abs(ys[best] - y)) best = j; }); return best; };
+      hide(st, byRole(st, "hlnacelle", "hlprop").filter(i => rank(i) !== 1 && rank(i) !== 4));
       return;
     }
     hide(st, byRole(st, "nacelle", "pylon"));
     if (v === "none") return;
     const R = engineRef();
     if (v === "rear") {
-      const F = fuseInfo(st), sc = 0.82*F.H/R.fuseH, wi = wingInfo(byRole(st, "wing")), gap = 0.02*F.L;
-      for (const sg of [1, -1]) for (const p of R.parts.filter(p => p.role === "nacelle" && p.side === sg)) {
-        const r = sc*R.rad, nb = bbox([{surfs:p.surfs, xf:ID()}]), half = sc*(nb.max[0] - nb.min[0])/2, aft = F.b.max[0] - 0.08*F.L - half;
-        // pods sit on the aft fuselage clear of the wing root: behind its trailing edge, or ahead of it when the wing is too far aft
-        let x = Math.max(F.b.min[0] + 0.7*F.L, wi.rootTE + gap + half);
-        if (x > aft) x = Math.min(F.b.min[0] + 0.7*F.L, wi.rootX - gap - half);
-        const z = F.zc + 0.22*F.H; let hw = 0;
-        for (const it of st.items) if (it.role === "fuselage") eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 0.6*r) hw = Math.max(hw, Math.abs(fy)); });
-        add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:p.c, to:[x, sg*((hw || F.W/2) + 0.88*r), z]}});
-      }
+      const F = fuseInfo(st), W = byRole(st, "wing"), ht = byRole(st, "htail"), gap = 0.025*F.L, nom = 0.82*F.H/R.fuseH;
+      const nac = R.parts.filter(p => p.role === "nacelle"), nb = bbox(nac.filter(p => p.side > 0).map(p => ({surfs:p.surfs, xf:ID()}))), len0 = nb.max[0] - nb.min[0];
+      const yp = F.W/2 + 1.1*nom*R.rad, wl = [yp - nom*R.rad, yp, yp + nom*R.rad].map(y => leAt(W, y));
+      const wingFront = Math.min(...wl.map(t => t.x)), wingBack = Math.max(...wl.map(t => t.x + t.c));
+      const tail = Math.min(F.b.max[0] - 0.1*F.L, ht.length ? wingInfo(ht).rootX - gap : Infinity);
+      // free stretch behind the wing; if the wing sits too far aft, use the stretch ahead of it instead
+      let a = wingBack + gap, b = tail;
+      if (b - a < 0.75*nom*len0) { st.bad.push("rear: no room behind wing"); a = F.b.min[0] + 0.45*F.L; b = wingFront - gap; }
+      const sc = Math.max(0.5*nom, Math.min(nom, (b - a)/len0)), half = sc*len0/2, r = sc*R.rad;
+      const x = Math.min(b - half, Math.max(a + half, F.b.min[0] + 0.72*F.L)), z = F.zc + 0.22*F.H;
+      let hw = 0;
+      for (const it of st.items) if (it.role === "fuselage") eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 0.6*r) hw = Math.max(hw, Math.abs(fy)); });
+      for (const sg of [1, -1]) for (const p of nac.filter(p => p.side === sg))
+        add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:[(nb.min[0] + nb.max[0])/2, sg*ctr(nb)[1], ctr(nb)[2]], to:[x, sg*((hw || F.W/2) + 0.88*r), z]}});
       return;
     }
     hide(st, byRole(st, "strut")); // pods under a braced wing would cut through the struts (twin high-wings are cantilever)
@@ -1298,8 +1314,8 @@ const MODS = {
   },
   foil(st, v){ st.foil = v; for (const it of byRole(st, "wing")) { it.foil = v; it.mat = "chg"; } },
 };
-function wingRoot(st){ // root-section z extent of the wing and the fuselage top / bottom at mid-chord
-  const W = byRole(st, "wing"), wi = wingInfo(W), xm = (wi.rootX + wi.rootTE)/2, F = fuseInfo(st);
+function wingRoot(st, W = byRole(st, "wing")){ // root-section z extent of a lifting surface and the fuselage top / bottom at its mid-chord
+  const wi = wingInfo(W), xm = (wi.rootX + wi.rootTE)/2, F = fuseInfo(st);
   // sample the wing just outboard of the fuselage side so a belly fairing does not count as wing thickness
   let y0 = Infinity; for (const it of W) eachV(it, (x, y) => { const a = Math.abs(y); if (a > 0.55*F.W && a < y0) y0 = a; });
   const y1 = y0 + 0.03*wi.semi;
@@ -1312,6 +1328,45 @@ function wingRoom(k, sg){ // free travel of the wing (fraction of fuselage heigh
     _room[k] = {1:(r.top + 0.1*th - r.hi)/H, "-1":(r.lo - r.bot + 0.1*th)/H}; }
   return _room[k][sg];
 }
+// how a surface sits on the fuselage: its root keeps the same gap to the nearer fuselage skin (top or bottom)
+function seatGaps(st, W, top){ // gap between the wing root and the fuselage skin it sits on, sampled along the root chord
+  const F = fuseInfo(st), wi = wingInfo(W), c = wi.rootTE - wi.rootX, NB = 6, B = Array.from({length:NB}, () => ({lo:Infinity, hi:-Infinity, x:0, n:0}));
+  let y0 = Infinity; for (const it of W) eachV(it, (x, y) => { const a = Math.abs(y); if (a > 0.55*F.W && a < y0) y0 = a; });
+  for (const it of W) eachV(it, (x, y, z) => { const a = Math.abs(y); if (a >= y0 && a < y0 + 0.03*wi.semi) {
+    const b = B[Math.min(NB - 1, Math.max(0, Math.floor((x - wi.rootX)/c*NB)))]; b.lo = Math.min(b.lo, z); b.hi = Math.max(b.hi, z); b.x += x; b.n++; } });
+  return B.filter(b => b.n).map(b => top ? b.lo - F.topAt(b.x/b.n) : F.botAt(b.x/b.n) - b.hi);
+}
+// how a wing sits on the fuselage: on the roof (high) or under the belly (low), with its closest gap and how uneven the gap is
+function seatOf(st, W){ const r = wingRoot(st, W), top = Math.abs(r.lo - r.top) < Math.abs(r.hi - r.bot), g = seatGaps(st, W, top);
+  return {top, d:Math.min(...g), spread:Math.max(...g) - Math.min(...g)}; }
+function reseat(st, W, rel, items){ // after a move or swap, the wing touches the fuselage the way it did before; a roof that falls away under the chord leaves it floating
+  const F = fuseInfo(st), g = seatGaps(st, W, rel.top), dz = rel.top ? rel.d - Math.min(...g) : Math.min(...g) - rel.d;
+  if (Math.abs(dz) > 1e-4*F.L) { shift(st, items, [0, 0, dz], false); hide(st, byRole(st, "strut")); }
+  if (Math.max(...g) - Math.min(...g) > rel.spread + 0.08*F.H) st.bad.push("wing floats over the fuselage");
+}
+function wingXRange(st){ // allowed fore/aft travel: the root stays over the cabin section and clear of the tailplane
+  const F = fuseInfo(st), wi = wingInfo(byRole(st, "wing")), ht = byRole(st, "htail");
+  const aft = Math.min(F.b.min[0] + 0.78*F.L, ht.length ? wingInfo(ht).rootX - 0.04*F.L : Infinity);
+  return [F.b.min[0] + 0.2*F.L - wi.rootX, aft - wi.rootTE];
+}
+const _xr = {};
+const _wcls = {};
+function wingClass(k){
+  if (!(k in _wcls)) { const r = wingRoot(baseState(k)), rel = ((r.lo + r.hi)/2 - (r.top + r.bot)/2)/(r.top - r.bot); _wcls[k] = rel > 0.2 ? "high" : rel < -0.2 ? "low" : "mid"; }
+  return _wcls[k];
+}
+// a combination is offered only if the result is a believable aircraft
+function realistic(st){
+  if (st.bad.length) return false;
+  const F = fuseInfo(st), W = byRole(st, "wing"), ht = byRole(st, "htail");
+  const pods = byRole(st, "nacelle"); if (pods.length && bbox(pods).min[2] < F.b.min[2] - 0.45*F.H) return false; // engines would hit the ground
+  if (ht.length && W.length) { const wi = wingInfo(W), hi = wingInfo(ht), g = 0.015*F.L; // wing and tailplane must not overlap
+    if (st.tailSwap ? hi.rootTE > wi.rootX - g : wi.rootTE > hi.rootX - g) return false; }
+  const wb = bbox(W); if (wb.max[0] < F.b.min[0] || wb.min[0] > F.b.max[0]) return false;
+  return true;
+}
+function feasible(k, m){ try { return realistic(buildState(k, m)); } catch (e) { return false; } }
+function wingXOk(k, v){ const st = baseState(k), L = fuseInfo(st).L, r = _xr[k] || (_xr[k] = wingXRange(st)); return v*L >= r[0] - 1e-6 && v*L <= r[1] + 1e-6; }
 function mountPods(st, stations){ // CRM nacelle + pylon under the wing leading edge, scaled to the local chord
   const R = engineRef(), W = byRole(st, "wing"), wi = wingInfo(W), k = fuseInfo(st).H/R.fuseH;
   for (const f of stations) for (const sg of [1, -1]) {
@@ -1666,17 +1721,20 @@ async function chooseAircraft(first){
   b.innerHTML = `<b>${AC[k].name}</b> 기준 형상을 불러왔습니다.`;
   await chooseMods(true);
 }
+function optsFor(c){ // options of category c that still give a realistic aircraft together with the current choices
+  return CATS[c].opts(curKey).filter(o => { const m = {...mods, [c]:o.v}; if (c === "tail" && o.v === "swap") delete m.wingX; return feasible(curKey, m); });
+}
 async function chooseMods(first){
   for (;;) {
     await bot(first ? "변경할 항목을 선택해 주세요.<br>여러 항목을 선택한 뒤 한 번에 생성할 수 있습니다." : Object.keys(mods).length ? "추가로 변경할 부분이 있나요?" : "어떤 부분을 변경할까요?");
     first = false; composer(true);
     const n = Object.keys(mods).length;
-    const c = await chips([...CAT_LIST.map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})),
+    const c = await chips([...CAT_LIST.filter(c => c in mods || optsFor(c).length).map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})),
       {l:n ? "이대로 생성" : "기준 형상 그대로 생성", v:"go", primary:true, icon:ICON.go}], "cats");
     if (c === "go") break;
     user(CATS[c].say); composer(false);
     await bot(CATS[c].ask);
-    const v = await chips([...CATS[c].opts(curKey).map(o => ({l:o.l, v:o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
+    const v = await chips([...optsFor(c).map(o => ({l:o.l, v:o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
     if (v === "__back") { user("다른 항목을 보겠습니다."); continue; }
     if (v === "__undo") { user("이 변경은 취소하겠습니다."); delete mods[c]; composer(true); await bot("해당 변경을 취소했습니다."); continue; }
     user(CATS[c].opts(curKey).find(o => o.v === v).l);
