@@ -83,3 +83,19 @@
     if (caption) caption.textContent = captions[i];
   }));
 })();
+
+// 흐름도 되돌이 화살표: 05 카드 중심 → 사용자 요청 카드 중심 사이에 맞춘다.
+(() => {
+  const flow = document.querySelector('[data-flow]');
+  if (!flow) return;
+  const from = flow.querySelector('[data-loop-start]');
+  const to = flow.querySelector('[data-loop-end]');
+  const place = () => {
+    const box = flow.getBoundingClientRect();
+    const a = to.getBoundingClientRect(), b = from.getBoundingClientRect();
+    flow.style.setProperty('--loop-l', `${a.left + a.width / 2 - box.left}px`);
+    flow.style.setProperty('--loop-r', `${box.right - (b.left + b.width / 2)}px`);
+  };
+  new ResizeObserver(place).observe(flow);
+  place();
+})();

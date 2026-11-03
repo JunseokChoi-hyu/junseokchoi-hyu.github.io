@@ -234,8 +234,8 @@ function init() {
     camera.aspect = w / h;
     // 넓은 화면: 오른쪽 빈 곳 / 좁은 화면: 가운데 (앞의 흰 그라데이션이 글을 받쳐 준다)
     const wide = w > 900;
-    const cx = wide ? w * 0.72 : w / 2, cy = h * (wide ? 0.46 : 0.58);
-    const targetPx = wide ? THREE.MathUtils.clamp(Math.min(w * 0.42, h * 1.25), 340, 640) : Math.min(w * 0.95, 460);
+    const cx = wide ? w * 0.68 : w / 2, cy = h * (wide ? 0.44 : 0.58);
+    const targetPx = wide ? THREE.MathUtils.clamp(Math.min(w * 0.46, h * 1.3), 380, 700) : Math.min(w * 0.95, 460);
     const viewWidthPerDist = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
     camera.userData.dist = THREE.MathUtils.clamp((MODEL_SIZE * w) / (targetPx * viewWidthPerDist), 9, 40);
     camera.setViewOffset(w, h, w / 2 - cx, h / 2 - cy, w, h);

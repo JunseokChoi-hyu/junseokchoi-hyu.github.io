@@ -152,3 +152,60 @@
 @media (min-width:901px){.rv-sec-head{gap:8px}}
 .rv-demo-grid{gap:40px}
 .rv-dots{margin-bottom:12px}
+
+/* ============ 파이프라인 흐름도 (초안): 요청 → [LLM 01·02·03] → 04 → 05 → 통과 → 결과, 아래 빨간 되돌이 ============ */
+.fc{position:relative;padding-bottom:58px}
+.fc-row{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,3.2fr) 28px minmax(0,1fr) 28px minmax(0,1fr) 56px minmax(0,1.15fr);align-items:stretch}
+.fc-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:0;padding:22px 10px 20px;border:1px solid var(--line);border-radius:12px;background:#fff;text-align:center}
+.fc-card strong{font-size:16px;letter-spacing:-.03em;color:var(--ink);word-break:keep-all}
+.fc-card em{position:absolute;right:12px;top:8px;font-style:normal;font-size:11.5px;font-weight:700;color:var(--blue)}
+.fc-ic{display:grid;place-items:center;width:46px;height:46px;border-radius:12px}
+.fc-ic svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fc-ic.is-navy{background:var(--blue)}
+.fc-ic.is-grey{background:#8b939e}
+.fc-ic.is-teal{background:#14907f}
+.fc-ic.is-line{width:auto;height:auto;background:none}
+.fc-ic.is-line svg{width:26px;height:26px;stroke:var(--blue)}
+/* 사용자 요청 */
+.fc-in{gap:8px;background:#fff;box-shadow:0 6px 18px rgba(17,20,24,.05)}
+.fc-in strong{font-size:17px}
+.fc-in span{font-size:13px;font-weight:600;line-height:1.5;color:var(--blue)}
+/* LLM 묶음 */
+.fc-group{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px;border:1.5px solid var(--blue);border-radius:16px;background:#f3f6fa}
+.fc-group-label{position:absolute;left:50%;top:-11px;transform:translateX(-50%);margin:0;padding:2px 12px;border-radius:999px;background:var(--blue);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+.fc-group .fc-card{border-top:3px solid var(--blue)}
+.fc-prog{border-top:3px solid #8b939e}
+.fc-check{border-top:3px solid #14907f;border-color:#bfe3dc}
+.fc-check em{color:#14907f}
+.fc-prog em{color:#6b737e}
+/* 화살표 */
+.fc-arrow{position:relative;align-self:center;display:block;height:2px;margin:0 4px;background:var(--blue)}
+.fc-arrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid var(--blue);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.fc-pass{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px}
+.fc-pass span{align-self:center;padding:2px 10px;border:1.5px solid var(--blue);border-radius:999px;font-size:11.5px;font-weight:700;color:var(--blue);background:#fff}
+.fc-pass .fc-arrow{width:auto}
+/* 결과 */
+.fc-out{gap:6px;padding:14px 10px;background:linear-gradient(180deg,#f6f7f9,#eceff3);border-color:#e0e3e8}
+.fc-out img{display:block;width:100%;max-width:170px;height:auto;mix-blend-mode:multiply}
+.fc-out strong{font-size:15.5px;color:var(--blue)}
+.fc-out small{padding:2px 10px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:700}
+/* 되돌이 화살표 (위치는 스크립트가 05 → 사용자 요청 중심에 맞춤) */
+.fc-loop{position:absolute;left:var(--loop-l,9%);right:var(--loop-r,30%);bottom:12px;height:34px;border:2px solid #d0473f;border-top:0;border-radius:0 0 14px 14px}
+.fc-loop::before{content:"";position:absolute;left:-7px;top:-10px;border-bottom:9px solid #d0473f;border-left:6px solid transparent;border-right:6px solid transparent}
+.fc-loop span{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);padding:4px 14px;border:1.5px solid #d0473f;border-radius:999px;background:#fff;color:#c23b33;font-size:12.5px;font-weight:700;white-space:nowrap}
+.fc-loop-text{display:none}
+@media (max-width:1000px){
+  .fc{padding-bottom:0}
+  .fc-row{grid-template-columns:1fr;row-gap:0;max-width:420px;margin:0 auto}
+  .fc-arrow{justify-self:center;width:2px;height:22px;margin:4px 0}
+  .fc-arrow::after{right:auto;left:-4px;top:auto;bottom:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--blue);border-bottom:0}
+  .fc-group{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:10px}
+  .fc-pass{flex-direction:row;justify-content:center;padding:6px 0}
+  .fc-pass .fc-arrow{width:2px;height:22px}
+  .fc-loop{display:none}
+  .fc-loop-text{display:block;margin:18px 0 0;text-align:center;font-size:13.5px;font-weight:600;color:#c23b33}
+}
+@media (max-width:480px){.fc-group{grid-template-columns:1fr}}
+@media (max-width:480px){.fc-group{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px 8px}.fc-group .fc-card{padding:16px 4px 14px;gap:8px}.fc-group .fc-card strong{font-size:13.5px}.fc-group .fc-ic{width:38px;height:38px}.fc-group .fc-card em{right:6px;top:4px;font-size:10.5px}}
+.rv-hero h1{white-space:nowrap;font-size:clamp(34px,10vw,60px)}
+.fc-card strong{line-height:1.35}

@@ -97,3 +97,10 @@
   .hr-grid,.hr-log{margin-inline:clamp(0px,6vw,96px)}
 }
 .hr-cta{display:inline-flex!important;align-items:center!important;gap:14px}
+.hero-stage{min-height:500px}
+/* 이름 블록: 라벨·이름·영문·소개·버튼을 블록 안에서 가운데 정렬 */
+@media (min-width:901px){
+  .hero-copy{display:flex;flex-direction:column;align-items:center;width:max-content;max-width:560px;text-align:center}
+  .hero-role{justify-content:center}
+  .hero-links{justify-content:center}
+}
