@@ -974,6 +974,17 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .pres-t{margin-top:8px!important}
 .tray{gap:6px!important;padding:8px 12px 2px!important}
 .tray .chip{padding:7px 12px!important;font-size:14.5px!important}
+.sec{scroll-margin-top:76px}
+
+/* aircraft choice: four inviting mini cards in one row */
+.tray[data-mode="aircraft"]{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px!important;padding:10px 14px 4px!important}
+.tray[data-mode="aircraft"] .chip{flex-direction:column;justify-content:center;gap:4px;padding:8px 6px 9px!important;font-size:15px!important;text-align:center;border-radius:12px;background:linear-gradient(180deg,#fff,#f4f7fc)}
+.tray[data-mode="aircraft"] .chip .th{width:100%;height:34px;object-fit:contain}
+.tray[data-mode="aircraft"] .chip:hover{transform:translateY(-3px)!important;border-color:var(--cobalt)!important;box-shadow:0 10px 22px rgba(47,111,237,.18)!important;background:#fff}
+.tray .chip{transition:transform .18s,box-shadow .18s,border-color .18s,background .18s}
+.tray .chip:hover{transform:translateY(-2px)!important;box-shadow:0 8px 18px rgba(47,111,237,.14)!important;border-color:var(--cobalt)!important}
+/* make room: slightly smaller example tiles */
+.preset img{height:44px!important}
 </style>
 </head>
 <body>
@@ -1513,7 +1524,7 @@ async function bot(html, wait = 600){ const b = row(false); b.innerHTML = `<span
 function user(html){ row(true).innerHTML = html; }
 let pick = null, pickMode = null;
 function chips(list, mode){
-  tray.innerHTML = ""; pickMode = mode || null;
+  tray.innerHTML = ""; pickMode = mode || null; tray.dataset.mode = mode || "";
   return new Promise(res => {
     pick = v => { pick = null; pickMode = null; tray.innerHTML = ""; res(v); };
     list.forEach((o, i) => { const b = document.createElement("button");
@@ -1570,7 +1581,7 @@ async function chooseAircraft(first){
   if (!first) { const d = document.createElement("div"); d.className = "divider"; d.textContent = "새 형상"; msgs.appendChild(d); }
   await bot(first ? "기준이 될 항공기를 선택해 주세요." : "새로 시작할 항공기를 선택해 주세요.");
   mods = {}; composer(false);
-  const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, })), "aircraft");
+  const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, img:`img/${k}.png`})), "aircraft");
   document.querySelectorAll(".preset").forEach(b => b.disabled = true);
   if (typeof k === "object") { const p = PRESETS[k.preset]; curKey = p.k; mods = {...p.m}; composer(false); await generate(); return after(); }
   curKey = k;
@@ -1633,7 +1644,9 @@ document.addEventListener("pointerdown", e => {
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 window.scrollTo(0, 0);
-document.querySelectorAll('.top nav a[href^="#"]').forEach(a => a.onclick = e => { e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
+// "데모" returns to the very top; other links stop just below the sticky header
+const goTo = id => id === "#demo" ? window.scrollTo({top:0, behavior:"smooth"}) : document.querySelector(id)?.scrollIntoView({behavior:"smooth", block:"start"});
+document.querySelectorAll('.top nav a[href^="#"]').forEach(a => a.onclick = e => { e.preventDefault(); goTo(a.getAttribute("href")); });
 $("#reset").onclick = () => { location.hash = ""; location.reload(); };
 
 /* ======================= intro picks & sections ======================= */
@@ -1657,7 +1670,7 @@ function renderCmp(k){
   $("#cmp").innerHTML = `<div class="m6cmp"><div>${legend}<div class="m6views">${views.map(([f, c]) => `<figure><img src="img/${f}" alt="${c}" loading="lazy"><figcaption>${c}</figcaption></figure>`).join("")}</div></div>
     <div class="m6tab"><h4>실제 모델과 치수 비교</h4><table><tr><th>항목</th><th>실제 모델</th><th>생성 형상</th></tr>
     ${R.rows.map(([n, ref, u, f]) => `<tr><td>${n}</td><td>${nf(ref, u)}</td><td>${nf(f(st), u)}</td></tr>`).join("")}</table><p>출처: ${R.src}</p><button class="gbtn openbtn" data-k="${k}">데모에서 이 형상 열기 ↑</button></div></div>`;
-  $("#cmp .openbtn").onclick = () => { $("#demo").scrollIntoView({behavior:"smooth"}); if (pick && pickMode === "aircraft") pick(k); };
+  $("#cmp .openbtn").onclick = () => { window.scrollTo({top:0, behavior:"smooth"}); if (pick && pickMode === "aircraft") pick(k); };
 }
 document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b)); renderCmp(b.dataset.k); });
 renderCmp("crm");
