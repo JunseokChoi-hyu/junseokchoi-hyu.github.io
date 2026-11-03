@@ -1130,6 +1130,16 @@ function makeWing({le, cr, ct, span, sweep, vertical, t = "0012"}){
   }
   return [{nu, nv:loop.length, p}];
 }
+function makeEngineNacelle({front, len, r}){
+  const nu = 30, nv = 32, p = [], sm = t => t*t*(3 - 2*t);
+  for (let i = 0; i < nu; i++) {
+    const s = i/(nu - 1);
+    const k = s < 0.16 ? 0.46 + 0.54*sm(s/0.16) : s < 0.52 ? 1 : 0.06 + 0.94*(1 - sm((s - 0.52)/0.48))**0.85;
+    const rad = r*k, zc = front[2] + (s > 0.52 ? 0.25*r*sm((s - 0.52)/0.48) : 0);   // tail sweeps up into the wing
+    for (let j = 0; j < nv; j++) { const a = 2*Math.PI*j/(nv - 1); p.push(front[0] + s*len, front[1] + rad*Math.cos(a), zc + 1.08*rad*Math.sin(a)); }
+  }
+  return [{nu, nv, p}];
+}
 function makeNacelle({front, len, r}){
   const nu = 18, nv = 26, p = [];
   for (let i = 0; i < nu; i++) {
@@ -1200,9 +1210,15 @@ const MODS = {
         for (const it of N) { const nb = bbox([it]), c = ctr(nb), sg = Math.sign(c[1]), r = (nb.max[2] - nb.min[2])/2;
           shift(st, [it], [0.66*F.L - c[0], sg*(F.W/2 + r*1.35) - c[1], F.zc + 0.18*F.H - c[2]], first); first = false; } }
     }
-    if (st.k === "c172" && v === "twin") { const wi = wingInfo(byRole(st, "wing"));
-      for (const sg of [1, -1]) { const y = 0.36*wi.semi;
-        add(st, {role:"nacelle", onWing:true, surfs:makeNacelle({front:[wi.rootX + y*Math.tan(wi.sweep) - 0.55, sg*y, wi.rootZ + y*wi.dih - 0.3], len:1.45, r:0.21}), xf:ID()}); } }
+    if (st.k === "c172" && v === "twin") {
+      // light-twin style: slung nacelle under the wing, with the aircraft's own spinner + propeller scaled onto its nose
+      const wi = wingInfo(byRole(st, "wing")), chord = wi.rootTE - wi.rootX, props = byRole(st, "prop", "cowl"), s = 0.62;
+      for (const sg of [1, -1]) {
+        const y = 0.38*wi.semi, xle = wi.rootX + y*Math.tan(wi.sweep), zc = wi.rootZ + y*wi.dih - 0.1, x0 = xle - 0.7;
+        add(st, {role:"nacelle", onWing:true, surfs:makeEngineNacelle({front:[x0, sg*y, zc], len:0.7 + 1.05*chord, r:0.27}), xf:ID()});
+        for (const it of props) add(st, {role:"enginprop", onWing:true, surfs:it.surfs, xf:{s, piv:[0, 0, 0], to:[x0 + 0.02, sg*y, zc]}});
+      }
+    }
     if (st.k === "x57") {
       const rank = role => { const its = byRole(st, role); const ys = [...new Set(its.map(i => Math.abs(ctr(bbox([i]))[1]).toFixed(2)))].sort((a, b) => a - b);
         return its.map(i => [i, ys.indexOf(Math.abs(ctr(bbox([i]))[1]).toFixed(2))]); };
