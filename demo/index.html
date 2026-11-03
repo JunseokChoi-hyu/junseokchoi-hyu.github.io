@@ -941,6 +941,39 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .intro .h1sub{font-size:26px!important;margin-bottom:28px!important}
 .pick img{height:112px!important}
 @media (max-width:900px){.demo{height:auto!important}}
+
+/* ===== pipeline: match the reference figure ===== */
+#how .fc-title{text-align:center;font-size:36px!important;font-weight:800;letter-spacing:-.8px;margin:0 0 30px!important}
+.fc{background:none!important;border:none!important;box-shadow:none!important;padding:0!important}
+.fc-head{display:none!important}
+.fgroup{position:relative;padding:22px 12px 12px!important}
+.fg-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--r-llm);color:#fff;font-size:13.5px;font-weight:700;padding:4px 14px;border-radius:999px;white-space:nowrap}
+.fbox h4{line-height:1.35}
+.fbox[data-role="llm"] .fn{color:var(--r-llm)!important}
+.fbox[data-role="prog"] .fn{color:#7d889a!important}
+.fbox[data-role="jev"] .fn{color:var(--r-jev)!important}
+.fn{font-weight:800!important;font-size:12.5px!important}
+.fa.pass{gap:6px!important}
+.fa.pass svg{color:var(--ink)}
+.fres{background:linear-gradient(160deg,#f3f6fb,#e5ebf3)!important;border:1px solid var(--line)!important}
+.fres img{max-height:110px!important}
+.fres h5{color:var(--ink)!important;font-size:18px!important;margin-top:4px}
+.fres code{font-size:13px!important;padding:3px 12px!important}
+.fc-main{padding-top:14px}
+
+.nw{white-space:nowrap}
+.fgroup .fbox h4{font-size:17.5px!important}
+/* chat fits without clipping the greeting */
+.msgs{padding-top:14px!important;gap:10px!important}
+.bub{padding:10px 14px!important}
+.presets{gap:6px!important;margin-top:8px!important}
+.preset{padding:8px 8px 9px!important;gap:3px!important}
+.preset img{height:52px!important}
+.preset b{font-size:15px!important}
+.preset span{font-size:13.5px!important}
+.pres-t{margin-top:8px!important}
+.tray{gap:6px!important;padding:8px 12px 2px!important}
+.tray .chip{padding:7px 12px!important;font-size:14.5px!important}
 </style>
 </head>
 <body>
@@ -987,8 +1020,7 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 
 <div class="wrap">
   <section class="sec" id="how">
-    <div class="kicker">FLOW CHART</div>
-    <h2>Text2CAD 파이프라인</h2>
+    <h2 class="fc-title">멀티 에이전트 파이프라인</h2>
     
     <div class="fc">
       <div class="fc-flow" id="fcflow">
@@ -1000,19 +1032,19 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
         <div class="fc-row fc-main">
           <div class="fbox freq" id="fcReq">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e4a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
-            <h4>사용자 요청</h4><q>NASA CRM을 만들어 줘</q>
+            <h4>사용자 요청</h4><q><span class="nw">NASA CRM 형상을</span><br>만들어줘</q>
           </div>
           <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
-          <div class="fgroup">
-            <div class="fbox" data-role="llm"><span class="fn">1</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/></svg></div><h4>부품 나누기</h4></div>
-            <div class="fbox" data-role="llm"><span class="fn">2</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V5l15 15z"/><path d="M8 16v-3l3 3z"/><path d="M3 21h18"/></svg></div><h4>부품 설계</h4></div>
+          <div class="fgroup"><span class="fg-badge">로컬 LLM · gpt-oss:20b</span>
+            <div class="fbox" data-role="llm"><span class="fn">1</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/></svg></div><h4><span class="nw">필요한 부품</span><br>정하기</h4></div>
+            <div class="fbox" data-role="llm"><span class="fn">2</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V5l15 15z"/><path d="M8 16v-3l3 3z"/><path d="M3 21h18"/></svg></div><h4><span class="nw">부품 모양·크기</span><br>정하기</h4></div>
             <div class="fbox" data-role="llm"><span class="fn">3</span><div class="fic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></div><h4>코드 작성</h4></div>
           </div>
           <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
           <div class="fbox" data-role="prog"><span class="fn">4</span><div class="fic g"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div><h4>CAD 형상 생성</h4></div>
           <div class="fa"><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
           <div class="fbox" id="fcCmp" data-role="jev"><span class="fn">5</span><div class="fic o"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 2 2 3-3M3 13l2 2 3-3M3 20l2 2 3-3M12 7h9M12 14h9M12 21h9"/></svg></div><h4>최종 형상 비교</h4></div>
-          <div class="fa pass"><span>통과</span><svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20"/><path d="M16.5 2 22 7l-5.5 5"/></svg></div>
+          <div class="fa pass"><span>통과</span><svg width="10" height="12" viewBox="0 0 10 12"><path d="M1 1 9 6 1 11z" fill="currentColor"/></svg></div>
           <div class="fres"><img src="img/crm.png" alt="NASA CRM 결과 형상"><h5>NASA CRM</h5><code>.vsp3</code></div>
         </div>
         <div class="floop" id="floop"><span>다르면 처음부터 다시</span></div>
@@ -1538,7 +1570,7 @@ async function chooseAircraft(first){
   if (!first) { const d = document.createElement("div"); d.className = "divider"; d.textContent = "새 형상"; msgs.appendChild(d); }
   await bot(first ? "기준이 될 항공기를 선택해 주세요." : "새로 시작할 항공기를 선택해 주세요.");
   mods = {}; composer(false);
-  const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, img:`img/${k}.png`})), "aircraft");
+  const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, })), "aircraft");
   document.querySelectorAll(".preset").forEach(b => b.disabled = true);
   if (typeof k === "object") { const p = PRESETS[k.preset]; curKey = p.k; mods = {...p.m}; composer(false); await generate(); return after(); }
   curKey = k;
