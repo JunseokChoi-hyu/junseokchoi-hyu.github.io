@@ -1167,9 +1167,9 @@ function wingInfo(items){
   return {semi, rootX:rX, rootZ:rZ, rootTE:rTE, tipX:tX, tipZ:tZ, tipTE:tTE, sweep:Math.atan2(tX - rX, semi), dih:(tZ - rZ)/semi};
 }
 function finInfo(items){
-  const b = bbox(items), h = b.max[2] - b.min[2]; let tipX = Infinity, rootX = Infinity;
-  for (const it of items) eachV(it, (x, y, z) => { if (z > b.max[2] - 0.05*h && x < tipX) tipX = x; if (z < b.min[2] + 0.05*h && x < rootX) rootX = x; });
-  return {top:b.max[2], base:b.min[2], h, tipX, rootX};
+  const b = bbox(items), h = b.max[2] - b.min[2]; let tipX = Infinity, tipTE = -Infinity, rootX = Infinity;
+  for (const it of items) eachV(it, (x, y, z) => { if (z > b.max[2] - 0.05*h) { tipX = Math.min(tipX, x); tipTE = Math.max(tipTE, x); } if (z < b.min[2] + 0.05*h && x < rootX) rootX = x; });
+  return {top:b.max[2], base:b.min[2], h, tipX, tipTE, rootX};
 }
 function fuseInfo(st){
   const f = st.items.filter(i => i.role === "fuselage"); const b = bbox(f);
@@ -1262,8 +1262,13 @@ const MODS = {
   },
   tail(st, v){
     if (v === "fin") { ensureFin(st); return; }
-    if (v === "T") { const fi = finInfo(ensureFin(st)), ht = byRole(st, "htail"), hi = wingInfo(ht);
-      shift(st, ht, [fi.tipX - hi.rootX + 0.03*fi.h, 0, fi.top - hi.rootZ - 0.02*fi.h]); return; }
+    if (v === "T") { const fi = finInfo(ensureFin(st)), ht = byRole(st, "htail"), d0 = wingInfo(ht).dih;
+      if (Math.abs(d0) > 0.02) for (const it of ht) { ghost(st, it); it.mat = "chg";
+        it.surfs = it.surfs.map(sf => { const q = sf.p.slice(); for (let i = 0; i < q.length; i += 3) q[i+2] -= d0*Math.abs(q[i+1]); return {...sf, p:q}; }); }
+      const hi = wingInfo(ht), ch = hi.rootTE - hi.rootX, cf = fi.tipTE - fi.tipX;
+      let zl = Infinity, zh = -Infinity; for (const it of ht) eachV(it, (x, y, z) => { if (Math.abs(y) < 0.04*hi.semi) { zl = Math.min(zl, z); zh = Math.max(zh, z); } });
+      const x0 = ch >= cf ? fi.tipX - Math.min(0.06*cf, ch - cf) : fi.tipX + (cf - ch)/2; // LE just ahead of the fin tip, or centred if the tailplane is shorter
+      shift(st, ht, [x0 - hi.rootX, 0, fi.top - 0.2*(zh - zl) - (zl + zh)/2]); return; }
     if (v === "twin") {
       const fin = ensureFin(st), fi = finInfo(fin), hi = wingInfo(byRole(st, "htail"));
       hide(st, fin.filter(f => !f.isNew)); fin.filter(f => f.isNew).forEach(f => f.hidden = true);
