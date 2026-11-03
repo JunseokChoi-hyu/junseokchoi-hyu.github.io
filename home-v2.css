@@ -1,0 +1,99 @@
+/* 홈 (2026-11-03 h): 간단하고 깔끔하게. 홈에서 가장 마지막에 불러온다.
+   첫 화면 = 왼쪽 소개 + 오른쪽 기체 애니메이션, 아래 한 줄 프롬프트·단계 / 연구 = 글·영상 두 칸 + 최근 기록 목록 */
+
+/* ---------- 첫 화면 ---------- */
+.hero-stage{display:flex;flex-direction:column;min-height:0}
+.hero-stage .hero{display:block!important;min-height:0!important;margin-block:0!important;padding-block:84px 56px!important}
+.hero-copy{max-width:520px}
+.hero-role{display:flex;align-items:center;gap:10px;margin:0 0 18px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+.hero-role::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.hero-stage .hero h1{margin:0!important;font-size:clamp(44px,4.4vw,56px)!important;line-height:1.05!important;letter-spacing:-.045em!important;font-weight:800;color:var(--ink)}
+.hero-stage .hero .hero-en{margin:10px 0 0;font-size:13px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:#9aa1aa}
+.hero-stage .hero-lead{margin:22px 0 0!important;font-size:17px!important;line-height:1.7!important;font-weight:400;color:#3d444d!important}
+.hero-lead strong{font-weight:700;color:var(--ink)}
+.hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero-links .button{padding:11px 18px;font-size:14px}
+.hero-stage::after{background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 30%,rgba(255,255,255,0) 52%),linear-gradient(180deg,rgba(255,255,255,0) 80%,#fff 100%)!important}
+
+/* 아래 한 줄: 프롬프트(왼쪽) + 진행 단계(오른쪽) */
+.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding-bottom:26px}
+.hero-foot .cad-console{display:contents}
+.hero-foot .cad-prompt{gap:12px;min-width:0}
+.hero-foot .cad-prompt span{padding:4px 9px!important;border:1px solid var(--line)!important;border-radius:4px!important;background:#fff!important;color:var(--muted)!important;font-size:10.5px!important;font-weight:700;letter-spacing:.12em}
+.hero-foot .cad-prompt code{font-size:15px;font-weight:600;color:var(--ink)}
+.hero-foot .cad-steps{display:flex;gap:4px;margin:0;padding:0;list-style:none}
+.hero-foot .cad-steps li{display:flex;align-items:center;gap:6px;padding:6px 10px!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;font-size:13px!important;font-weight:600;color:#a3a9b1!important;white-space:nowrap}
+.hero-foot .cad-steps li::before,.hero-foot .cad-steps li::after{display:none!important;content:none!important}
+.hero-foot .cad-steps li i{font-style:normal;font-size:10.5px;color:#c3c8cf}
+.hero-foot .cad-steps li.is-done{color:#6b737e!important}
+.hero-foot .cad-steps li.is-active{color:var(--ink)!important;box-shadow:inset 0 -2px 0 var(--ink)!important}
+.hero-foot .cad-steps li.is-active i,.hero-foot .cad-steps li.is-done i{color:var(--blue)}
+
+@media (max-width:900px){
+  .hero-stage .hero{padding-block:56px 40px!important}
+  .hero-stage::after{background:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.75) 60%,rgba(255,255,255,.3) 100%)!important}
+  .hero-foot .cad-steps{display:none}
+}
+
+/* ---------- 연구: 글·영상 두 칸 ---------- */
+.hr{padding-block:0 80px}
+.hr>.section-shell{padding-top:64px;border-top:1px solid var(--line)}
+.hr-grid{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);align-items:center;gap:56px}
+.hr-copy h2{margin:10px 0 0;font-size:clamp(40px,4vw,52px);line-height:1.05;letter-spacing:-.05em;color:var(--ink)}
+.hr-cta{display:flex;flex-direction:column;align-items:flex-start;gap:16px;margin-top:28px}
+.hr-video{margin:0;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#000;line-height:0}
+.hr-video video{display:block;width:100%;height:auto;background:#000}
+
+/* 데모 버튼: 작은 재생 원 + 글자 */
+.hr-demo{display:inline-flex;align-items:center;gap:12px;padding:10px 20px 10px 10px;border-radius:999px;background:var(--blue);color:#fff;text-decoration:none;box-shadow:0 6px 16px rgba(14,74,132,.18);transition:transform .2s,box-shadow .2s,background .2s}
+.hr-demo:hover{transform:translateY(-1px);background:#0b3d6e;box-shadow:0 10px 22px rgba(14,74,132,.24)}
+.hr-demo:focus-visible{outline:3px solid rgba(14,74,132,.35);outline-offset:3px}
+.hr-demo-play{position:relative;flex:none;width:34px;height:34px;border-radius:50%;background:#fff}
+.hr-demo-play::before{content:"";position:absolute;left:13px;top:10px;border-left:11px solid var(--blue);border-top:7px solid transparent;border-bottom:7px solid transparent}
+.hr-demo-text b{font-size:16px}
+.hr-demo i{margin-left:4px;font-style:normal;font-size:16px}
+.hr-more{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
+.hr-more:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* 최근 기록: 목록 */
+.hr-log{margin-top:56px}
+.hr-log>header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:14px}
+.hr-log h3{margin:0;font-size:22px;letter-spacing:-.03em}
+.hr-log>header a{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
+.hr-log>header a:hover{text-decoration:underline;text-underline-offset:4px}
+
+@media (max-width:900px){
+  .hr-grid{grid-template-columns:1fr;gap:28px}
+}
+/* 글 블록을 왼쪽 끝에서 안쪽으로 (넓은 화면) */
+@media (min-width:901px){
+  .hero-copy{margin-left:clamp(24px,7vw,120px)}
+  .hero-foot .cad-prompt{margin-left:clamp(24px,7vw,120px)}
+}
+
+/* 배치 정리 (j): 글은 첫 화면 세로 가운데, 아래 프롬프트 줄은 얇은 선 위에 글과 같은 왼쪽선으로 */
+.hero-stage{min-height:540px}
+.hero-stage .hero{flex:1;display:flex!important;align-items:center;padding-block:48px!important}
+.hero-copy{margin-left:clamp(0px,6vw,96px)!important}
+.hero-foot{position:relative;padding-block:16px 22px!important}
+.hero-foot::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--line)}
+.hero-foot .cad-prompt{margin-left:clamp(0px,6vw,96px)!important}
+@media (max-width:900px){.hero-stage{min-height:0}.hero-copy,.hero-foot .cad-prompt{margin-left:0!important}}
+.hero-lead strong{white-space:nowrap}
+.hero-stage .hero .hero-en{font-size:14.5px;color:#6b737e}
+
+/* 연구 칸 정렬 (k): 글 블록 왼쪽선을 첫 화면 글과 맞추고 영상과 세로 가운데 */
+.hr-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);align-items:center;gap:48px}
+.hr-copy{margin-left:clamp(0px,6vw,96px)}
+@media (max-width:900px){.hr-copy{margin-left:0}}
+/* 영상: 연회색 액자 테두리 + 은은한 그림자 */
+.hr-video{padding:6px;border:1px solid #dfe2e6!important;border-radius:14px!important;background:#f4f5f7!important;box-shadow:0 16px 40px rgba(17,20,24,.10)}
+.hr-video video{border-radius:9px}
+/* 최근 연구 기록: 왼쪽선을 위 글(연구 자세히 보기)과, 오른쪽선을 영상과 맞춤 */
+@media (min-width:901px){.hr-log{margin-left:clamp(0px,6vw,96px)}}
+/* 좌우 대칭: 연구 칸 전체를 양쪽에서 같은 만큼 들임 */
+@media (min-width:901px){
+  .hr-copy{margin-left:0}
+  .hr-grid,.hr-log{margin-inline:clamp(0px,6vw,96px)}
+}
+.hr-cta{display:inline-flex!important;align-items:center!important;gap:14px}

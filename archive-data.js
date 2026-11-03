@@ -33,7 +33,7 @@ window.ARCHIVE = {
       tags: ['Pipeline', 'FreeCAD'],
       file: '/assets/pdfs/Text2CAD_STEP 3.pdf',
       thumb: '/assets/thumbnails/text2cad-step03.png',
-      alt: '자연어 요청부터 스키마 검증, FreeCAD 실행, STEP 내보내기까지 이어지는 Text2CAD 최종 프로그램 구조 흐름도'
+      alt: '자연어 요청부터 스키마 검증, FreeCAD 실행, STEP 내보내기까지 이어지는 Text-to-CAD 최종 프로그램 구조 흐름도'
     },
     {
       step: 4,
@@ -44,7 +44,7 @@ window.ARCHIVE = {
       tags: ['Local LLM', 'RAG', 'Aircraft'],
       file: '/assets/pdfs/Text2CAD_STEP 4.pdf',
       thumb: '/assets/thumbnails/text2cad-step04.png',
-      alt: 'Text2CAD STEP 4 연구 자료 대표 페이지'
+      alt: 'Text-to-CAD STEP 4 연구 자료 대표 페이지'
     },
     {
       step: 5,
@@ -55,7 +55,7 @@ window.ARCHIVE = {
       tags: ['Agent', 'RAG'],
       file: '/assets/pdfs/Text2CAD_STEP 5.pdf',
       thumb: '/assets/thumbnails/text2cad-step05.png',
-      alt: 'Text2CAD STEP 5 연구 자료 대표 페이지'
+      alt: 'Text-to-CAD STEP 5 연구 자료 대표 페이지'
     },
     {
       step: 6,
@@ -66,7 +66,7 @@ window.ARCHIVE = {
       tags: ['Pipeline', 'Evaluation'],
       file: '/assets/pdfs/Text2CAD_STEP 6.pdf',
       thumb: '/assets/thumbnails/text2cad-step06.png',
-      alt: 'Text2CAD STEP 6 연구 자료 대표 페이지'
+      alt: 'Text-to-CAD STEP 6 연구 자료 대표 페이지'
     },
     {
       step: 7,
@@ -77,7 +77,7 @@ window.ARCHIVE = {
       tags: ['OpenVSP', 'RAG', 'Aircraft'],
       file: '/assets/pdfs/Text2CAD_STEP 7.pdf',
       thumb: '/assets/thumbnails/text2cad-step07.png',
-      alt: 'Text2CAD STEP 7 연구 자료 대표 페이지'
+      alt: 'Text-to-CAD STEP 7 연구 자료 대표 페이지'
     },
     {
       step: 8,

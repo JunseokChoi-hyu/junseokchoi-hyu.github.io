@@ -1,4 +1,4 @@
-// 홈 "최근 연구 기록": archive-data.js에서 최신 STEP 3개를 그린다.
+// 홈 "최근 연구 기록": archive-data.js에서 최신 STEP 3개를 한 줄씩 그린다.
 (() => {
   const data = window.ARCHIVE;
   const list = document.querySelector('[data-latest-updates]');
@@ -9,16 +9,17 @@
   const encodeURI = (p) => window.encodeURI(p.startsWith('/') || /^https?:/.test(p) ? p : '/' + p);
   const latest = [...data.research].sort((a, b) => b.step - a.step).slice(0, 3);
 
-  list.innerHTML = latest.map((r, i) => `<li class="reveal${i ? ` delay-${i}` : ''}${i === 0 ? ' is-latest' : ''}">
+  // 한 줄씩: STEP 번호 · 제목 · 한 줄 요약 · PDF
+  list.innerHTML = latest.map((r, i) => `<li class="reveal${i ? ` delay-${i}` : ''}">
     <a href="${encodeURI(r.file)}" target="_blank" rel="noreferrer">
-      <figure><img src="${encodeURI(r.thumb)}" alt="${esc(r.alt)}" loading="lazy"><span>STEP ${pad(r.step)}</span>${i === 0 ? '<em>NEW</em>' : ''}</figure>
-      <div class="hx-card-body">
-        <strong>${esc(r.name || r.title)}</strong>
-        <small>${esc(r.short || r.summary)}</small>
-        <b>PDF 보기 ↗</b>
-      </div>
+      <b>STEP ${pad(r.step)}</b><strong>${esc(r.name || r.title)}</strong><small>${esc(r.short || r.summary)}</small><em>PDF ↗</em>
     </a>
   </li>`).join('');
+  const progress = document.querySelector('[data-progress]');
+  if (progress && latest[0]) progress.textContent = `STEP ${pad(latest[0].step)}`;
+
+  const studyCount = document.querySelector('[data-study-count]');
+  if (studyCount) studyCount.textContent = `${data.study.length}건`;
 
   const studyList = document.querySelector('[data-study-list]');
   if (studyList) {
@@ -30,4 +31,15 @@
       </a>
     </li>`).join('');
   }
+})();
+
+// 연구 영상: 화면에 보일 때만 재생해 페이지를 가볍게 한다.
+(() => {
+  const video = document.querySelector('[data-autoplay-visible]');
+  if (!video || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) video.play().catch(() => {});
+    else video.pause();
+  }, { threshold: 0.35 }).observe(video);
 })();

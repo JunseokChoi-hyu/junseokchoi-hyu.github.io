@@ -13,48 +13,18 @@
   // 단계 구분. 새 STEP은 마지막 Phase에 자동으로 붙는다.
   const phases = (data.phases || []).map((ph) => ({ ...ph, items: steps.filter((s) => s.step >= ph.from && s.step <= ph.to) }))
    .filter((ph) => ph.items.length);
-  const phaseOf = (step) => phases.findIndex((ph) => step >= ph.from && step <= ph.to);
   const wj = (t) => t.replace(/⁠/g, '');
 
-  // 위: STEP 1~N 타임라인 (번호 동그라미 + 아래 Phase 이름)
-  const track = `<div class="rx-track reveal" style="--n:${steps.length}" role="img" aria-label="STEP 1부터 ${latest.step}까지 진행, 현재 ${esc(phases[phases.length - 1].title)} 단계">
-    ${steps.map((s, k) => `<a class="rx-dot p${phaseOf(s.step) + 1}${s === latest ? ' is-latest' : ''}" style="grid-column:${k + 1}" href="${encodeURI(s.file)}" target="_blank" rel="noreferrer" title="STEP ${pad(s.step)} · ${esc(wj(s.title))}">${pad(s.step)}</a>`).join('')}
-    ${phases.map((ph, k) => {
-      const start = steps.indexOf(ph.items[0]) + 1;
-      return `<div class="rx-phase-tag p${k + 1}" style="grid-column:${start} / span ${ph.items.length}"><i>${ph.label}</i><b>${esc(ph.title)}</b></div>`;
-    }).join('')}
-  </div>`;
-
-  // 아래: Phase 카드 (대표 그림 + 제목 + 한 줄 요약 + STEP 번호)
-  const cards = phases.map((ph, k) => {
+  // 진행 막대: STEP 1~N을 한 줄 점으로, Phase마다 구간을 나눠 아래에 이름·요약
+  root.innerHTML = `<div class="rv-bar">${phases.map((ph, k) => {
     const isCurrent = ph.items.includes(latest);
-    return `<article class="rx-phase p${k + 1}${isCurrent ? ' is-current' : ''} reveal${k ? ` delay-${k}` : ''}">
-      <figure><img src="${encodeURI(ph.img)}" alt="${esc(ph.imgAlt)}" loading="lazy">${isCurrent ? '<em>진행 중</em>' : ''}</figure>
-      <div class="rx-phase-body">
-        <p class="rx-phase-label">${ph.label}</p>
-        <h3>${esc(ph.title)}</h3>
-        <p class="rx-phase-summary">${esc(ph.summary)}</p>
-        <div class="rx-phase-steps">${ph.items.map((s) => `<a href="${encodeURI(s.file)}" target="_blank" rel="noreferrer" title="${esc(wj(s.title))}"${s === latest ? ' class="is-latest"' : ''}>STEP ${pad(s.step)}</a>`).join('')}</div>
-      </div>
-    </article>`;
-  }).join('');
-
-  root.innerHTML = track + `<div class="rx-phases">${cards}</div>`;
-  // 타임라인 연결선: 첫 번호~마지막 번호 중심을 잇고, Phase가 바뀌는 지점에서 색이 바뀐다
-  const trackEl = root.querySelector('.rx-track');
-  if (trackEl && steps.length > 1) {
-    const span = steps.length - 1;
-    const stops = [];
-    phases.forEach((ph, k) => {
-      const first = steps.indexOf(ph.items[0]);
-      const last = steps.indexOf(ph.items[ph.items.length - 1]);
-      const from = Math.max(0, (first - 0.5) / span) * 100;
-      const to = Math.min(1, (last + 0.5) / span) * 100;
-      stops.push(`var(--p${k + 1}) ${from.toFixed(1)}% ${to.toFixed(1)}%`);
-    });
-    trackEl.style.setProperty('--track-line', `linear-gradient(90deg, ${stops.join(', ')})`);
-    trackEl.style.setProperty('--n', steps.length);
-  }
+    return `<div class="rv-seg p${k + 1}${isCurrent ? ' is-current' : ''} reveal${k ? ` delay-${k}` : ''}" style="flex:${ph.items.length}">
+      <div class="rv-dots">${ph.items.map((s) => `<a href="${encodeURI(s.file)}" target="_blank" rel="noreferrer" title="STEP ${pad(s.step)} · ${esc(wj(s.title))}"${s === latest ? ' class="is-latest"' : ''}><span>${pad(s.step)}</span></a>`).join('')}</div>
+      <p>${ph.label}${isCurrent ? '<em>진행 중</em>' : ''}</p>
+      <h3>${esc(ph.title)}</h3>
+      <small>${esc(ph.summary)}</small>
+    </div>`;
+  }).join('')}</div>`;
 
   const stepEl = document.querySelector('[data-latest-step]');
   if (stepEl && latest) stepEl.textContent = `STEP ${pad(latest.step)}`;
@@ -94,4 +64,22 @@
       requestAnimationFrame(() => grid.classList.remove('is-fading'));
     }, 180);
   }
+})();
+
+// 시연 영상 탭: 한 화면에서 영상을 바꿔 본다.
+(() => {
+  const tabs = [...document.querySelectorAll('.rv-tabs [data-tab]')];
+  const panes = [...document.querySelectorAll('.rv-player [data-pane]')];
+  const caption = document.querySelector('[data-caption]');
+  const captions = ['자연어 입력부터 항공기 형상이 만들어지기까지의 실행 과정', '초기 FreeCAD 기반 파이프라인으로 만든 베어링 지지대'];
+  tabs.forEach((tab) => tab.addEventListener('click', () => {
+    const i = Number(tab.dataset.tab);
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    panes.forEach((v) => {
+      const on = Number(v.dataset.pane) === i;
+      v.hidden = !on;
+      if (on) v.play().catch(() => {}); else v.pause();
+    });
+    if (caption) caption.textContent = captions[i];
+  }));
 })();

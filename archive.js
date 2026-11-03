@@ -8,7 +8,7 @@
   const url = (p) => encodeURI(p.startsWith('/') || /^https?:/.test(p) ? p : '/' + p);
   const pad = (n) => String(n).padStart(2, '0');
   const latestStep = Math.max(...data.research.map((r) => r.step));
-  const phases = data.phases || [{ label: 'RESEARCH', title: 'Text2CAD', from: 1, to: 9999 }];
+  const phases = data.phases || [{ label: 'RESEARCH', title: 'Text-to-CAD', from: 1, to: 9999 }];
 
   const items = [
     ...data.research.map((r) => ({ ...r, kind: 'research', label: `STEP ${pad(r.step)}` })),
