@@ -918,6 +918,16 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .vtitle .badge.v,.specbtn .cnt{background:var(--chg)!important;border-color:var(--chg)!important}
 .tag.c{color:var(--chg)!important;border-color:rgba(43,74,155,.35)!important;background:rgba(43,74,155,.08)!important}
 .sent mark{background:rgba(43,74,155,.1)!important;color:var(--chg)!important}
+
+/* demo always fits the visible window (no scrolling to reach the chat input) */
+.demo{height:calc(100dvh - 61px)!important;min-height:520px!important;box-sizing:border-box}
+@supports not (height:100dvh){.demo{height:calc(100vh - 61px)!important}}
+
+/* ===== layout: 3D viewer on the left, design agent chat on the right ===== */
+.demo{grid-template-columns:1fr minmax(420px,31%)!important}
+.demo .chat{order:2}
+.preset span{font-size:14px!important;white-space:nowrap!important}
+.preset b{font-size:16px!important}
 </style>
 </head>
 <body>
