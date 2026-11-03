@@ -73,14 +73,18 @@ function body(x0, x1, stations, ring, profile) {
   return sections;
 }
 
-// 동체: 길이 62.8 m, 둥근 기수 → 원통 → 위로 올라가며 좁아지는 꼬리
-const FUSE_L = 62.8, FUSE_R = 3.05;
-const fuselageSections = () => body(0, FUSE_L, 40, 36, (u) => {
-  const x = u * FUSE_L;
+// 동체: 길이 62.8 m, 둥근 기수 → 원통 → 꼬리 콘(윗선은 완만히 내려오고 아랫선은 위로 쓸려 올라가 작은 끝으로 모임)
+const FUSE_L = 62.8, FUSE_R = 3.05, TAIL_X = 41, TIP = 0.9;
+const fuselageSections = () => body(0, FUSE_L + TIP, 60, 44, (u) => {
+  const x = u * (FUSE_L + TIP);
   if (x < 11) { const v = 1 - x / 11; return { r: FUSE_R * Math.sqrt(1 - v * v), y: -0.5 * v * v }; }
-  if (x < 41) return { r: FUSE_R };
-  const v = ease((x - 41) / (FUSE_L - 41));
-  return { r: FUSE_R * (1 - 0.82 * v), y: 1.9 * v };
+  if (x < TAIL_X) return { r: FUSE_R };
+  const v = Math.min(1, (x - TAIL_X) / (FUSE_L - TAIL_X));
+  const rEnd = FUSE_R * (1 - 0.8 * ease(v));
+  const top = FUSE_R - 1.0 * v ** 1.25;
+  // 끝은 둥글게 닫는다 (APU 콘)
+  const r = x <= FUSE_L ? rEnd : rEnd * Math.sqrt(Math.max(0, 1 - ((x - FUSE_L) / TIP) ** 2));
+  return { r, y: top - rEnd };
 });
 // 날개-동체 페어링
 const fairingSections = () => body(17, 43, 16, 28, (u) => ({ r: 3.3 * Math.sin(Math.PI * u) ** 0.55, y: -2.2, ry: 0.42 }));
@@ -96,8 +100,8 @@ const nacelleSections = (side) => body(24, 31.5, 12, 32, (u) => ({
 }));
 const pylonCtrl = (side) => [{ le: [25.6, -2.5, side * 9.6], c: 5.6, t: 0.14 }, { le: [27.4, -1.45, side * 9.6], c: 5.4, t: 0.14 }];
 // 수평꼬리: 후퇴각 37°, 반스팬 10.7 m / 수직꼬리: 후퇴각 42°, 높이 9.5 m
-const htailCtrl = (side) => [{ le: [53.5, 0.9, side * 1.5], c: 5.9, t: 0.1 }, { le: [60.4, 1.85, side * 10.7], c: 1.8, t: 0.09 }];
-const vtailCtrl = [{ le: [50, 2.3, 0], c: 8.6, t: 0.11 }, { le: [58.6, 11.8, 0], c: 3.2, t: 0.1 }];
+const htailCtrl = (side) => [{ le: [55.6, 1.45, side * 0.3], c: 6.0, t: 0.1 }, { le: [63.4, 2.35, side * 10.7], c: 1.8, t: 0.09 }];
+const vtailCtrl = [{ le: [51.6, 2.0, 0], c: 9.2, t: 0.11 }, { le: [60.2, 11.8, 0], c: 3.2, t: 0.1 }];
 
 // 단면 목록 → 인덱스가 단면 순서로 정렬된 표면 (drawRange로 "자라나는" 효과)
 function loftGeometry(sections) {
@@ -206,7 +210,7 @@ function init() {
 
   const TE = 0, LE = FOIL_N; // 단면 인덱스 0 = 뒷전, FOIL_N = 앞전
   const UP = new THREE.Vector3(0, 1, 0), SIDE = new THREE.Vector3(0, 0, 1);
-  addPart(fuselageSections(), T.fuselage, { lineEvery: 2, stringers: [0, 9, 18, 27] });
+  addPart(fuselageSections(), T.fuselage, { lineEvery: 3, stringers: [0, 11, 22, 33] });
   addPart(fairingSections(), T.fuselage, { lineEvery: 4 });
   const wingR = addPart(surface(wingCtrl(1), 6, UP, 0.02), T.wing, { stringers: [LE, TE], wing: true });
   addPart(surface(wingCtrl(-1), 6, UP, 0.02), T.wing, { stringers: [LE, TE], wing: true });
@@ -216,6 +220,16 @@ function init() {
     addPart(surface(htailCtrl(side), 5, UP), T.tails, { stringers: [LE, TE] });
   });
   addPart(surface(vtailCtrl, 5, SIDE), T.tails, { stringers: [LE, TE] });
+
+  // 엔진 흡입구 안쪽 팬 면(솔리드 단계에서만 보임)
+  const fanMat = new THREE.MeshStandardMaterial({ color: 0x6c737d, roughness: 0.55, metalness: 0.15, transparent: true, opacity: 0, side: THREE.DoubleSide });
+  const fans = [1, -1].map((side) => {
+    const fan = new THREE.Mesh(new THREE.CircleGeometry(1.5, 40), fanMat);
+    fan.position.set(24.6, -3.95, side * 9.6);
+    fan.rotation.y = Math.PI / 2;
+    aircraft.add(fan);
+    return fan;
+  });
 
   // 날개 단계에서 먼저 강조해 그리는 날개 뿌리 단면
   const rootFoil = outline(wingR.sections[0], new THREE.LineBasicMaterial({ color: 0x0e4a84, transparent: true, opacity: 0 }));
@@ -297,6 +311,8 @@ function init() {
       part.mesh.material.opacity = (0.22 + 0.78 * solid) * (grow > 0 ? 1 : 0) * fade;
       part.mesh.material.depthWrite = solid > 0.5;
     });
+    fanMat.opacity = solid * fade;
+    fans.forEach((f) => { f.visible = fanMat.opacity > 0.002; });
     grid.material.opacity = 0.5 * (0.6 + 0.4 * fade);
     setPrompt(t);
     setStep(t);
