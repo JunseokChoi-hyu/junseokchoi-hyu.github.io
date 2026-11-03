@@ -933,6 +933,14 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .demo{height:min(calc(100dvh - 61px - 28px), 860px)!important;min-height:500px!important;max-width:1680px;margin:14px auto 0!important;padding:0 14px!important}
 @supports not (height:100dvh){.demo{height:min(calc(100vh - 61px - 28px), 860px)!important}}
 @media (max-width:900px){.demo{height:auto!important;margin:8px auto 0!important;padding:0 8px!important}}
+
+/* shorter demo block (full width, reduced height) */
+.demo{height:min(calc(100dvh - 61px - 110px), 720px)!important;min-height:480px!important;max-width:none!important;margin:14px 0 0!important;padding:0 14px!important}
+@supports not (height:100dvh){.demo{height:min(calc(100vh - 61px - 110px), 720px)!important}}
+.intro h1{font-size:80px!important}
+.intro .h1sub{font-size:26px!important;margin-bottom:28px!important}
+.pick img{height:112px!important}
+@media (max-width:900px){.demo{height:auto!important}}
 </style>
 </head>
 <body>
