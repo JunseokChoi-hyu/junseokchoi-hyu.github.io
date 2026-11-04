@@ -285,3 +285,11 @@ h1,h2,h3,.hx-feature h2,.rx-hero h1,.archive-page-hero h1,.rx-head.light h2,.rx-
 /* 구간 라벨: 너무 작지 않게 (보이고 구분되게) */
 .section-number,.eyebrow{font-size:13.5px!important;font-weight:700!important;letter-spacing:.16em!important}
 .rv-kicker,.hero-role{font-size:13px!important}
+/* 메뉴 글씨 키움 */
+@media (min-width:761px){
+  .site-header nav a{font-size:17.5px!important;padding-inline:24px!important}
+  .site-header nav a:last-child{padding-right:0!important}
+  .site-header nav a+a::before{height:16px;margin-top:-8px}
+  .site-header nav a.active::after{left:24px!important;right:24px!important}
+}
+@media (max-width:760px){.site-header nav a{font-size:15px!important}}

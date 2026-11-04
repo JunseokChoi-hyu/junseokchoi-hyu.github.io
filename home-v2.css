@@ -104,3 +104,9 @@
   .hero-role{justify-content:center}
   .hero-links{justify-content:center}
 }
+/* 첫 화면 About me: 밑줄 링크 */
+.hero-about{display:inline-flex;align-items:center;gap:6px;margin-top:24px;padding-bottom:3px;border-bottom:1.5px solid var(--ink);font-size:15px;font-weight:700;color:var(--ink);text-decoration:none;transition:color .2s,border-color .2s}
+.hero-about span{transition:transform .2s}
+.hero-about:hover{color:var(--blue);border-color:var(--blue)}
+.hero-about:hover span{transform:translateX(3px)}
+.hero-about:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
