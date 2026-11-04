@@ -110,3 +110,37 @@
 .hero-about:hover{color:var(--blue);border-color:var(--blue)}
 .hero-about:hover span{transform:translateX(3px)}
 .hero-about:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+/* About me 링크 (d): 글자 + 가는 회색 밑줄(마우스 올리면 남색으로 채워짐) + 동그란 화살표 */
+.hero-about{gap:12px!important;margin-top:26px!important;padding:0!important;border:0!important;font-size:15px!important;font-weight:700;letter-spacing:-.01em;color:var(--ink)!important}
+.hero-about span{padding-bottom:5px;background:linear-gradient(var(--blue),var(--blue)) 0 100%/0 1.5px no-repeat,linear-gradient(#c9ced5,#c9ced5) 0 100%/100% 1.5px no-repeat;transition:background-size .35s ease}
+.hero-about i{display:grid;place-items:center;width:34px;height:34px;border:1.5px solid #c9ced5;border-radius:50%;background:#fff;transition:background .25s,border-color .25s,transform .25s}
+.hero-about i svg{width:14px;height:14px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+.hero-about:hover span{background-size:100% 1.5px,100% 1.5px}
+.hero-about:hover i{background:var(--blue);border-color:var(--blue);transform:translateX(3px)}
+.hero-about:hover i svg{stroke:#fff}
+.hero-about:hover span{transform:none}
+.hr-video{box-shadow:0 8px 24px rgba(17,20,24,.08)}
+/* About me 링크 (f): 왼쪽 긴 화살표(선 + 화살촉) → 글자. 마우스를 올리면 선이 늘어나고 남색으로 */
+.hero-about{gap:12px!important;font-size:15px!important;letter-spacing:.01em}
+.hero-about span{padding-bottom:0!important;background:none!important}
+.hero-about i{position:relative;display:block!important;width:28px!important;height:1.5px!important;border:0!important;border-radius:0!important;background:var(--ink)!important;transform:none!important;transition:width .3s ease,background .25s!important}
+.hero-about i::after{content:"";position:absolute;right:-1px;top:50%;width:7px;height:7px;margin-top:-4px;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;color:var(--ink);transform:rotate(45deg);transition:color .25s}
+.hero-about i svg{display:none}
+.hero-about:hover{color:var(--blue)!important}
+.hero-about:hover i{width:40px!important;background:var(--blue)!important}
+.hero-about:hover i::after{color:var(--blue)}
+/* About me 링크 (g): 왼쪽 작은 화살표 + 글자, 아래 밑줄 하나로 묶음. 마우스를 올리면 밑줄이 남색으로 차오르고 화살표가 앞으로 */
+.hero-about{display:inline-flex!important;align-items:center;gap:8px!important;padding:0 2px 7px!important;border:0!important;font-size:15px!important;font-weight:700;color:var(--ink)!important;background:linear-gradient(var(--blue),var(--blue)) 0 100%/0 2px no-repeat,linear-gradient(#cfd4da,#cfd4da) 0 100%/100% 2px no-repeat;transition:background-size .35s ease,color .25s}
+.hero-about i{display:none!important}
+.hero-about span{padding:0!important;background:none!important}
+.hero-about-ic{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+.hero-about:hover{color:var(--blue)!important;background-size:100% 2px,100% 2px}
+.hero-about:hover .hero-about-ic{transform:translateX(3px)}
+.hero-about{background:linear-gradient(var(--blue),var(--blue)) 0 100%/0 2px no-repeat,linear-gradient(var(--ink),var(--ink)) 0 100%/100% 2px no-repeat}.hero-about:hover{background-size:100% 2px,100% 2px}
+/* 연구 칸 글 블록: 왼쪽 칸 안에서 가로·세로 가운데로 (첫 화면 이름 블록과 같은 방식) */
+@media (min-width:901px){
+  .hr-grid{align-items:center}
+  .hr-copy{display:flex;flex-direction:column;align-items:center;justify-self:center;text-align:center;margin:0!important}
+  .hr-copy .section-number{justify-content:center}
+  .hr-cta{margin-top:24px!important}
+}

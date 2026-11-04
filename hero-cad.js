@@ -146,7 +146,7 @@ function init() {
     stage.classList.add('no-webgl');
     return;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+  renderer.setPixelRatio(1);
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
@@ -248,7 +248,7 @@ function init() {
     camera.aspect = w / h;
     // 넓은 화면: 오른쪽 빈 곳 / 좁은 화면: 가운데 (앞의 흰 그라데이션이 글을 받쳐 준다)
     const wide = w > 900;
-    const cx = wide ? w * 0.68 : w / 2, cy = h * (wide ? 0.44 : 0.58);
+    const cx = wide ? w * 0.635 : w / 2, cy = h * (wide ? 0.44 : 0.58);
     const targetPx = wide ? THREE.MathUtils.clamp(Math.min(w * 0.46, h * 1.3), 380, 700) : Math.min(w * 0.95, 460);
     const viewWidthPerDist = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
     camera.userData.dist = THREE.MathUtils.clamp((MODEL_SIZE * w) / (targetPx * viewWidthPerDist), 9, 40);
@@ -341,7 +341,9 @@ function init() {
 
   function frame(now) {
     if (!visible || document.hidden) { running = false; return; }
-    if (now - last < 32) { requestAnimationFrame(frame); return; } // 약 30fps로 제한
+    // 형상이 그려지는 동안은 약 30fps, 완성 뒤 천천히 도는 동안은 약 15fps로 아껴 그린다.
+    const building = (elapsed % CYCLE) < T.solid[1] + 0.3 || (elapsed % CYCLE) > T.fadeOut[0] - 0.3;
+    if (now - last < (building ? 32 : 66)) { requestAnimationFrame(frame); return; }
     const dt = Math.min(0.25, (now - last) / 1000 || 0);
     last = now;
     elapsed += dt;
