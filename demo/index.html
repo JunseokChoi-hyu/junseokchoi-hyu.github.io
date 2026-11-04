@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Text2CAD 데모</title>
+<title>Text2CAD Demo</title>
 <meta name="description" content="자연어 요청만으로 다양한 항공기 형상을 자유롭게 생성하는 Text2CAD(OpenVSP) 대화형 데모">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -941,6 +941,16 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 .intro .h1sub{font-size:26px!important;margin-bottom:28px!important}
 .pick img{height:112px!important}
 @media (max-width:900px){.demo{height:auto!important}}
+/* demo owns the whole first screen; the pipeline section only appears after scrolling */
+.demo{--dh:min(calc(100dvh - 61px - 48px), 720px);height:var(--dh)!important;margin:max(24px, calc((100dvh - 61px - var(--dh))/2)) 0!important}
+@supports not (height:100dvh){.demo{--dh:min(calc(100vh - 61px - 48px), 720px);margin:max(24px, calc((100vh - 61px - var(--dh))/2)) 0!important}}
+@media (max-width:900px){.demo{height:auto!important;margin:8px 0 24px!important}}
+.send{display:none!important}
+/* way back to the main website: logo and the leftmost nav item */
+.home-logo{display:flex;align-items:center;flex:none;border-radius:8px}
+.home-logo:hover .lab{opacity:.8}
+.top nav a.home{display:inline-flex;align-items:center;gap:4px;color:var(--sub)}
+.top nav a.home:hover{color:var(--ink)}
 
 /* ===== pipeline: match the reference figure ===== */
 #how .fc-title{text-align:center;font-size:36px!important;font-weight:800;letter-spacing:-.8px;margin:0 0 30px!important}
@@ -995,10 +1005,10 @@ footer .mail{color:#0b2a5b!important}
 </head>
 <body>
 <header class="top">
-  <img class="lab" src="img/idea-lab@1x.png" srcset="img/idea-lab@1x.png 1x, img/idea-lab@2x.png 2x, img/idea-lab@3x.png 3x" alt="IDEA Lab" width="247" height="42">
+  <a class="home-logo" href="https://junseokchoi-hyu.github.io/" title="홈페이지로 돌아가기"><img class="lab" src="img/idea-lab@1x.png" srcset="img/idea-lab@1x.png 1x, img/idea-lab@2x.png 2x, img/idea-lab@3x.png 3x" alt="IDEA Lab" width="247" height="42"></a>
   <div class="bar"></div>
   <div class="ttl"><b>Text2CAD</b><span>Hanyang University · IDEA Lab</span></div>
-  <nav><a href="#demo">데모</a><a href="#how">파이프라인</a><a href="#valid">기준 형상</a></nav>
+  <nav><a class="home" href="https://junseokchoi-hyu.github.io/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home</a><a href="#demo">데모</a><a href="#how">파이프라인</a><a href="#valid">기준 형상</a></nav>
 </header>
 
 <section class="demo" id="demo">
@@ -1529,21 +1539,35 @@ function arrowMesh(a, b, r){
   g.add(shaft, tip); g.position.copy(A); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); return g;
 }
 const toThree = (p, C) => [p[0] - C[0], p[2] - C[2], -(p[1] - C[1])];
-/** draw a state; mode "cmp" adds ghosts + arrows; animate morphs from the baseline into the result */
+function keyed(st){ // items of a state by a key that is stable across states built from the same aircraft
+  const m = new Map(), cnt = {}, nb = S[st.k].parts.length;
+  st.items.forEach((it, i) => { const k = i < nb ? "b" + i : "n" + it.role + (cnt[it.role] = (cnt[it.role] || 0) + 1); if (!it.hidden) m.set(k, it); });
+  return m;
+}
+const sameXf = (a, b) => a.s === b.s && a.to.every((v, i) => v === b.to[i]) && a.piv.every((v, i) => v === b.piv[i]);
+let morphFrom = null; // state the next animated render morphs from (defaults to the baseline)
+/** draw a state; mode "cmp" adds ghosts + arrows; animate morphs from the previous state (or the baseline) into the result */
 function render(st, {mode = "cmp", animate = false, C} = {}){
   scene.remove(model); model.traverse(o => { if (o.geometry) o.geometry.dispose(); }); model = new THREE.Group(); scene.add(model);
   const all = [...live(st, () => true), ...st.ghosts], b = bbox(all), center = C || ctr(b);
-  const M = {moves:[], fades:[], ghosts:[], arrows:[], foils:[], tints:[]};
-  for (const it of live(st, () => true)) {
-    const g = itemGeometry(it, center), chg = it.mat === "chg" && mode !== "base";
-    const mat = chg ? chgMat.clone() : baseMat; if (chg && animate) { mat.color.copy(BASE); mat.emissive.copy(BLACK); }
-    const m = new THREE.Mesh(g, mat); model.add(m);
-    if (!animate || !chg) continue;
-    M.tints.push(mat);
-    if (it.isNew) { mat.transparent = true; mat.opacity = 0; M.fades.push(m); }
-    else if (it.orig && it.orig.s === it.xf.s) { const d = it.orig.to.map((v, i) => v - it.xf.to[i]); m.userData.off = new THREE.Vector3(d[0], d[2], -d[1]); M.moves.push(m); }
-    if (it.foil) { m.userData.from = itemPositions(it, center, true); m.userData.to = g.attributes.position.array.slice(); M.foils.push(m); }
+  const M = {verts:[], fades:[], outs:[], ghosts:[], arrows:[], tints:[]};
+  const P = animate ? keyed(morphFrom || baseState(st.k)) : null, used = new Set(); morphFrom = null;
+  for (const [key, it] of keyed(st)) {
+    const g = itemGeometry(it, center), chg = it.mat === "chg" && mode !== "base", p = P && P.get(key);
+    if (p) used.add(key);
+    const same = p && p.surfs === it.surfs && sameXf(p.xf, it.xf) && (p.foil || null) === (it.foil || null);
+    const pc = p && p.mat === "chg" && mode !== "base";
+    if (!animate || (same && pc === chg)) { model.add(new THREE.Mesh(g, chg ? chgMat : baseMat)); continue; }
+    const mat = (chg ? chgMat : baseMat).clone(), m = new THREE.Mesh(g, mat); model.add(m);
+    mat.userData = {c0:(pc ? CHG_D : BASE).clone(), e0:(pc ? CHG_E : BLACK).clone(), c1:chg ? CHG_D : BASE, e1:chg ? CHG_E : BLACK};
+    mat.color.copy(mat.userData.c0); mat.emissive.copy(mat.userData.e0); M.tints.push(mat);
+    const from = p && !same ? itemPositions(p, center) : null;
+    if (!p) { mat.transparent = true; mat.opacity = 0; M.fades.push(m); }
+    else if (from && from.length === g.attributes.position.array.length) { m.userData.from = from; m.userData.to = g.attributes.position.array.slice(); M.verts.push(m); }
   }
+  const outs = P ? [...P].filter(([key]) => !used.has(key)).map(([, p]) => { // parts removed in this step fade out where they were
+    const pc = p.mat === "chg" && mode !== "base", mat = (pc ? chgMat : baseMat).clone(); mat.transparent = true; mat.depthWrite = false;
+    return new THREE.Mesh(itemGeometry(p, center), mat); }) : [];
   const size = Math.max(b.max[0] - b.min[0], b.max[1] - b.min[1]);
   if (mode === "cmp") {
     for (const it of st.ghosts) { const mat = new THREE.MeshStandardMaterial({color:animate ? BASE : GH, roughness:.6, metalness:0, transparent:true, opacity:animate ? 1 : 0.45, depthWrite:false, side:THREE.DoubleSide});
@@ -1558,8 +1582,9 @@ function render(st, {mode = "cmp", animate = false, C} = {}){
   model.children.forEach(o => { if (o === sh || o === pg) return; box.expandByObject(o);
     o.traverse(m => { const a = m.geometry && m.geometry.attributes.position; if (!a) return; const step = Math.max(1, Math.floor(a.count/400));
       for (let i = 0; i < a.count; i += step) fitPts.push(new THREE.Vector3().fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld)); }); });
-  M.moves.forEach(m => m.position.copy(m.userData.off)); // start at the baseline position; fit above used the final one
-  morph = animate ? {...M, t0:performance.now() + 450} : null;
+  M.verts.forEach(m => { const a = m.geometry.attributes.position; a.array.set(m.userData.from); a.needsUpdate = true; m.geometry.computeVertexNormals(); }); // start where the part was; fit above used the final shape
+  for (const m of outs) { model.add(m); M.outs.push(m); }
+  morph = animate ? {...M, t0:performance.now() + 250} : null;
   return center;
 }
 const VIEWS = {iso:[-0.6, 0.5, 0.62], front:[-1, 0.06, 0.0001], side:[0.0001, 0.06, 1], top:[0.0001, 1, 0.002]};
@@ -1586,12 +1611,12 @@ const ease = u => u < .5 ? 4*u*u*u : 1 - (-2*u + 2)**3/2;
     camera.position.lerpVectors(camAnim.from, camAnim.to, e); controls.target.lerpVectors(camAnim.ft, new THREE.Vector3(), e); if (u >= 1) camAnim = null; }
   if (morph) {
     const u = Math.min(1, Math.max(0, (t - morph.t0)/1300)), e = ease(u);
-    morph.moves.forEach(m => m.position.copy(m.userData.off).multiplyScalar(1 - e));
-    morph.fades.forEach(m => { m.material.opacity = e; if (u >= 1) m.material.transparent = false; });
-    morph.tints.forEach(mt => { mt.color.copy(BASE).lerp(CHG_D, e); mt.emissive.copy(BLACK).lerp(CHG_E, e); });
-    morph.ghosts.forEach(mt => { mt.color.copy(BASE).lerp(GH, e); mt.opacity = 1 - 0.55*e; });
-    morph.foils.forEach(m => { const a = m.geometry.attributes.position, f = m.userData.from, to = m.userData.to;
+    morph.verts.forEach(m => { const a = m.geometry.attributes.position, f = m.userData.from, to = m.userData.to;
       for (let i = 0; i < a.array.length; i++) a.array[i] = f[i] + (to[i] - f[i])*e; a.needsUpdate = true; m.geometry.computeVertexNormals(); });
+    morph.fades.forEach(m => { m.material.opacity = e; if (u >= 1) m.material.transparent = false; });
+    morph.outs.forEach(m => { m.material.opacity = 1 - e; m.visible = u < 1; });
+    morph.tints.forEach(mt => { const d = mt.userData; mt.color.copy(d.c0).lerp(d.c1, e); mt.emissive.copy(d.e0).lerp(d.e1, e); });
+    morph.ghosts.forEach(mt => { mt.color.copy(BASE).lerp(GH, e); mt.opacity = 1 - 0.55*e; });
     const ua = Math.min(1, Math.max(0, (t - morph.t0 - 1100)/450)); morph.arrows.forEach(m => m.scale.setScalar(Math.max(0.0001, ease(ua))));
     if (u >= 1 && ua >= 1) morph = null;
   }
@@ -1693,7 +1718,7 @@ function sentence(final){
   if (!ps.length) return final ? `${a.name} 기준 형상을 생성해 주세요.` : `${a.name}${a.obj} 기준으로 `;
   return `${a.name}${a.obj} 기준으로 ${ps.join("하고, ")}${final ? "해 주세요." : "…"}`;
 }
-function composer(ready){ canSend = ready; sent.innerHTML = sentence(false) + (curKey ? '<span class="caret"></span>' : ""); send.classList.toggle("on", ready); $("#composer").classList.toggle("ready", ready); }
+function composer(ready){ canSend = ready; const has = Object.keys(mods).length > 0; sent.innerHTML = sentence(has) + (curKey && !has ? '<span class="caret"></span>' : ""); send.classList.toggle("on", ready); $("#composer").classList.toggle("ready", ready); }
 send.onclick = () => { if (canSend && pick && pickMode === "cats") pick("go"); };
 
 function specRows(st){
@@ -1709,8 +1734,15 @@ const PRESETS = [
   {k:"crm", t:"M6 날개 + 후방 엔진", m:{swap:"m6", engine:"rear"}},
 ];
 const STEPS = ["부품 나누기", "부품 설계", "코드 작성", "CAD 형상 생성", "최종 형상 비교"];
-async function generate(){
-  user(sentence(true)); composer(false); sent.innerHTML = "";
+function resultHtml(st){
+  const ks = Object.keys(mods), shorts = ORDER.filter(c => c in mods).map(c => `<span class="tag c">${CATS[c].short(mods[c])}</span>`).join("");
+  return `<div class="res-h"><span class="ck">✓</span>${ks.length ? "변형 형상을 생성했습니다." : `${AC[curKey].name} 형상을 생성했습니다.`}</div>
+    <div class="tags"><span class="tag">${AC[curKey].name}</span>${shorts}</div>
+    <button class="more">상세 스펙 ▾</button><div class="spec">${specRows(st).map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
+}
+function bindMore(b){ const mb = b.querySelector(".more"); mb.onclick = () => { const s = b.querySelector(".spec"); s.classList.toggle("open"); mb.textContent = s.classList.contains("open") ? "접기 ▴" : "상세 스펙 ▾"; scrollEnd(); }; }
+async function generate(){ // full pipeline run (presets, M6)
+  user(sentence(true)); composer(false);
   const b = await bot(`<span class="making"><span class="spin"></span>형상을 제작하고 있습니다…</span>`, 350);
   const L = $("#loader"); $("#lsteps").innerHTML = STEPS.map(s => `<div class="lstep"><i>✓</i>${s}</div>`).join(""); L.classList.remove("hidden");
   const els = [...document.querySelectorAll(".lstep")];
@@ -1719,12 +1751,18 @@ async function generate(){
   const ks = Object.keys(mods);
   viewKey = "iso";
   L.classList.add("hidden"); showAircraft(curKey, st, ks.length > 0);
-  const shorts = ORDER.filter(c => c in mods).map(c => `<span class="tag c">${CATS[c].short(mods[c])}</span>`).join("");
-  b.innerHTML = `<div class="res-h"><span class="ck">✓</span>${ks.length ? "변형 형상을 생성했습니다." : `${AC[curKey].name} 형상을 생성했습니다.`}</div>
-    <div class="tags"><span class="tag">${AC[curKey].name}</span>${shorts}</div>
-    <button class="more">상세 스펙 ▾</button><div class="spec">${specRows(st).map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
-  const mb = b.querySelector(".more"); mb.onclick = () => { const s = b.querySelector(".spec"); s.classList.toggle("open"); mb.textContent = s.classList.contains("open") ? "접기 ▴" : "상세 스펙 ▾"; scrollEnd(); };
+  b.innerHTML = resultHtml(st); bindMore(b); composer(true);
   if (ks.length && !tipShown) { tipShown = true; await bot("<b>겹쳐 보기</b>에서 기준 형상과의 차이를,<br><b>치수 정보</b>에서 바뀐 치수를 확인할 수 있습니다.", 900); }
+  scrollEnd();
+}
+async function applyStep(prev){ // one choice: rebuild the CAD shape right away and morph from the previous one
+  const b = await bot(`<span class="making"><span class="spin"></span>CAD 형상에 반영하고 있습니다…</span>`, 450);
+  const st = buildState(curKey, mods), has = Object.keys(mods).length > 0;
+  curState = st; $("#seg").classList.toggle("hidden", !has);
+  const on = document.querySelector("[data-mode].on"), mode = has ? (on && on.dataset.mode !== "base" ? on.dataset.mode : "var") : "base";
+  morphFrom = prev; setMode(mode, true);
+  b.innerHTML = resultHtml(st); bindMore(b); composer(true);
+  if (has && !tipShown) { tipShown = true; await bot("<b>겹쳐 보기</b>에서 기준 형상과의 차이를,<br><b>치수 정보</b>에서 바뀐 치수를 확인할 수 있습니다.", 700); }
   scrollEnd();
 }
 async function chooseAircraft(first){
@@ -1733,9 +1771,9 @@ async function chooseAircraft(first){
   mods = {}; composer(false);
   const k = await chips(Object.keys(AC).map(k => ({l:AC[k].name, v:k, img:`img/${k}.png`})), "aircraft");
   document.querySelectorAll(".preset").forEach(b => b.disabled = true);
-  if (typeof k === "object") { const p = PRESETS[k.preset]; curKey = p.k; mods = {...p.m}; composer(false); await generate(); return after(); }
+  if (typeof k === "object") { const p = PRESETS[k.preset]; curKey = p.k; mods = {...p.m}; composer(false); await generate(); return chooseMods(false); }
   curKey = k;
-  if (k === "m6") { await generate(); return after(); }
+  if (k === "m6") { await generate(); await bot("ONERA M6는 날개 단독 형상이라 변경할 부품이 없습니다.<br>다른 항공기는 <b>처음부터</b>를 눌러 시작해 주세요."); return; }
   user(`${AC[k].name}${AC[k].obj} 기준으로 하겠습니다.`); composer(true);
   const b = await bot(`<span class="making"><span class="spin"></span>${AC[k].name} 기준 형상을 불러오는 중입니다…</span>`, 300);
   await sleep(450); viewKey = "iso"; showAircraft(k, buildState(k, {}), false);
@@ -1747,29 +1785,18 @@ function optsFor(c){ // options of category c that still give a realistic aircra
 }
 async function chooseMods(first){
   for (;;) {
-    await bot(first ? "변경할 항목을 선택해 주세요.<br>여러 항목을 선택한 뒤 한 번에 생성할 수 있습니다." : Object.keys(mods).length ? "추가로 변경할 부분이 있나요?" : "어떤 부분을 변경할까요?");
+    await bot(first ? "변경할 항목을 선택해 주세요.<br>선택하는 즉시 CAD 형상에 반영됩니다." : "다음으로 변경할 항목을 선택해 주세요.");
     first = false; composer(true);
-    const n = Object.keys(mods).length;
-    const c = await chips([...CAT_LIST.filter(c => c in mods || optsFor(c).length).map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})),
-      {l:n ? "이대로 생성" : "기준 형상 그대로 생성", v:"go", primary:true, icon:ICON.go}], "cats");
-    if (c === "go") break;
+    const c = await chips(CAT_LIST.filter(c => c in mods || optsFor(c).length).map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})), "cats");
     user(CATS[c].say); composer(false);
     await bot(CATS[c].ask);
-    const v = await chips([...optsFor(c).map(o => ({l:o.l, v:o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
-    if (v === "__back") { user("다른 항목을 보겠습니다."); continue; }
-    if (v === "__undo") { user("이 변경은 취소하겠습니다."); delete mods[c]; composer(true); await bot("해당 변경을 취소했습니다."); continue; }
-    user(CATS[c].opts(curKey).find(o => o.v === v).l);
-    if (c === "tail" && v === "swap") delete mods.wingX;
-    mods[c] = v; composer(true);
-    await bot(`${CATS[c].phrase(v)}하겠습니다.`);
+    const v = await chips([...optsFor(c).map(o => ({l:o.l, v:o.v, done:mods[c] === o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
+    if (v === "__back") { user("다른 항목을 보겠습니다."); composer(true); continue; }
+    const prev = buildState(curKey, mods);
+    if (v === "__undo") { user("이 변경은 취소하겠습니다."); delete mods[c]; }
+    else { user(CATS[c].opts(curKey).find(o => o.v === v).l); if (c === "tail" && v === "swap") delete mods.wingX; mods[c] = v; }
+    await applyStep(prev);
   }
-  await generate(); await after();
-}
-async function after(){
-  const opts = curKey === "m6" ? [] : [{l:"이 형상에서 계속 변경", v:"more", primary:true, icon:ICON.go}];
-  const v = await chips([...opts, {l:"다른 항공기로 시작", v:"new"}]);
-  if (v === "more") { user("이 형상에서 계속 변경하겠습니다."); composer(true); return chooseMods(false); }
-  user("다른 항공기로 시작하겠습니다."); return chooseAircraft(false);
 }
 function layoutFlow(){
   const f = $("#fcflow"), lbl = $("#floop"); if (!f) return;
