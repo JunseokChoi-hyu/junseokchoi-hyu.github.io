@@ -946,6 +946,7 @@ footer img{width:auto!important;height:78px!important;opacity:.6!important;filte
 @supports not (height:100dvh){.demo{--dh:min(calc(100vh - 61px - 48px), 720px);margin:max(24px, calc((100vh - 61px - var(--dh))/2)) 0!important}}
 @media (max-width:900px){.demo{height:auto!important;margin:8px 0 24px!important}}
 .send{display:none!important}
+.chip.done::after{content:none!important}
 /* tighter lower sections: less scrolling to the bottom */
 .sec{padding-top:24px!important}
 #how .fc-title{margin-bottom:18px!important}
@@ -1290,10 +1291,14 @@ const MODS = {
       const x0 = ch >= cf ? fi.tipX - Math.min(0.06*cf, ch - cf) : fi.tipX + (cf - ch)/2; // LE just ahead of the fin tip, or centred if the tailplane is shorter
       shift(st, ht, [x0 - hi.rootX, 0, fi.top - 0.2*(zh - zl) - (zl + zh)/2]); return; }
     if (v === "twin") {
-      const fin = ensureFin(st), fi = finInfo(fin), hi = wingInfo(byRole(st, "htail"));
+      const fin = ensureFin(st), fi = finInfo(fin), H = byRole(st, "htail"), hi = wingInfo(H);
       hide(st, fin.filter(f => !f.isNew)); fin.filter(f => f.isNew).forEach(f => f.hidden = true);
-      for (const sg of [1, -1]) for (const f of fin)
-        add(st, {role:"vtail2", surfs:f.surfs, xf:{s:0.7, piv:[fi.rootX, 0, fi.base], to:[hi.tipX + 0.15*(hi.tipTE - hi.tipX), sg*hi.semi*0.985, hi.tipZ - 0.02*fi.h]}});
+      const swp = Math.min(38, Math.max(20, Math.atan2(fi.tipX - fi.rootX, fi.h)*180/Math.PI));
+      for (const sg of [1, -1]) {
+        const y0 = hi.semi - 0.04*(hi.tipTE - hi.tipX), t = leAt(H, sg*y0), cr = t.c;
+        const span = Math.min(0.75*fi.h, Math.max(1.6*cr, 0.45*fi.h));
+        add(st, {role:"vtail2", surfs:makeWing({le:[t.x, sg*y0, t.z - 0.03*cr], cr, ct:0.55*cr, span, sweep:swp, vertical:true, t:"0010"}), xf:ID()});
+      }
       return;
     }
     if (v === "swap") {
@@ -1319,15 +1324,16 @@ const MODS = {
     if (v === "none") return;
     const R = engineRef();
     if (v === "rear") {
-      const F = fuseInfo(st), W = byRole(st, "wing"), ht = byRole(st, "htail"), gap = 0.025*F.L, nom = 0.82*F.H/R.fuseH;
+      const F = fuseInfo(st), W = byRole(st, "wing"), ht = byRole(st, "htail"), gap = 0.025*F.L, nom = F.H/R.fuseH;
       const nac = R.parts.filter(p => p.role === "nacelle"), nb = bbox(nac.filter(p => p.side > 0).map(p => ({surfs:p.surfs, xf:ID()}))), len0 = nb.max[0] - nb.min[0];
       const yp = F.W/2 + 1.1*nom*R.rad, wl = [yp - nom*R.rad, yp, yp + nom*R.rad].map(y => leAt(W, y));
       const wingFront = Math.min(...wl.map(t => t.x)), wingBack = Math.max(...wl.map(t => t.x + t.c));
       const tail = Math.min(F.b.max[0] - 0.1*F.L, ht.length ? wingInfo(ht).rootX - gap : Infinity);
       // free stretch behind the wing; if the wing sits too far aft, use the stretch ahead of it instead
       let a = wingBack + gap, b = tail;
-      if (b - a < 0.75*nom*len0) { st.bad.push("rear: no room behind wing"); a = F.b.min[0] + 0.45*F.L; b = wingFront - gap; }
-      const sc = Math.max(0.5*nom, Math.min(nom, (b - a)/len0)), half = sc*len0/2, r = sc*R.rad;
+      if (b - a < nom*len0) { st.bad.push("rear: no room behind wing"); a = F.b.min[0] + 0.45*F.L; b = wingFront - gap; }
+      if (b - a < nom*len0) st.bad.push("rear: no room");
+      const sc = nom, half = sc*len0/2, r = sc*R.rad;
       const x = Math.min(b - half, Math.max(a + half, F.b.min[0] + 0.72*F.L)), z = F.zc + 0.22*F.H;
       let hw = 0;
       for (const it of live(st, i => i.role === "fuselage")) eachV(it, (fx, fy, fz) => { if (Math.abs(fx - x) < half && Math.abs(fz - z) < 1.05*r) hw = Math.max(hw, Math.abs(fy)); });
@@ -1336,7 +1342,7 @@ const MODS = {
         for (const p of nac.filter(p => p.side === sg))
           add(st, {role:"nacelle", surfs:p.surfs, xf:{s:sc, piv:[(nb.min[0] + nb.max[0])/2, sg*ctr(nb)[1], ctr(nb)[2]], to:[x, sg*yc, z]}});
         const y0 = 0.85*hw; // stub pylon from inside the fuselage skin to the pod axis
-        add(st, {role:"pylon", surfs:makeWing({le:[x - 0.32*half, sg*y0, z], cr, ct:0.85*cr, span:sg*(yc - y0), sweep:sg*12, t:"0014"}), xf:ID()});
+        add(st, {role:"pylon", surfs:makeWing({le:[x - 0.32*half, sg*y0, z], cr, ct:0.85*cr, span:sg*(yc - sc*(R.rad + R.rin)/2 - y0), sweep:sg*12, t:"0014"}), xf:ID()}); // ends inside the nacelle wall, clear of the duct
       }
       return;
     }
@@ -1401,7 +1407,7 @@ function wingXOk(k, v){ const st = baseState(k), L = fuseInfo(st).L, r = _xr[k] 
 function mountPods(st, stations){ // CRM nacelle + pylon under the wing leading edge, scaled to the local chord
   const R = engineRef(), W = byRole(st, "wing"), wi = wingInfo(W), k = fuseInfo(st).H/R.fuseH;
   for (const f of stations) for (const sg of [1, -1]) {
-    const y = f*wi.semi, t = leAt(W, sg*y), sc = Math.min(0.7*k, Math.max(0.5*k, 0.85*t.c/R.c)); // pod follows the chord, within CRM-like proportions
+    const y = f*wi.semi, t = leAt(W, sg*y), sc = k; // the CRM pod as-is, scaled only with the fuselage
     const xt = t.x + sc*R.ptx, zt = t.z + sc*R.dTop, low = wingLowerAt(W, sg*y, xt, t.c);
     const dz = (low === null ? 0 : low - zt) + 0.06*sc*R.pyH; // pylon top slightly embedded in the wing skin
     for (const p of R.parts.filter(p => p.side === sg))
@@ -1450,7 +1456,7 @@ function engineRef(){ // CRM nacelle + pylon, expressed relative to the CRM wing
   const ptx = (Math.min(...top) + Math.max(...top))/2 - le.x;
   return _engRef = {x:le.x, z:le.z, c:le.c, y, rad:(nb.max[2] - nb.min[2])/2, fuseH:fuseInfo(b).H, ptx, dTop:pb.max[2] - le.z, pyH:pb.max[2] - pb.min[2],
     parts:N.map(i => { const c = ctr(bbox([i])); return {role:i.role, surfs:i.surfs, side:Math.sign(c[1]), c}; })
-      .concat(N.filter(i => i.role === "nacelle").map(i => { const s = fanFace(i); return {role:"nacelle", surfs:s, side:Math.sign(ctr(bbox([i]))[1]), c:ctr(bbox([i]))}; }))};
+      , rin:(() => { const L = nb.max[0] - nb.min[0], c = ctr(nb); let r = Infinity; eachV(nac, (x, yy, z) => { if (x > nb.min[0] + 0.2*L && x < nb.max[0] - 0.2*L) r = Math.min(r, Math.hypot(yy - c[1], z - c[2])); }); return isFinite(r) ? r : 0.8*(nb.max[2] - nb.min[2])/2; })()};
 }
 function buildState(k, mods){ const st = baseState(k); for (const c of ORDER) if (c in mods) MODS[c](st, mods[c]); return st; }
 function stats(st){
@@ -1746,7 +1752,7 @@ const PRESETS = [
 const STEPS = ["부품 나누기", "부품 설계", "코드 작성", "CAD 형상 생성", "최종 형상 비교"];
 function resultHtml(st){
   const ks = Object.keys(mods), shorts = ORDER.filter(c => c in mods).map(c => `<span class="tag c">${CATS[c].short(mods[c])}</span>`).join("");
-  return `<div class="res-h"><span class="ck">✓</span>${ks.length ? "변형 형상을 생성했습니다." : `${AC[curKey].name} 형상을 생성했습니다.`}</div>
+  return `<div class="res-h">${ks.length ? "변형 형상을 생성했습니다." : `${AC[curKey].name} 형상을 생성했습니다.`}</div>
     <div class="tags"><span class="tag">${AC[curKey].name}</span>${shorts}</div>
     <button class="more">상세 스펙 ▾</button><div class="spec">${specRows(st).map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
 }
@@ -1797,7 +1803,7 @@ async function chooseMods(first){
   for (;;) {
     await bot(first ? "변경할 항목을 선택해 주세요.<br>선택하는 즉시 CAD 형상에 반영됩니다." : "다음으로 변경할 항목을 선택해 주세요.");
     first = false; composer(true);
-    const c = await chips(CAT_LIST.filter(c => c in mods || optsFor(c).length).map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, done:c in mods, icon:ICON[c]})), "cats");
+    const c = await chips(CAT_LIST.filter(c => c in mods || optsFor(c).length).map(c => ({l:CATS[c].label, sub:CATS[c].sub, v:c, icon:ICON[c]})), "cats");
     user(CATS[c].say); composer(false);
     await bot(CATS[c].ask);
     const v = await chips([...optsFor(c).map(o => ({l:o.l, v:o.v, done:mods[c] === o.v})), ...(c in mods ? [{l:"이 변경 취소", v:"__undo", back:true}] : []), {l:"← 다른 항목", v:"__back", back:true}]);
