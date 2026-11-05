@@ -1215,6 +1215,11 @@ function makeWing({le, cr, ct, span, sweep, vertical, t = "0012"}){
   }
   return [{nu, nv:loop.length, p}];
 }
+function capSurf(sf, row){ // flat cap closing one section of a lofted surface (section -> its chord line)
+  const n = sf.nv, q = sf.p.slice(row*n*3, (row + 1)*n*3), p = q.slice();
+  for (let j = 0; j < n; j++) { const k = n - 1 - j; p.push((q[3*j] + q[3*k])/2, (q[3*j + 1] + q[3*k + 1])/2, (q[3*j + 2] + q[3*k + 2])/2); }
+  return {nu:2, nv:n, p};
+}
 function makeEngineNacelle({front, len, r}){
   const nu = 30, nv = 32, p = [], sm = t => t*t*(3 - 2*t);
   for (let i = 0; i < nu; i++) {
@@ -1294,10 +1299,15 @@ const MODS = {
       const fin = ensureFin(st), fi = finInfo(fin), H = byRole(st, "htail"), hi = wingInfo(H);
       hide(st, fin.filter(f => !f.isNew)); fin.filter(f => f.isNew).forEach(f => f.hidden = true);
       const swp = Math.min(38, Math.max(20, Math.atan2(fi.tipX - fi.rootX, fi.h)*180/Math.PI));
-      for (const sg of [1, -1]) {
-        const y0 = hi.semi - 0.04*(hi.tipTE - hi.tipX), t = leAt(H, sg*y0), cr = t.c;
-        const span = Math.min(0.75*fi.h, Math.max(1.6*cr, 0.45*fi.h));
-        add(st, {role:"vtail2", surfs:makeWing({le:[t.x, sg*y0, t.z - 0.03*cr], cr, ct:0.55*cr, span, sweep:swp, vertical:true, t:"0010"}), xf:ID()});
+      for (const sg of [1, -1]) { // end-plate fin centred on the tailplane tip: one root section wrapping the tip, a fin above and a short ventral below
+        let ym = 0; for (const it of H) eachV(it, (x, y) => { if (sg*y > ym) ym = sg*y; });
+        let xa = Infinity, xb = -Infinity, za = 0; for (const it of H) eachV(it, (x, y, z) => { if (sg*y > ym - 0.012*hi.semi) { if (x < xa) { xa = x; za = z; } xb = Math.max(xb, x); } });
+        const c0 = xb - xa, cr = 1.08*c0, le = [xa - 0.04*c0, sg*ym, za];
+        const span = Math.min(0.75*fi.h, Math.max(1.6*cr, 0.45*fi.h)), lo = 0.28*span;
+        for (const [sp, ct] of [[span, 0.55*cr], [-lo, 0.72*cr]]) {
+          const sf = makeWing({le, cr, ct, span:sp, sweep:Math.sign(sp)*swp, vertical:true, t:"0012"})[0];
+          add(st, {role:"vtail2", surfs:[sf, capSurf(sf, sf.nu - 1)], xf:ID()});
+        }
       }
       return;
     }
