@@ -144,3 +144,12 @@
   .hr-copy .section-number{justify-content:center}
   .hr-cta{margin-top:24px!important}
 }
+/* 첫 화면 글씨 한 단계 키움 (여백이 덜 비어 보이게) */
+.hero-role{font-size:14px!important;margin-bottom:20px!important}
+.hero-stage .hero h1{font-size:clamp(54px,5vw,70px)!important}
+.hero-stage .hero .hero-en{font-size:16px!important;margin-top:12px!important}
+.hero-stage .hero-lead{font-size:19.5px!important;margin-top:24px!important}
+.hero-about{font-size:16.5px!important;margin-top:28px!important}
+.hero-about-ic{width:17px;height:17px}
+@media (min-width:901px){.hero-copy{max-width:640px}}
+@media (max-width:900px){.hero-stage .hero h1{font-size:46px!important}.hero-stage .hero-lead{font-size:17px!important}}
